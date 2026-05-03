@@ -1,0 +1,49 @@
+import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { UpdateSolutionInput } from '../../schemas/solution.js';
+import { structuredResult } from '../../mcp/output.js';
+import { toolError } from '../../mcp/errors.js';
+import { mapSwsdError } from '../../swsd/errors.js';
+import {
+  buildSolutionWritePayload,
+  toSolutionDetail,
+} from '../../swsd/mappers/solution.js';
+import type { ToolContext } from '../../config/toolRegistry.js';
+
+export function registerUpdateSolution(server: McpServer, ctx: ToolContext): void {
+  server.registerTool(
+    'swsd_update_solution',
+    {
+      description:
+        'Update an existing SWSD knowledge-base solution. Pass `id` and any fields ' +
+        'to change. Only provided fields are sent — others stay as-is. To replace ' +
+        'the description entirely, pass the full new body. WRITE — does not retry ' +
+        'on transient failure.',
+      inputSchema: UpdateSolutionInput.shape,
+      annotations: { readOnlyHint: false, openWorldHint: true, idempotentHint: false },
+    },
+    async (input) => {
+      try {
+        const { id, ...fields } = input;
+        const payload = buildSolutionWritePayload(fields);
+        if (Object.keys(payload.solution).length === 0) {
+          return toolError(
+            'No fields to update — provide at least one field besides id.',
+            'Pass any of: name, description, state, category_name.',
+          );
+        }
+        const { body } = await ctx.client.put<unknown>(`/solutions/${String(id)}.json`, payload);
+        const solution = toSolutionDetail(body);
+        if (!solution) {
+          return toolError('Could not parse updated-solution response from SWSD.');
+        }
+        const changed = Object.keys(payload.solution);
+        return structuredResult(
+          { solution, changed_fields: changed },
+          `Updated solution ${String(id)} (${changed.join(', ')}).`,
+        );
+      } catch (err) {
+        return mapSwsdError(err);
+      }
+    },
+  );
+}

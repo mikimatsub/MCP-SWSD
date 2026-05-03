@@ -2,15 +2,15 @@ swagger: '2.0'
 info:
   title: SWSD MCP — full profile
   description: |
-    SolarWinds Service Desk MCP server, full profile (16 tools).
+    SolarWinds Service Desk MCP server, full profile (20 tools).
 
-    Every non-destructive tool that has been validated against the live SWSD tenant. Same set as the agent profile in v0.2.
+    Every non-destructive tool that has been validated against the live SWSD tenant. Includes incident CRUD, comments, all lookups, and solution CRUD.
 
     Tools are discovered at runtime via MCP `tools/list` after the
     Copilot connector establishes a session. This Swagger only declares
     the transport endpoint and authentication; it does not enumerate
     individual tools.
-  version: 0.1.0
+  version: 0.3.0
 host: REPLACE_WITH_YOUR_HOST.example.com
 basePath: /
 schemes:

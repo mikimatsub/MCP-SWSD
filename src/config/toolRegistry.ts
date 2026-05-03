@@ -23,6 +23,11 @@ import { registerListUsers } from '../tools/lookups/listUsers.js';
 import { registerListGroups } from '../tools/lookups/listGroups.js';
 import { registerListRoles } from '../tools/lookups/listRoles.js';
 
+import { registerSearchSolutions } from '../tools/solutions/searchSolutions.js';
+import { registerGetSolution } from '../tools/solutions/getSolution.js';
+import { registerCreateSolution } from '../tools/solutions/createSolution.js';
+import { registerUpdateSolution } from '../tools/solutions/updateSolution.js';
+
 export interface ToolContext {
   env: Env;
   profile: ProfileName;
@@ -52,6 +57,11 @@ const REGISTRARS: Record<string, Registrar> = {
   swsd_list_users: registerListUsers,
   swsd_list_groups: registerListGroups,
   swsd_list_roles: registerListRoles,
+
+  swsd_search_solutions: registerSearchSolutions,
+  swsd_get_solution: registerGetSolution,
+  swsd_create_solution: registerCreateSolution,
+  swsd_update_solution: registerUpdateSolution,
 };
 
 export function registerTools(server: McpServer, ctx: ToolContext): void {

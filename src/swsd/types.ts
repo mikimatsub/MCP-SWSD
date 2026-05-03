@@ -73,3 +73,21 @@ export interface RoleSummary {
   name: string;
   description?: string;
 }
+
+export interface SolutionSummary {
+  id: number;
+  number?: number;
+  name: string;
+  state?: string;
+  category?: string;
+  excerpt?: string;
+  requester_email?: string;
+  updated_at?: string;
+  /** Relative API path to the solution (e.g. `/solutions/1234.json`). */
+  href?: string;
+}
+
+export type SolutionDetail = Record<string, unknown> & {
+  id: number;
+  name?: string;
+};

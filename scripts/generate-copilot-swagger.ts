@@ -40,20 +40,21 @@ const PROFILES: Record<string, ProfileMeta> = {
     description:
       'Full ticket-handler workflow: incident reads, writes (create / update / ' +
       'assign / state-transition), comment reads and writes (public + private), ' +
-      'and all six lookup tools (categories, sites, departments, users, groups, roles).',
-    toolCount: 16,
+      'all six lookup tools (categories, sites, departments, users, groups, roles), ' +
+      'plus solution reads (search + get) for KB lookups while triaging.',
+    toolCount: 18,
   },
   knowledge: {
     description:
-      'Read-only KB-author context: incident reads plus category and user lookups. ' +
-      'Solution / KB write tools land in v0.4.',
-    toolCount: 6,
+      'KB-author workflow: incident reads (for context), category/user lookups, ' +
+      'and full solution CRUD (search, get, create, update).',
+    toolCount: 10,
   },
   full: {
     description:
       'Every non-destructive tool that has been validated against the live SWSD ' +
-      'tenant. Same set as the agent profile in v0.2.',
-    toolCount: 16,
+      'tenant. Includes incident CRUD, comments, all lookups, and solution CRUD.',
+    toolCount: 20,
   },
 };
 

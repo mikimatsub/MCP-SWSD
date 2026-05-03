@@ -14,7 +14,7 @@ token: through an environment variable for stdio, or per-request via the
 
 ## Status
 
-**v0.2 — agent ticket workflow MVP.** 16 tools across 4 categories:
+**v0.3 — solution / KB tools added.** 20 tools across 5 categories:
 
 | Tool | Profiles | Notes |
 |---|---|---|
@@ -30,6 +30,11 @@ token: through an environment variable for stdio, or per-request via the
 | **Comments** | | |
 | `swsd_list_incident_comments` | triage, agent, full | Read incident discussion thread |
 | `swsd_add_incident_comment` | triage, agent, full | WRITE — public or private |
+| **Solutions (KB)** | | |
+| `swsd_search_solutions` | agent, knowledge, full | Free-text search via canonical `?query=` param |
+| `swsd_get_solution` | agent, knowledge, full | Full passthrough including HTML and plain-text descriptions |
+| `swsd_create_solution` | knowledge, full | WRITE — new KB article |
+| `swsd_update_solution` | knowledge, full | WRITE — partial field update |
 | **Lookups** | | |
 | `swsd_list_categories` | triage, agent, knowledge, full | Hierarchical categories with parent/children |
 | `swsd_list_sites` | agent, full | Office/branch locations |
@@ -38,7 +43,8 @@ token: through an environment variable for stdio, or per-request via the
 | `swsd_list_groups` | agent, full | Assignment teams |
 | `swsd_list_roles` | agent, full | Permission profiles |
 
-Solution / KB-author tools and Copilot Studio Swagger generation arrive in v0.3+.
+Custom-field introspection (`swsd_describe_custom_fields`) and the tenant
+schema fixture script arrive in v0.4.
 
 ---
 
@@ -116,12 +122,12 @@ the complete annotated list.
 Profiles are tool-name sets registered at server start. They cannot be changed
 mid-session.
 
-| Profile | Intent | v0.2 tool count |
+| Profile | Intent | v0.3 tool count |
 |---|---|---|
 | `triage` | Read-heavy first-line support workflow + commenting | 9 |
-| `agent` | Full ticket-handler workflow (default) | 16 |
-| `knowledge` | KB-author workflow (read-only context; solution tools land in v0.3) | 6 |
-| `full` | Every non-destructive tool that has been validated | 16 |
+| `agent` | Full ticket-handler workflow + KB lookups (default) | 18 |
+| `knowledge` | KB-author workflow + incident reads for context | 10 |
+| `full` | Every non-destructive tool that has been validated | 20 |
 
 Use `SWSD_ENABLE_EXTRAS=swsd_foo,swsd_bar` to add specific tools on top of a
 profile. Unknown tool names cause a startup error.
@@ -227,8 +233,8 @@ Three options for getting this in front of users:
 - **Done** — v0.2 incident writes, comments, lookups (16 tools)
 - **Done** — Dockerfile + GitHub Actions CI (lint / typecheck / test / docker build + smoke on every push)
 - **Done** — Copilot Studio Swagger 2.0 generator (per-profile connector specs in `copilot-studio/`)
-- **v0.3 (next)** — solution / knowledge-base tools (search, get, create, update)
-- **v0.5** — `swsd_describe_custom_fields` + tenant fixture script
+- **Done** — v0.3 solution / KB tools (search, get, create, update — 20 tools total)
+- **v0.4 (next)** — `swsd_describe_custom_fields` + tenant schema fixture script
 - **v1.0** — npm publish, public release
 
 ---

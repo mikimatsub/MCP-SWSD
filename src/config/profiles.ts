@@ -26,6 +26,9 @@ export const PROFILE_TOOLS = {
     'swsd_list_departments',
     'swsd_list_groups',
     'swsd_list_roles',
+    // Solution reads — agents often check the KB while triaging
+    'swsd_search_solutions',
+    'swsd_get_solution',
   ],
   knowledge: [
     'swsd_get_server_info',
@@ -34,6 +37,11 @@ export const PROFILE_TOOLS = {
     'swsd_get_incident',
     'swsd_list_categories',
     'swsd_list_users',
+    // Full solution CRUD for KB authors
+    'swsd_search_solutions',
+    'swsd_get_solution',
+    'swsd_create_solution',
+    'swsd_update_solution',
   ],
   full: [
     'swsd_get_server_info',
@@ -52,5 +60,9 @@ export const PROFILE_TOOLS = {
     'swsd_list_users',
     'swsd_list_groups',
     'swsd_list_roles',
+    'swsd_search_solutions',
+    'swsd_get_solution',
+    'swsd_create_solution',
+    'swsd_update_solution',
   ],
 } as const satisfies Record<ProfileName, readonly string[]>;
