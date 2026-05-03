@@ -25,7 +25,8 @@
     "lint:fix": "eslint . --fix",
     "typecheck": "tsc --noEmit",
     "inspect:stdio": "npx -y @modelcontextprotocol/inspector node dist/cli.js --transport=stdio",
-    "inspect:http": "npx -y @modelcontextprotocol/inspector"
+    "inspect:http": "npx -y @modelcontextprotocol/inspector",
+    "generate:swagger": "tsx scripts/generate-copilot-swagger.ts"
   },
   "keywords": [
     "mcp",

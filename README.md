@@ -159,6 +159,9 @@ Single endpoint at `POST /mcp`. Stateless mode: each request creates a fresh
 MCP server instance with the request's token bound to it. No session state is
 tracked server-side.
 
+For **Microsoft Copilot Studio**, see [`copilot-studio/README.md`](./copilot-studio/README.md)
+for the per-profile Swagger 2.0 connector specs and import procedure.
+
 ### Docker (HTTP transport)
 
 A multi-stage `Dockerfile` ships in the repo. Image is ~256 MB, runs as the
@@ -223,8 +226,8 @@ Three options for getting this in front of users:
 - **Done** — v0.1 incident read MVP (4 tools)
 - **Done** — v0.2 incident writes, comments, lookups (16 tools)
 - **Done** — Dockerfile + GitHub Actions CI (lint / typecheck / test / docker build + smoke on every push)
-- **v0.3 (next)** — Copilot Studio Swagger 2.0 generator (per profile)
-- **v0.4** — solution / knowledge-base tools (search, get, create, update)
+- **Done** — Copilot Studio Swagger 2.0 generator (per-profile connector specs in `copilot-studio/`)
+- **v0.3 (next)** — solution / knowledge-base tools (search, get, create, update)
 - **v0.5** — `swsd_describe_custom_fields` + tenant fixture script
 - **v1.0** — npm publish, public release
 
