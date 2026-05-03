@@ -1,0 +1,40 @@
+# Source artifacts that the build doesn't need
+node_modules
+dist
+coverage
+.vitest-cache
+*.tsbuildinfo
+
+# Version control + tooling
+.git
+.gitignore
+.github
+.editorconfig
+.vscode
+.idea
+
+# Tests are not shipped in the image
+tests
+vitest.config.ts
+
+# Lint/type-check tooling stays out of runtime
+eslint.config.js
+
+# Local environment files (real secrets must never enter the build context)
+.env
+.env.*
+!.env.example
+
+# Repo-level docs that don't belong in the image
+*.md
+swsd-mcp-implementation-planning-document.md
+v0.0-validation-runbook.md
+
+# Build files don't need to be in their own context
+Dockerfile
+.dockerignore
+
+# Logs / OS clutter
+*.log
+.DS_Store
+Thumbs.db

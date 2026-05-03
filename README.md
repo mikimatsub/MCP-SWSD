@@ -159,6 +159,29 @@ Single endpoint at `POST /mcp`. Stateless mode: each request creates a fresh
 MCP server instance with the request's token bound to it. No session state is
 tracked server-side.
 
+### Docker (HTTP transport)
+
+A multi-stage `Dockerfile` ships in the repo. Image is ~256 MB, runs as the
+non-root `node` user, defaults to `SWSD_TRANSPORT=http` on port `3000`, and
+exposes a `HEALTHCHECK` against `/healthz`.
+
+```bash
+# Build
+docker build -t swsd-mcp:local .
+
+# Run (HTTP transport)
+docker run --rm -d --name swsd-mcp -p 3000:3000 \
+  -e SWSD_BASE_URL=https://api.samanage.com \
+  -e SWSD_PROFILE=agent \
+  swsd-mcp:local
+
+# Probe
+curl http://localhost:3000/healthz
+```
+
+Token comes per-request from `Authorization` / `X-SWSD-Token` headers, same
+as the un-containerized HTTP transport — never bake it into the image.
+
 Example `mcp.json` entry (after deploying the server somewhere):
 
 ```json
@@ -188,17 +211,21 @@ Three options for getting this in front of users:
    HTTP). Server holds no credentials.
 2. **Publish to npm; users run via `npx`.** Works for stdio. `npm install -g
    swsd-mcp` or rely on `npx -y swsd-mcp` invocation in `mcp.json`.
-3. **Docker image.** Same code; bundle for users who prefer container
-   isolation. (Dockerfile arrives in v0.4.)
+3. **Docker image.** Same code in a slim Alpine container. Build locally
+   (`docker build -t swsd-mcp .`) or via the CI workflow. Push to your
+   registry of choice (ghcr.io, ECR, ACR, etc.) and deploy to App Service /
+   Cloud Run / Kubernetes / a plain VM.
 
 ---
 
 ## Roadmap
 
-- **v0.3** — solution / knowledge-base tools (search, get, create, update)
-- **v0.4** — Dockerfile, container image, deploy guide
-- **v0.5** — Copilot Studio Swagger 2.0 generator (per profile)
-- **v0.6** — `swsd_describe_custom_fields` + tenant fixture script
+- **Done** — v0.1 incident read MVP (4 tools)
+- **Done** — v0.2 incident writes, comments, lookups (16 tools)
+- **Done** — Dockerfile + GitHub Actions CI (lint / typecheck / test / docker build + smoke on every push)
+- **v0.3 (next)** — Copilot Studio Swagger 2.0 generator (per profile)
+- **v0.4** — solution / knowledge-base tools (search, get, create, update)
+- **v0.5** — `swsd_describe_custom_fields` + tenant fixture script
 - **v1.0** — npm publish, public release
 
 ---
