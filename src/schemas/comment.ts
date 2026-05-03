@@ -39,5 +39,24 @@ export const AddIncidentCommentInput = z.object({
     .describe('If true, the comment is internal-only (not visible to the requester). Default false.'),
 });
 
+export const UpdateCommentInput = z.object({
+  incident_id: z
+    .number()
+    .int()
+    .positive()
+    .describe('Incident the comment belongs to.'),
+  comment_id: z
+    .number()
+    .int()
+    .positive()
+    .describe('SWSD comment ID to update.'),
+  body: z
+    .string()
+    .min(1)
+    .max(50_000)
+    .describe('New comment text (replaces existing). Plain text or HTML.'),
+});
+
 export type ListIncidentCommentsInput = z.infer<typeof ListIncidentCommentsInput>;
 export type AddIncidentCommentInput = z.infer<typeof AddIncidentCommentInput>;
+export type UpdateCommentInput = z.infer<typeof UpdateCommentInput>;

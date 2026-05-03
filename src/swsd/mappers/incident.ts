@@ -41,6 +41,13 @@ export interface IncidentWriteFields {
   category_name?: string;
   site_name?: string;
   department_name?: string;
+  /**
+   * Linked solution IDs for the link tool. SWSD's WRITE shape is
+   * `solution_ids: [123, 456]` (array of numbers); the READ shape returns
+   * `solutions: [{id, href}]`. The builder translates this field to the
+   * correct write key.
+   */
+  solution_ids?: number[];
 }
 
 /**
@@ -60,6 +67,7 @@ export function buildIncidentWritePayload(
   if (fields.category_name !== undefined) incident.category = { name: fields.category_name };
   if (fields.site_name !== undefined) incident.site = { name: fields.site_name };
   if (fields.department_name !== undefined) incident.department = { name: fields.department_name };
+  if (fields.solution_ids !== undefined) incident.solution_ids = fields.solution_ids;
   return { incident };
 }
 

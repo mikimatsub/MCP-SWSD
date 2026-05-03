@@ -39,11 +39,11 @@ const PROFILES: Record<string, ProfileMeta> = {
   agent: {
     description:
       'Full ticket-handler workflow: incident reads, writes (create / update / ' +
-      'assign / state-transition), comment reads and writes (public + private), ' +
-      'all six lookup tools (categories, sites, departments, users, groups, roles), ' +
-      'solution reads (search + get) for KB lookups while triaging, plus custom-field ' +
-      'schema introspection.',
-    toolCount: 19,
+      'assign / state-transition / link-solution), comment reads and writes ' +
+      '(public, private, edit), all six lookup tools (categories, sites, ' +
+      'departments, users, groups, roles), solution reads (search + get) for KB ' +
+      'lookups while triaging, plus custom-field schema introspection.',
+    toolCount: 21,
   },
   knowledge: {
     description:
@@ -55,9 +55,10 @@ const PROFILES: Record<string, ProfileMeta> = {
   full: {
     description:
       'Every non-destructive tool that has been validated against the live SWSD ' +
-      'tenant. Includes incident CRUD, comments, all lookups, solution CRUD, and ' +
-      'custom-field schema introspection.',
-    toolCount: 21,
+      'tenant. Includes incident CRUD + solution-linking, comment CRU (create/' +
+      'read/update), all lookups, solution CRUD, and custom-field schema ' +
+      'introspection.',
+    toolCount: 23,
   },
 };
 

@@ -15,12 +15,14 @@ export function registerDescribeCustomFields(
       description:
         "List the SWSD tenant's custom-field schema. Returns id, name, type " +
         '(e.g. "Text", "Dropdown", "Date"), required, scope, module, allowed ' +
-        '`values` for dropdown fields, and help_text. Use this BEFORE calling ' +
-        'swsd_create_incident / swsd_update_incident / swsd_create_solution / ' +
-        'swsd_update_solution with custom_fields_values to validate field names ' +
-        'and dropdown values. Default returns active fields only — pass ' +
-        '`active_only: false` to see retired ones too. Filter by `scope` or ' +
-        '`module` to narrow the surface (the tenant may have 100+ fields).',
+        '`values` for dropdown fields, and help_text. Useful for understanding ' +
+        'tenant configuration and documenting integrations. Default returns ' +
+        'active fields only — pass `active_only: false` to see retired ones too. ' +
+        'Filter by `scope` or `module` to narrow the surface (the tenant may ' +
+        'have 100+ fields). NOTE: writing custom field values via the incident ' +
+        'or solution write tools is not currently supported (SWSD returns 500 ' +
+        'on every payload variant tested) — set custom field values via the ' +
+        'SWSD UI or service catalog forms for now.',
       inputSchema: DescribeCustomFieldsInput.shape,
       annotations: { readOnlyHint: true, openWorldHint: true, idempotentHint: true },
     },

@@ -104,6 +104,19 @@ export const UpdateIncidentInput = z.object({
   department_name: z.string().optional().describe('New department name.'),
 });
 
+export const LinkSolutionToIncidentInput = z.object({
+  incident_id: z
+    .number()
+    .int()
+    .positive()
+    .describe('Incident to attach the solution to.'),
+  solution_id: z
+    .number()
+    .int()
+    .positive()
+    .describe('Solution to attach. Use swsd_search_solutions to find one.'),
+});
+
 export const AssignIncidentInput = z.object({
   id: z
     .number()
@@ -134,3 +147,4 @@ export type CreateIncidentInput = z.infer<typeof CreateIncidentInput>;
 export type UpdateIncidentInput = z.infer<typeof UpdateIncidentInput>;
 export type AssignIncidentInput = z.infer<typeof AssignIncidentInput>;
 export type UpdateIncidentStateInput = z.infer<typeof UpdateIncidentStateInput>;
+export type LinkSolutionToIncidentInput = z.infer<typeof LinkSolutionToIncidentInput>;

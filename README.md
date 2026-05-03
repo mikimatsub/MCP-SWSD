@@ -14,7 +14,7 @@ token: through an environment variable for stdio, or per-request via the
 
 ## Status
 
-**v0.4 — custom-field introspection added.** 21 tools across 6 categories:
+**v0.5 — feature complete.** 23 tools across 6 categories:
 
 | Tool | Profiles | Notes |
 |---|---|---|
@@ -27,9 +27,11 @@ token: through an environment variable for stdio, or per-request via the
 | `swsd_update_incident` | agent, full | WRITE — partial field update |
 | `swsd_assign_incident` | agent, full | WRITE — safe assignment wrapper |
 | `swsd_update_incident_state` | agent, full | WRITE — safe state-transition wrapper |
+| `swsd_link_solution_to_incident` | agent, full | WRITE — fetch-merge-PUT to attach a KB article (idempotent) |
 | **Comments** | | |
 | `swsd_list_incident_comments` | triage, agent, full | Read incident discussion thread |
 | `swsd_add_incident_comment` | triage, agent, full | WRITE — public or private |
+| `swsd_update_comment` | agent, full | WRITE — edit comment body (visibility cannot change) |
 | **Solutions (KB)** | | |
 | `swsd_search_solutions` | agent, knowledge, full | Free-text search via canonical `?query=` param |
 | `swsd_get_solution` | agent, knowledge, full | Full passthrough including HTML and plain-text descriptions |
@@ -129,12 +131,12 @@ the complete annotated list.
 Profiles are tool-name sets registered at server start. They cannot be changed
 mid-session.
 
-| Profile | Intent | v0.4 tool count |
+| Profile | Intent | v0.5 tool count |
 |---|---|---|
 | `triage` | Read-heavy first-line support workflow + commenting | 9 |
-| `agent` | Full ticket-handler workflow + KB lookups + custom-field introspection (default) | 19 |
+| `agent` | Full ticket-handler workflow + KB lookups + comment edit + solution-link + custom-field introspection (default) | 21 |
 | `knowledge` | KB-author workflow + incident reads + custom-field introspection | 11 |
-| `full` | Every non-destructive tool that has been validated | 21 |
+| `full` | Every non-destructive tool that has been validated | 23 |
 
 Use `SWSD_ENABLE_EXTRAS=swsd_foo,swsd_bar` to add specific tools on top of a
 profile. Unknown tool names cause a startup error.
@@ -251,7 +253,8 @@ Three options for getting this in front of users:
 - **Done** — Dockerfile + GitHub Actions CI (lint / typecheck / test / docker build + smoke on every push)
 - **Done** — Copilot Studio Swagger 2.0 generator (per-profile connector specs in `copilot-studio/`)
 - **Done** — v0.3 solution / KB tools (search, get, create, update)
-- **Done** — v0.4 `swsd_describe_custom_fields` + `dump:custom-fields` script (21 tools total)
+- **Done** — v0.4 `swsd_describe_custom_fields` + `dump:custom-fields` script (21 tools)
+- **Done** — v0.5 custom-field writes + `link_solution_to_incident` + `update_comment` (23 tools, feature complete)
 - **v1.0 (next)** — npm publish, public release prep
 
 ---

@@ -159,4 +159,16 @@ describe('buildIncidentWritePayload', () => {
       incident: { state: 'Resolved' },
     });
   });
+
+  it('emits solution_ids (write shape) for the link tool, NOT solutions (read shape)', () => {
+    const p = buildIncidentWritePayload({
+      solution_ids: [1, 2],
+    });
+    expect(p).toEqual({
+      incident: { solution_ids: [1, 2] },
+    });
+    // Crucially does NOT emit `solutions` — that's the read shape and SWSD
+    // returns 422 "Solution: Cannot find with missing parameters" if used on write.
+    expect(p.incident).not.toHaveProperty('solutions');
+  });
 });

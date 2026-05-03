@@ -12,9 +12,11 @@ import { registerCreateIncident } from '../tools/incidents/createIncident.js';
 import { registerUpdateIncident } from '../tools/incidents/updateIncident.js';
 import { registerAssignIncident } from '../tools/incidents/assignIncident.js';
 import { registerUpdateIncidentState } from '../tools/incidents/updateIncidentState.js';
+import { registerLinkSolutionToIncident } from '../tools/incidents/linkSolutionToIncident.js';
 
 import { registerListIncidentComments } from '../tools/comments/listIncidentComments.js';
 import { registerAddIncidentComment } from '../tools/comments/addIncidentComment.js';
+import { registerUpdateComment } from '../tools/comments/updateComment.js';
 
 import { registerListCategories } from '../tools/lookups/listCategories.js';
 import { registerListSites } from '../tools/lookups/listSites.js';
@@ -49,9 +51,11 @@ const REGISTRARS: Record<string, Registrar> = {
   swsd_update_incident: registerUpdateIncident,
   swsd_assign_incident: registerAssignIncident,
   swsd_update_incident_state: registerUpdateIncidentState,
+  swsd_link_solution_to_incident: registerLinkSolutionToIncident,
 
   swsd_list_incident_comments: registerListIncidentComments,
   swsd_add_incident_comment: registerAddIncidentComment,
+  swsd_update_comment: registerUpdateComment,
 
   swsd_list_categories: registerListCategories,
   swsd_list_sites: registerListSites,

@@ -1,6 +1,6 @@
 {
   "name": "swsd-mcp",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "MCP server for SolarWinds Service Desk (SWSD / Samanage). Dual transport: stdio for local agents, Streamable HTTP for Copilot Studio and hosted deployments.",
   "type": "module",
   "engines": {
