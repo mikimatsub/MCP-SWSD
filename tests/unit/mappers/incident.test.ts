@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { toIncidentSummary, toIncidentDetail } from '../../../src/swsd/mappers/incident.js';
+import {
+  toIncidentSummary,
+  toIncidentDetail,
+  buildIncidentWritePayload,
+} from '../../../src/swsd/mappers/incident.js';
 
 describe('toIncidentSummary', () => {
   it('projects compact summary from a full SWSD incident response', () => {
@@ -106,5 +110,53 @@ describe('toIncidentDetail', () => {
   it('coerces stringified numeric id', () => {
     const d = toIncidentDetail({ id: '7', name: 'x' });
     expect(d?.id).toBe(7);
+  });
+});
+
+describe('buildIncidentWritePayload', () => {
+  it('wraps fields under {incident: ...}', () => {
+    const p = buildIncidentWritePayload({ name: 'Test', priority: 'High' });
+    expect(p).toEqual({ incident: { name: 'Test', priority: 'High' } });
+  });
+
+  it('nests assignee/requester/category as objects', () => {
+    const p = buildIncidentWritePayload({
+      assignee_email: 'a@example.com',
+      requester_email: 'r@example.com',
+      category_name: 'Hardware',
+      site_name: 'NYC',
+      department_name: 'Eng',
+    });
+    expect(p).toEqual({
+      incident: {
+        assignee: { email: 'a@example.com' },
+        requester: { email: 'r@example.com' },
+        category: { name: 'Hardware' },
+        site: { name: 'NYC' },
+        department: { name: 'Eng' },
+      },
+    });
+  });
+
+  it('omits unset fields entirely', () => {
+    const p = buildIncidentWritePayload({ name: 'just a name' });
+    expect(p).toEqual({ incident: { name: 'just a name' } });
+    expect(p.incident).not.toHaveProperty('description');
+    expect(p.incident).not.toHaveProperty('priority');
+  });
+
+  it('preserves explicit empty string for description', () => {
+    const p = buildIncidentWritePayload({ description: '' });
+    expect(p.incident).toEqual({ description: '' });
+  });
+
+  it('returns empty incident object when no fields provided', () => {
+    expect(buildIncidentWritePayload({})).toEqual({ incident: {} });
+  });
+
+  it('handles state-only update', () => {
+    expect(buildIncidentWritePayload({ state: 'Resolved' })).toEqual({
+      incident: { state: 'Resolved' },
+    });
   });
 });

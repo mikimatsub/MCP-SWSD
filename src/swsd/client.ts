@@ -23,8 +23,16 @@ export interface SwsdRequestInit {
   headers?: Record<string, string>;
 }
 
+export interface SwsdMutationResult<T> {
+  body: T;
+  headers: Headers;
+  status: number;
+}
+
 export interface SwsdClient {
   get<T = unknown>(path: string, params?: Record<string, unknown>): Promise<SwsdGetResult<T>>;
+  post<T = unknown>(path: string, body: unknown): Promise<SwsdMutationResult<T>>;
+  put<T = unknown>(path: string, body: unknown): Promise<SwsdMutationResult<T>>;
   rawRequest(path: string, init: SwsdRequestInit): Promise<SwsdRawResult>;
 }
 
@@ -115,6 +123,14 @@ export function createSwsdClient({ env, token }: CreateClientOpts): SwsdClient {
       const bodyLength = Array.isArray(body) ? body.length : 1;
       const pagination = extractPagination(headers, page, perPage, bodyLength);
       return { body: body as T, pagination, headers };
+    },
+    async post<T>(path: string, body: unknown): Promise<SwsdMutationResult<T>> {
+      const res = await rawRequest(path, { method: 'POST', body });
+      return { body: res.body as T, headers: res.headers, status: res.status };
+    },
+    async put<T>(path: string, body: unknown): Promise<SwsdMutationResult<T>> {
+      const res = await rawRequest(path, { method: 'PUT', body });
+      return { body: res.body as T, headers: res.headers, status: res.status };
     },
   };
 }

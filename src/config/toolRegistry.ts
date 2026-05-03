@@ -2,10 +2,26 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { Env, ProfileName } from './env.js';
 import { PROFILE_TOOLS } from './profiles.js';
 import type { SwsdClient } from '../swsd/client.js';
+
 import { registerGetServerInfo } from '../tools/utility/getServerInfo.js';
 import { registerHealthCheck } from '../tools/utility/healthCheck.js';
+
 import { registerListIncidents } from '../tools/incidents/listIncidents.js';
 import { registerGetIncident } from '../tools/incidents/getIncident.js';
+import { registerCreateIncident } from '../tools/incidents/createIncident.js';
+import { registerUpdateIncident } from '../tools/incidents/updateIncident.js';
+import { registerAssignIncident } from '../tools/incidents/assignIncident.js';
+import { registerUpdateIncidentState } from '../tools/incidents/updateIncidentState.js';
+
+import { registerListIncidentComments } from '../tools/comments/listIncidentComments.js';
+import { registerAddIncidentComment } from '../tools/comments/addIncidentComment.js';
+
+import { registerListCategories } from '../tools/lookups/listCategories.js';
+import { registerListSites } from '../tools/lookups/listSites.js';
+import { registerListDepartments } from '../tools/lookups/listDepartments.js';
+import { registerListUsers } from '../tools/lookups/listUsers.js';
+import { registerListGroups } from '../tools/lookups/listGroups.js';
+import { registerListRoles } from '../tools/lookups/listRoles.js';
 
 export interface ToolContext {
   env: Env;
@@ -19,8 +35,23 @@ type Registrar = (server: McpServer, ctx: ToolContext) => void;
 const REGISTRARS: Record<string, Registrar> = {
   swsd_get_server_info: registerGetServerInfo,
   swsd_health_check: registerHealthCheck,
+
   swsd_list_incidents: registerListIncidents,
   swsd_get_incident: registerGetIncident,
+  swsd_create_incident: registerCreateIncident,
+  swsd_update_incident: registerUpdateIncident,
+  swsd_assign_incident: registerAssignIncident,
+  swsd_update_incident_state: registerUpdateIncidentState,
+
+  swsd_list_incident_comments: registerListIncidentComments,
+  swsd_add_incident_comment: registerAddIncidentComment,
+
+  swsd_list_categories: registerListCategories,
+  swsd_list_sites: registerListSites,
+  swsd_list_departments: registerListDepartments,
+  swsd_list_users: registerListUsers,
+  swsd_list_groups: registerListGroups,
+  swsd_list_roles: registerListRoles,
 };
 
 export function registerTools(server: McpServer, ctx: ToolContext): void {

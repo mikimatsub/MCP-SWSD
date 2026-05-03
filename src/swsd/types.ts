@@ -16,3 +16,60 @@ export type IncidentDetail = Record<string, unknown> & {
   id: number;
   name?: string;
 };
+
+export interface CommentSummary {
+  id: number;
+  body: string;
+  is_private: boolean;
+  author_email?: string;
+  author_name?: string;
+  created_at?: string;
+}
+
+export interface CategorySummary {
+  id: number;
+  name: string;
+  parent_id?: number;
+  children?: { id: number; name: string }[];
+  default_assignee_id?: number;
+}
+
+export interface UserSummary {
+  id: number;
+  name: string;
+  email?: string;
+  disabled: boolean;
+  available_for_assignment?: boolean;
+  role?: string;
+  site?: string;
+  department?: string;
+  title?: string;
+}
+
+export interface GroupSummary {
+  id: number;
+  name: string;
+  description?: string;
+  disabled: boolean;
+  member_count?: number;
+}
+
+export interface SiteSummary {
+  id: number;
+  name: string;
+  location?: string;
+  description?: string;
+  time_zone?: string;
+}
+
+export interface DepartmentSummary {
+  id: number;
+  name: string;
+  description?: string;
+}
+
+export interface RoleSummary {
+  id: number;
+  name: string;
+  description?: string;
+}

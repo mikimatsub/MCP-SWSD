@@ -14,17 +14,31 @@ token: through an environment variable for stdio, or per-request via the
 
 ## Status
 
-**v0.1 — incident read MVP.** Implemented tools:
+**v0.2 — agent ticket workflow MVP.** 16 tools across 4 categories:
 
-| Tool | Profiles | Description |
+| Tool | Profiles | Notes |
 |---|---|---|
-| `swsd_get_server_info` | all | Server name, version, profile, enabled tools, base URL host |
-| `swsd_health_check` | all | Verify SWSD reachability and authentication with a minimal call |
-| `swsd_list_incidents` | triage, agent, full | List incidents with structured filters and pagination (compact projection) |
-| `swsd_get_incident` | triage, agent, full | Fetch one incident by ID, full passthrough including custom fields |
+| `swsd_get_server_info` | all | Server metadata (local, no SWSD call) |
+| `swsd_health_check` | all | Verify SWSD reachability + auth |
+| **Incidents** | | |
+| `swsd_list_incidents` | triage, agent, knowledge, full | Compact projection, structured filters, pagination |
+| `swsd_get_incident` | triage, agent, knowledge, full | Full passthrough including custom fields |
+| `swsd_create_incident` | agent, full | WRITE — creates new incident |
+| `swsd_update_incident` | agent, full | WRITE — partial field update |
+| `swsd_assign_incident` | agent, full | WRITE — safe assignment wrapper |
+| `swsd_update_incident_state` | agent, full | WRITE — safe state-transition wrapper |
+| **Comments** | | |
+| `swsd_list_incident_comments` | triage, agent, full | Read incident discussion thread |
+| `swsd_add_incident_comment` | triage, agent, full | WRITE — public or private |
+| **Lookups** | | |
+| `swsd_list_categories` | triage, agent, knowledge, full | Hierarchical categories with parent/children |
+| `swsd_list_sites` | agent, full | Office/branch locations |
+| `swsd_list_departments` | agent, full | Org divisions |
+| `swsd_list_users` | triage, agent, knowledge, full | With `available_for_assignment` filter |
+| `swsd_list_groups` | agent, full | Assignment teams |
+| `swsd_list_roles` | agent, full | Permission profiles |
 
-Write tools, comment tools, solution tools, lookup readers, and Copilot
-Studio Swagger generation arrive in v0.2+.
+Solution / KB-author tools and Copilot Studio Swagger generation arrive in v0.3+.
 
 ---
 
@@ -102,12 +116,12 @@ the complete annotated list.
 Profiles are tool-name sets registered at server start. They cannot be changed
 mid-session.
 
-| Profile | Intent | v0.1 tool count |
+| Profile | Intent | v0.2 tool count |
 |---|---|---|
-| `triage` | Read-heavy support workflow | 4 |
-| `agent` | Ticket-handler workflow (default) | 4 |
-| `knowledge` | KB-author workflow (write tools land in v0.6) | 2 |
-| `full` | Every non-destructive tool that has been validated | 4 |
+| `triage` | Read-heavy first-line support workflow + commenting | 9 |
+| `agent` | Full ticket-handler workflow (default) | 16 |
+| `knowledge` | KB-author workflow (read-only context; solution tools land in v0.3) | 6 |
+| `full` | Every non-destructive tool that has been validated | 16 |
 
 Use `SWSD_ENABLE_EXTRAS=swsd_foo,swsd_bar` to add specific tools on top of a
 profile. Unknown tool names cause a startup error.
@@ -181,12 +195,10 @@ Three options for getting this in front of users:
 
 ## Roadmap
 
-- **v0.2** — write tools (`create_incident`, `update_incident`, `assign_incident`,
-  `update_incident_state`), 422 contract tests
-- **v0.3** — comment tools, triage profile finalized
-- **v0.4** — Dockerfile, container image, health probes
+- **v0.3** — solution / knowledge-base tools (search, get, create, update)
+- **v0.4** — Dockerfile, container image, deploy guide
 - **v0.5** — Copilot Studio Swagger 2.0 generator (per profile)
-- **v0.6** — solution / knowledge-base tools
+- **v0.6** — `swsd_describe_custom_fields` + tenant fixture script
 - **v1.0** — npm publish, public release
 
 ---
