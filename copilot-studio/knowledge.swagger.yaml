@@ -2,15 +2,15 @@ swagger: '2.0'
 info:
   title: SWSD MCP — knowledge profile
   description: |
-    SolarWinds Service Desk MCP server, knowledge profile (10 tools).
+    SolarWinds Service Desk MCP server, knowledge profile (11 tools).
 
-    KB-author workflow: incident reads (for context), category/user lookups, and full solution CRUD (search, get, create, update).
+    KB-author workflow: incident reads (for context), category/user lookups, full solution CRUD (search, get, create, update), and custom-field schema introspection.
 
     Tools are discovered at runtime via MCP `tools/list` after the
     Copilot connector establishes a session. This Swagger only declares
     the transport endpoint and authentication; it does not enumerate
     individual tools.
-  version: 0.3.0
+  version: 0.4.0
 host: REPLACE_WITH_YOUR_HOST.example.com
 basePath: /
 schemes:

@@ -91,3 +91,20 @@ export type SolutionDetail = Record<string, unknown> & {
   id: number;
   name?: string;
 };
+
+export interface CustomFieldSummary {
+  id: number;
+  name: string;
+  /** Human-readable field type (e.g. "Text", "Date", "Dropdown", "Multi-picklist"). */
+  type: string;
+  required: boolean;
+  active: boolean;
+  /** Scope name (e.g. "Global", "Service_Catalog", "Incident"). */
+  scope?: string;
+  /** Module the field is scoped to, when applicable. */
+  module?: string;
+  /** Allowed values for Dropdown / Multi-picklist field types. */
+  values?: string[];
+  help_text?: string;
+  searchable: boolean;
+}

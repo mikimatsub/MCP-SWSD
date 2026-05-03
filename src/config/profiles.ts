@@ -29,6 +29,8 @@ export const PROFILE_TOOLS = {
     // Solution reads — agents often check the KB while triaging
     'swsd_search_solutions',
     'swsd_get_solution',
+    // Custom-field schema introspection (validate before writing)
+    'swsd_describe_custom_fields',
   ],
   knowledge: [
     'swsd_get_server_info',
@@ -42,6 +44,7 @@ export const PROFILE_TOOLS = {
     'swsd_get_solution',
     'swsd_create_solution',
     'swsd_update_solution',
+    'swsd_describe_custom_fields',
   ],
   full: [
     'swsd_get_server_info',
@@ -64,5 +67,6 @@ export const PROFILE_TOOLS = {
     'swsd_get_solution',
     'swsd_create_solution',
     'swsd_update_solution',
+    'swsd_describe_custom_fields',
   ],
 } as const satisfies Record<ProfileName, readonly string[]>;

@@ -28,6 +28,8 @@ import { registerGetSolution } from '../tools/solutions/getSolution.js';
 import { registerCreateSolution } from '../tools/solutions/createSolution.js';
 import { registerUpdateSolution } from '../tools/solutions/updateSolution.js';
 
+import { registerDescribeCustomFields } from '../tools/customFields/describeCustomFields.js';
+
 export interface ToolContext {
   env: Env;
   profile: ProfileName;
@@ -62,6 +64,8 @@ const REGISTRARS: Record<string, Registrar> = {
   swsd_get_solution: registerGetSolution,
   swsd_create_solution: registerCreateSolution,
   swsd_update_solution: registerUpdateSolution,
+
+  swsd_describe_custom_fields: registerDescribeCustomFields,
 };
 
 export function registerTools(server: McpServer, ctx: ToolContext): void {

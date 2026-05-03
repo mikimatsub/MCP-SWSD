@@ -14,7 +14,7 @@ token: through an environment variable for stdio, or per-request via the
 
 ## Status
 
-**v0.3 — solution / KB tools added.** 20 tools across 5 categories:
+**v0.4 — custom-field introspection added.** 21 tools across 6 categories:
 
 | Tool | Profiles | Notes |
 |---|---|---|
@@ -42,9 +42,12 @@ token: through an environment variable for stdio, or per-request via the
 | `swsd_list_users` | triage, agent, knowledge, full | With `available_for_assignment` filter |
 | `swsd_list_groups` | agent, full | Assignment teams |
 | `swsd_list_roles` | agent, full | Permission profiles |
+| **Custom fields** | | |
+| `swsd_describe_custom_fields` | agent, knowledge, full | Returns custom-field schema (name, type, required, scope, dropdown values, help text). Validate before write operations. |
 
-Custom-field introspection (`swsd_describe_custom_fields`) and the tenant
-schema fixture script arrive in v0.4.
+A companion script `npm run dump:custom-fields` captures the full tenant
+schema to `validation/custom-fields.json` (gitignored). Useful for
+documenting your tenant or generating offline test fixtures.
 
 ---
 
@@ -126,12 +129,12 @@ the complete annotated list.
 Profiles are tool-name sets registered at server start. They cannot be changed
 mid-session.
 
-| Profile | Intent | v0.3 tool count |
+| Profile | Intent | v0.4 tool count |
 |---|---|---|
 | `triage` | Read-heavy first-line support workflow + commenting | 9 |
-| `agent` | Full ticket-handler workflow + KB lookups (default) | 18 |
-| `knowledge` | KB-author workflow + incident reads for context | 10 |
-| `full` | Every non-destructive tool that has been validated | 20 |
+| `agent` | Full ticket-handler workflow + KB lookups + custom-field introspection (default) | 19 |
+| `knowledge` | KB-author workflow + incident reads + custom-field introspection | 11 |
+| `full` | Every non-destructive tool that has been validated | 21 |
 
 Use `SWSD_ENABLE_EXTRAS=swsd_foo,swsd_bar` to add specific tools on top of a
 profile. Unknown tool names cause a startup error.
@@ -247,9 +250,9 @@ Three options for getting this in front of users:
 - **Done** — v0.2 incident writes, comments, lookups (16 tools)
 - **Done** — Dockerfile + GitHub Actions CI (lint / typecheck / test / docker build + smoke on every push)
 - **Done** — Copilot Studio Swagger 2.0 generator (per-profile connector specs in `copilot-studio/`)
-- **Done** — v0.3 solution / KB tools (search, get, create, update — 20 tools total)
-- **v0.4 (next)** — `swsd_describe_custom_fields` + tenant schema fixture script
-- **v1.0** — npm publish, public release
+- **Done** — v0.3 solution / KB tools (search, get, create, update)
+- **Done** — v0.4 `swsd_describe_custom_fields` + `dump:custom-fields` script (21 tools total)
+- **v1.0 (next)** — npm publish, public release prep
 
 ---
 

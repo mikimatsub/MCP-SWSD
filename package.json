@@ -1,6 +1,6 @@
 {
   "name": "swsd-mcp",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "MCP server for SolarWinds Service Desk (SWSD / Samanage). Dual transport: stdio for local agents, Streamable HTTP for Copilot Studio and hosted deployments.",
   "type": "module",
   "engines": {
@@ -26,7 +26,8 @@
     "typecheck": "tsc --noEmit",
     "inspect:stdio": "npx -y @modelcontextprotocol/inspector node dist/cli.js --transport=stdio",
     "inspect:http": "npx -y @modelcontextprotocol/inspector",
-    "generate:swagger": "tsx scripts/generate-copilot-swagger.ts"
+    "generate:swagger": "tsx scripts/generate-copilot-swagger.ts",
+    "dump:custom-fields": "tsx scripts/dump-custom-fields.ts"
   },
   "keywords": [
     "mcp",

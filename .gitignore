@@ -3,6 +3,9 @@ dist/
 coverage/
 .vitest-cache/
 
+# Tenant-specific captures (e.g., custom-field schema dumps)
+validation/
+
 .env
 .env.*
 !.env.example
