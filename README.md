@@ -114,6 +114,10 @@ the complete annotated list.
 | `PORT` | `3000` | http transport only. |
 | `SWSD_ALLOWED_ORIGINS` | — | Comma-separated. Empty = no Origin check (only when behind a trusted proxy). |
 | `SWSD_RETRY_MAX_ATTEMPTS` | `3` | Retries for 5xx and network errors on GETs. |
+| `SWSD_REQUEST_TIMEOUT_MS` | `30000` | Per-request timeout for outbound SWSD calls (1s-5min). Aborted requests are retried for GET/HEAD. |
+| `SWSD_TRUST_PROXY` | `false` | Express trust-proxy. Set to `1` behind Azure App Service / Nginx; `2` behind Cloudflare → App Service. |
+| `SWSD_RATE_LIMIT_WINDOW_MS` | `60000` | Rate-limit window for `/mcp`. |
+| `SWSD_RATE_LIMIT_MAX` | `100` | Max requests per window per `sha256(token+IP)` key. `/healthz` is exempt. |
 
 ---
 
@@ -220,10 +224,20 @@ Three options for getting this in front of users:
    HTTP). Server holds no credentials.
 2. **Publish to npm; users run via `npx`.** Works for stdio. `npm install -g
    swsd-mcp` or rely on `npx -y swsd-mcp` invocation in `mcp.json`.
-3. **Docker image.** Same code in a slim Alpine container. Build locally
-   (`docker build -t swsd-mcp .`) or via the CI workflow. Push to your
-   registry of choice (ghcr.io, ECR, ACR, etc.) and deploy to App Service /
-   Cloud Run / Kubernetes / a plain VM.
+3. **Docker image via GHCR.** CI publishes a private image to
+   `ghcr.io/mikimatsub/mcp-swsd:latest` (and `:sha-<short>` per commit) on
+   every push to main. Visibility inherits the (currently private) repo.
+   Teammates with repo access can pull after authenticating:
+
+   ```bash
+   # One-time: create a GitHub PAT with read:packages scope
+   echo $GHCR_PAT | docker login ghcr.io -u <github-username> --password-stdin
+
+   docker pull ghcr.io/mikimatsub/mcp-swsd:latest
+   ```
+
+   Deploy to App Service / Container Apps / Cloud Run / Kubernetes / a
+   plain VM — the image is environment-agnostic.
 
 ---
 

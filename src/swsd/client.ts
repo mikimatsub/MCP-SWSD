@@ -57,7 +57,13 @@ export function createSwsdClient({ env, token }: CreateClientOpts): SwsdClient {
     let delay = RETRY_BASE_DELAY_MS;
     while (true) {
       try {
-        const res = await fetch(url, init);
+        // Per-request timeout via AbortSignal.timeout. If the call hangs,
+        // fetch rejects with DOMException name "TimeoutError" — handled
+        // by the catch below and retried for idempotent methods.
+        const res = await fetch(url, {
+          ...init,
+          signal: AbortSignal.timeout(env.SWSD_REQUEST_TIMEOUT_MS),
+        });
         if (retryable && (res.status === 429 || res.status >= 500) && attempt < maxRetries) {
           const ra = res.headers.get('retry-after');
           const wait = ra ? Math.max(delay, parseRetryAfter(ra)) : delay;

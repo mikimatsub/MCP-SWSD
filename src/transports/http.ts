@@ -1,8 +1,10 @@
+import { createHash } from 'node:crypto';
 import express, {
   type Request,
   type Response,
   type NextFunction,
 } from 'express';
+import rateLimit from 'express-rate-limit';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import type { Env } from '../config/env.js';
 import { createMcpServer, SERVER_NAME, SERVER_VERSION } from '../mcp/server.js';
@@ -21,12 +23,38 @@ const SUPPORTED_PROTOCOL_VERSIONS = new Set<string>([
 
 export async function runHttp(env: Env): Promise<void> {
   const app = express();
+
+  // Trust upstream proxy hops so req.ip reflects the real client (not the
+  // proxy). Required for accurate rate-limit keying behind Azure App Service,
+  // Nginx, Cloudflare, etc. Default false = no proxy (single instance dev).
+  app.set('trust proxy', env.SWSD_TRUST_PROXY);
+
   app.use(express.json({ limit: '4mb' }));
 
-  // Health endpoint — separate from /mcp so monitoring doesn't auth-fail.
+  // Health endpoint — minimal payload (no version disclosure), separate
+  // from /mcp so monitoring doesn't auth-fail and so health probes don't
+  // count against the rate limit.
   app.get('/healthz', (_req: Request, res: Response) => {
-    res.json({ ok: true, server: SERVER_NAME, version: SERVER_VERSION });
+    res.json({ ok: true });
   });
+
+  // Rate limit /mcp only. Keyed by sha256(token+IP) so each user-on-IP gets
+  // their own quota. Token is hashed (never stored as raw key) for memory
+  // safety. Falls back to IP-only when no token is present (which would 401
+  // anyway, but throttles brute-force attempts).
+  const mcpLimiter = rateLimit({
+    windowMs: env.SWSD_RATE_LIMIT_WINDOW_MS,
+    limit: env.SWSD_RATE_LIMIT_MAX,
+    standardHeaders: 'draft-7',
+    legacyHeaders: false,
+    keyGenerator: (req: Request): string => {
+      const auth = req.header('authorization') ?? req.header('x-swsd-token') ?? '';
+      const ip = req.ip ?? '0.0.0.0';
+      return createHash('sha256').update(`${auth}:${ip}`).digest('hex');
+    },
+    message: { error: 'Too many requests. Slow down and try again later.' },
+  });
+  app.use('/mcp', mcpLimiter);
 
   // Origin validation — spec MUST for DNS-rebinding prevention.
   // Empty allowlist disables the check (acceptable behind a trusted reverse proxy).
@@ -89,7 +117,9 @@ export async function runHttp(env: Env): Promise<void> {
 
   app.listen(env.PORT, () => {
     process.stderr.write(
-      `${SERVER_NAME} ${SERVER_VERSION} HTTP transport listening on :${String(env.PORT)} (POST /mcp, GET /healthz)\n`,
+      `${SERVER_NAME} ${SERVER_VERSION} HTTP transport listening on :${String(env.PORT)} ` +
+        `(POST /mcp, GET /healthz; rate limit ${String(env.SWSD_RATE_LIMIT_MAX)}/` +
+        `${String(env.SWSD_RATE_LIMIT_WINDOW_MS / 1000)}s, request timeout ${String(env.SWSD_REQUEST_TIMEOUT_MS / 1000)}s)\n`,
     );
   });
 }
