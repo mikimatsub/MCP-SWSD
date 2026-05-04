@@ -45,6 +45,18 @@ Every stdio-capable MCP client uses the same JSON shape. Add this block under `m
 
 Replace `your-jwt-here` with the token from the previous step. **EU tenants** use `https://apieu.samanage.com` instead.
 
+:::tip[Customize behavior]
+Any variable from the [Configuration](/configuration/) page goes into this same `env` block. The most common one to add is `SWSD_PROFILE` to switch from the default `agent` profile (21 tools) to `triage` (8), `knowledge` (11), or `full` (23):
+
+```json
+"env": {
+  "SWSD_TOKEN": "your-jwt-here",
+  "SWSD_BASE_URL": "https://api.samanage.com",
+  "SWSD_PROFILE": "full"
+}
+```
+:::
+
 ## Find the right config file
 
 | Client | Config file path |
