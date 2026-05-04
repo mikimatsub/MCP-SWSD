@@ -1,22 +1,56 @@
-node_modules/
+# Build output
 dist/
+*.tsbuildinfo
+
+# Dependencies
+node_modules/
+
+# Test artifacts
 coverage/
 .vitest-cache/
+.nyc_output/
 
-# Tenant-specific captures (e.g., custom-field schema dumps)
-validation/
+# npm pack tarballs (created by `npm pack`; CI uses `--dry-run`)
+*.tgz
 
+# Environment files (allowlist .env.example for documentation)
 .env
 .env.*
 !.env.example
 
-*.log
-*.tsbuildinfo
+# Tenant-specific captures (e.g., custom-field schema dumps)
+validation/
 
-.DS_Store
-Thumbs.db
+# Secrets — never commit these. Listed defensively even though
+# we never intentionally place them here.
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+id_rsa
+id_rsa.*
+id_ed25519
+id_ed25519.*
+
+# Logs
+*.log
+
+# Editor / IDE
 .vscode/
 .idea/
+.history/
+*.swp
+*.swo
+*~
+
+# OS noise
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Tool caches
+.cache/
 
 # Playwright MCP browser automation artifacts (snapshots, console logs, evaluations)
 .playwright-mcp/

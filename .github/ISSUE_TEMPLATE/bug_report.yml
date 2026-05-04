@@ -1,0 +1,91 @@
+name: Bug report
+description: Report something that's broken or behaving incorrectly
+title: "[Bug] "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug. The more concrete the repro, the faster the fix.
+
+        **Security issue?** Please don't file this here. Use [GitHub Security Advisories](https://github.com/mikimatsub/MCP-SWSD/security/advisories/new) instead so we can fix and disclose responsibly.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear description of what went wrong.
+      placeholder: When I called `swsd_list_incidents` with `state=open`, the response...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+      description: What did you think would happen instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: How can we reproduce it?
+      description: Step-by-step. Include the exact tool call, prompt, or HTTP request if relevant.
+      placeholder: |
+        1. Configure swsd-mcp with profile=agent
+        2. Ask the agent: "list me all open incidents"
+        3. Observe error...
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: swsd-mcp version
+      description: From `npm view swsd-mcp version`, your `package.json`, or the Docker image tag.
+      placeholder: e.g. 1.0.1 or sha-abc1234
+    validations:
+      required: true
+
+  - type: dropdown
+    id: transport
+    attributes:
+      label: Transport
+      options:
+        - stdio (npx, local)
+        - http (Docker, Azure, hosted)
+        - both / not sure
+    validations:
+      required: true
+
+  - type: dropdown
+    id: client
+    attributes:
+      label: MCP client
+      options:
+        - Claude Desktop
+        - Claude Code
+        - Cursor
+        - Microsoft Copilot Studio
+        - Continue / Cline / other
+        - direct HTTP / curl
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      description: Error messages, stack traces, server logs. **Redact any tokens before pasting.**
+      render: shell
+
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: Pre-flight
+      options:
+        - label: I redacted any SWSD tokens, customer data, or other sensitive values from this report.
+          required: true
+        - label: I checked existing issues and didn't find a duplicate.
+          required: true
