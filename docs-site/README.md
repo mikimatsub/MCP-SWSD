@@ -27,23 +27,33 @@ Output is fully static HTML + a Pagefind search index. No server runtime.
 
 The docs site auto-deploys via Cloudflare's GitHub integration. To wire it up the first time:
 
-1. **Cloudflare dashboard → Workers & Pages → Create → Pages → Connect to Git**
-2. Authorize Cloudflare to read this repository
-3. Select `mikimatsub/MCP-SWSD`
-4. Configure the build:
+1. **Cloudflare dashboard → Workers & Pages → Create**
+2. **Pick the "Pages" tab** at the top of the create flow (not "Workers" — see [troubleshooting](#wrong-flow-workers-builds-instead-of-pages) if you only see Workers Builds)
+3. **Connect to Git**, authorize Cloudflare to read this repository, select `mikimatsub/MCP-SWSD`
+4. Configure the build using **Root directory = `docs-site`** (this scopes everything below to the sub-package):
 
    | Setting | Value |
    |---|---|
    | **Production branch** | `main` |
    | **Framework preset** | `Astro` |
-   | **Build command** | `cd docs-site && npm install && npm run build` |
-   | **Build output directory** | `docs-site/dist` |
-   | **Root directory** | _(leave blank)_ |
+   | **Root directory** | `docs-site` |
+   | **Build command** | `npm run build` _(Cloudflare auto-runs `npm install` first)_ |
+   | **Build output directory** | `dist` _(relative to root directory; not `docs-site/dist`)_ |
    | **Environment variable: `NODE_VERSION`** | `24` |
 
 5. Click **Save and Deploy**
 
 After the first successful build, every push to `main` auto-deploys, and every PR gets a preview URL automatically (commented on the PR by Cloudflare's bot).
+
+### Troubleshooting
+
+#### `cd: can't cd to docs-site`
+
+Symptom: build log shows `/bin/sh: 1: cd: can't cd to docs-site`. Cause: an earlier configuration tried to `cd docs-site` from inside the build command *after* Cloudflare had already CD'd into the root directory — a double-cd. Fix: ensure Build command is just `npm run build` (no `cd` prefix) when Root directory is set to `docs-site`.
+
+#### Wrong flow (Workers Builds instead of Pages)
+
+Cloudflare is gradually unifying Pages into Workers Builds. If your dashboard only offers a "Deploy command" / "Path" form (not a Build output directory), you're on Workers Builds, which expects a `wrangler.jsonc` config we don't ship. For a static-only site like this, find the dedicated Pages flow first; if your account doesn't have it anymore, file an issue and we'll add a `wrangler.jsonc`.
 
 ### Optional: custom domain later
 
