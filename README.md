@@ -18,7 +18,7 @@ The server holds **zero credentials at rest**. Tokens are forwarded per-request,
 You need:
 
 - An MCP client (Claude Desktop, Claude Code, Cursor, etc.) installed
-- A SolarWinds Service Desk **admin token** — get one at SWSD → Setup → Account → API Token
+- A SolarWinds Service Desk **admin token (JWT)** — generate one in the SWSD UI: **Setup → Users & Groups → Users** → click your user → **Actions** → **Generate JSON Web Token** (Service Desk administrator rights required)
 
 Pick your MCP client below and paste the config block. Restart the client. You're done.
 

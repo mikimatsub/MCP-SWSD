@@ -36,8 +36,10 @@ configured with.
 
    > **Don't have one yet?** Follow the [Azure Container Apps deployment recipe](../docs/deployment/azure-container-apps.md) — same Microsoft ecosystem as Copilot Studio, scale-to-zero pricing (~$0–5/month for typical team usage), public HTTPS endpoint with auto-managed TLS.
 
-2. **An SWSD API token (JWT)** for each user who'll connect. Generate at
-   SWSD → Setup → Account → API Token.
+2. **An SWSD API token (JWT)** for each user who'll connect. In the
+   SWSD UI: **Setup → Users & Groups → Users** → click the user → **Actions**
+   → **Generate JSON Web Token**. Service Desk administrator rights are
+   required to generate tokens (admins can generate on behalf of any user).
 3. **Copilot Studio** with custom-connector / MCP integration enabled in
    your tenant.
 

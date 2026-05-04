@@ -10,7 +10,7 @@ info:
     Copilot connector establishes a session. This Swagger only declares
     the transport endpoint and authentication; it does not enumerate
     individual tools.
-  version: 0.5.0
+  version: 1.0.1
 host: REPLACE_WITH_YOUR_HOST.example.com
 basePath: /
 schemes:
@@ -54,8 +54,9 @@ securityDefinitions:
     name: X-SWSD-Token
     description: |
       Your SolarWinds Service Desk API token (JWT). Generate one in the
-      SWSD UI: Setup → Account → API Token. The MCP server forwards this
-      to SWSD as `X-Samanage-Authorization: Bearer <token>` and never
-      persists it.
+      SWSD UI: Setup → Users & Groups → Users → click the user → Actions
+      → Generate JSON Web Token (Service Desk administrator rights
+      required). The MCP server forwards this to SWSD as
+      `X-Samanage-Authorization: Bearer <token>` and never persists it.
 security:
   - swsd_token: []
