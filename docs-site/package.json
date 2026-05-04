@@ -1,0 +1,18 @@
+{
+  "name": "swsd-mcp-docs",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Astro Starlight docs site for swsd-mcp. Deployed to Cloudflare Pages.",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/starlight": "0.38.4",
+    "astro": "6.2.1"
+  }
+}

@@ -8,6 +8,8 @@
 
 **MCP server for SolarWinds Service Desk (SWSD / Samanage).** Lets AI assistants — Claude Desktop, Claude Code, Cursor, Continue, Microsoft Copilot Studio, and any other [Model Context Protocol](https://modelcontextprotocol.io) client — read and modify SWSD tickets, comments, knowledge-base articles, and more, using each user's own SWSD API token.
 
+📖 **Full docs:** [mcp-swsd.pages.dev](https://mcp-swsd.pages.dev)
+
 The server holds **zero credentials at rest**. Tokens are forwarded per-request, never persisted, never logged, and only sent to the configured SWSD API host.
 
 > **Not affiliated with SolarWinds.** SolarWinds, Samanage, and Service Desk are trademarks of SolarWinds Worldwide, LLC. This is an independent open-source project that wraps the publicly documented SWSD REST API; it is not endorsed or sponsored by SolarWinds.

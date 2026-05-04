@@ -1,0 +1,33 @@
+---
+title: swsd-mcp
+description: MCP server for SolarWinds Service Desk (SWSD / Samanage). Lets AI assistants read and modify tickets, comments, and KB articles.
+template: splash
+hero:
+  tagline: Plug SolarWinds Service Desk into Claude, Cursor, Copilot Studio, and any other Model Context Protocol client. Zero credentials at rest.
+  actions:
+    - text: Quick start
+      link: /quickstart/
+      icon: right-arrow
+      variant: primary
+    - text: View on GitHub
+      link: https://github.com/mikimatsub/MCP-SWSD
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+<CardGrid stagger>
+  <Card title="Multi-client" icon="puzzle">
+    Drop-in support for Claude Desktop, Claude Code, Cursor, Continue, Cline, and Microsoft Copilot Studio.
+  </Card>
+  <Card title="Zero credentials at rest" icon="seti:lock">
+    Each user's SWSD token is forwarded per-request, never persisted, never logged.
+  </Card>
+  <Card title="Profile-scoped tools" icon="setting">
+    Pick `triage`, `agent`, `knowledge`, or `full` to control which of the 23 tools each deployment exposes.
+  </Card>
+  <Card title="Self-hostable" icon="rocket">
+    Stdio for local agents, Streamable HTTP for hosted/Copilot Studio. Docker image and Azure Container Apps recipe included.
+  </Card>
+</CardGrid>

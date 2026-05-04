@@ -51,6 +51,7 @@ Desktop.ini
 
 # Tool caches
 .cache/
+.astro/
 
 # Playwright MCP browser automation artifacts (snapshots, console logs, evaluations)
 .playwright-mcp/
