@@ -1,6 +1,7 @@
 # swsd-mcp
 
 [![CI](https://github.com/mikimatsub/MCP-SWSD/actions/workflows/ci.yml/badge.svg)](https://github.com/mikimatsub/MCP-SWSD/actions/workflows/ci.yml)
+[![Security](https://github.com/mikimatsub/MCP-SWSD/actions/workflows/security.yml/badge.svg)](https://github.com/mikimatsub/MCP-SWSD/actions/workflows/security.yml)
 [![npm version](https://img.shields.io/npm/v/swsd-mcp.svg)](https://www.npmjs.com/package/swsd-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 [![Provenance](https://img.shields.io/badge/Provenance-SLSA-blue.svg)](https://www.npmjs.com/package/swsd-mcp)
@@ -137,7 +138,7 @@ Profiles control which tools are registered at startup. Cannot be changed mid-se
 
 | Profile | Intent | Tool count |
 |---|---|---|
-| `triage` | Read-heavy first-line support workflow + commenting | 9 |
+| `triage` | Read-heavy first-line support workflow + commenting | 8 |
 | `agent` | Full ticket-handler workflow + KB lookups + custom-field introspection (default) | 21 |
 | `knowledge` | KB-author workflow + incident reads + custom-field introspection | 11 |
 | `full` | Every tool | 23 |

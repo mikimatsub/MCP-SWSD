@@ -27,8 +27,7 @@ eslint.config.js
 
 # Repo-level docs that don't belong in the image
 *.md
-swsd-mcp-implementation-planning-document.md
-v0.0-validation-runbook.md
+docs/
 
 # Build files don't need to be in their own context
 Dockerfile

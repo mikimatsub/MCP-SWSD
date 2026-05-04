@@ -12,6 +12,7 @@
 import { writeFileSync, mkdirSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { PROFILE_TOOLS } from '../src/config/profiles.js';
 
 const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT_DIR = join(REPO_ROOT, 'copilot-studio');
@@ -29,38 +30,39 @@ interface ProfileMeta {
   toolCount: number;
 }
 
-const PROFILES: Record<string, ProfileMeta> = {
-  triage: {
-    description:
-      'Read-heavy first-line support workflow including incident lookup, ' +
-      'comment reading, comment posting, and category/user lookups.',
-    toolCount: 9,
-  },
-  agent: {
-    description:
-      'Full ticket-handler workflow: incident reads, writes (create / update / ' +
-      'assign / state-transition / link-solution), comment reads and writes ' +
-      '(public, private, edit), all six lookup tools (categories, sites, ' +
-      'departments, users, groups, roles), solution reads (search + get) for KB ' +
-      'lookups while triaging, plus custom-field schema introspection.',
-    toolCount: 21,
-  },
-  knowledge: {
-    description:
-      'KB-author workflow: incident reads (for context), category/user lookups, ' +
-      'full solution CRUD (search, get, create, update), and custom-field schema ' +
-      'introspection.',
-    toolCount: 11,
-  },
-  full: {
-    description:
-      'Every non-destructive tool that has been validated against the live SWSD ' +
-      'tenant. Includes incident CRUD + solution-linking, comment CRU (create/' +
-      'read/update), all lookups, solution CRUD, and custom-field schema ' +
-      'introspection.',
-    toolCount: 23,
-  },
+// Descriptions are hand-maintained per profile (they reflect product positioning,
+// not raw tool counts). Tool counts are derived from PROFILE_TOOLS so they can
+// never drift from the source of truth.
+const DESCRIPTIONS: Record<keyof typeof PROFILE_TOOLS, string> = {
+  triage:
+    'Read-heavy first-line support workflow including incident lookup, ' +
+    'comment reading, comment posting, and category/user lookups.',
+  agent:
+    'Full ticket-handler workflow: incident reads, writes (create / update / ' +
+    'assign / state-transition / link-solution), comment reads and writes ' +
+    '(public, private, edit), all six lookup tools (categories, sites, ' +
+    'departments, users, groups, roles), solution reads (search + get) for KB ' +
+    'lookups while triaging, plus custom-field schema introspection.',
+  knowledge:
+    'KB-author workflow: incident reads (for context), category/user lookups, ' +
+    'full solution CRUD (search, get, create, update), and custom-field schema ' +
+    'introspection.',
+  full:
+    'Every non-destructive tool that has been validated against the live SWSD ' +
+    'tenant. Includes incident CRUD + solution-linking, comment CRU (create/' +
+    'read/update), all lookups, solution CRUD, and custom-field schema ' +
+    'introspection.',
 };
+
+const PROFILES: Record<string, ProfileMeta> = Object.fromEntries(
+  Object.entries(PROFILE_TOOLS).map(([name, tools]) => [
+    name,
+    {
+      description: DESCRIPTIONS[name as keyof typeof PROFILE_TOOLS],
+      toolCount: tools.length,
+    },
+  ]),
+);
 
 const PLACEHOLDER_HOST = 'REPLACE_WITH_YOUR_HOST.example.com';
 
