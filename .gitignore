@@ -17,3 +17,6 @@ validation/
 Thumbs.db
 .vscode/
 .idea/
+
+# Playwright MCP browser automation artifacts (snapshots, console logs, evaluations)
+.playwright-mcp/
