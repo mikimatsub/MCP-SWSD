@@ -33,6 +33,9 @@ configured with.
    public-internet addressable (Cloud Run, Azure App Service, Render,
    etc.). For internal-only deployments, see Microsoft's docs on the
    [on-premises data gateway](https://learn.microsoft.com/en-us/data-integration/gateway/service-gateway-onprem).
+
+   > **Don't have one yet?** Follow the [Azure Container Apps deployment recipe](../docs/deployment/azure-container-apps.md) — same Microsoft ecosystem as Copilot Studio, scale-to-zero pricing (~$0–5/month for typical team usage), public HTTPS endpoint with auto-managed TLS.
+
 2. **An SWSD API token (JWT)** for each user who'll connect. Generate at
    SWSD → Setup → Account → API Token.
 3. **Copilot Studio** with custom-connector / MCP integration enabled in
