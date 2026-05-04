@@ -17,22 +17,12 @@ The server holds **zero credentials at rest**. Tokens are forwarded per-request,
 
 You need:
 
-- An MCP client (Claude Desktop, Claude Code, Cursor, etc.) installed
+- An MCP client (Claude Desktop, Claude Code, Cursor, Continue, Cline, etc.) installed
 - A SolarWinds Service Desk **admin token (JWT)** — generate one in the SWSD UI: **Setup → Users & Groups → Users** → click your user → **Actions** → **Generate JSON Web Token** (Service Desk administrator rights required)
 
-Pick your MCP client below and paste the config block. Restart the client. You're done.
+### 1. Add the config
 
-### Claude Desktop
-
-Open your Claude Desktop config file:
-
-| OS | Config file path |
-|---|---|
-| macOS | `~/Library/Application Support/Claude/claude_desktop_config.json` |
-| Windows | `%APPDATA%\Claude\claude_desktop_config.json` |
-| Linux | `~/.config/Claude/claude_desktop_config.json` |
-
-Add this under `mcpServers`:
+Every stdio-capable MCP client uses the same JSON shape. Add this under `mcpServers` in your client's config file:
 
 ```json
 {
@@ -49,11 +39,22 @@ Add this under `mcpServers`:
 }
 ```
 
-Replace `your-jwt-here` with your token. For EU tenants, use `https://apieu.samanage.com`. Restart Claude Desktop.
+Replace `your-jwt-here` with your token. EU tenants use `https://apieu.samanage.com` instead.
 
-### Claude Code
+### 2. Drop it in the right file
 
-One command:
+| Client | Config file path |
+|---|---|
+| Claude Desktop (macOS) | `~/Library/Application Support/Claude/claude_desktop_config.json` |
+| Claude Desktop (Windows) | `%APPDATA%\Claude\claude_desktop_config.json` |
+| Claude Desktop (Linux) | `~/.config/Claude/claude_desktop_config.json` |
+| Claude Code | `~/.claude.json` (or use the shortcut below) |
+| Cursor | `~/.cursor/mcp.json` |
+| Continue, Cline, other clients | check your client's docs — same JSON shape |
+
+Create the file if it doesn't exist. Then restart your client.
+
+**Claude Code shortcut** — skip editing the file by hand:
 
 ```bash
 claude mcp add swsd \
@@ -62,55 +63,9 @@ claude mcp add swsd \
   -- npx -y swsd-mcp
 ```
 
-Or edit `mcp.json` directly with the same JSON block as Claude Desktop above.
+**Microsoft Copilot Studio** — different path (it can't spawn local processes, so it needs an HTTP-transport server). See [`copilot-studio/README.md`](./copilot-studio/README.md), including the [Azure Container Apps deployment recipe](./docs/deployment/azure-container-apps.md) for hosting.
 
-### Cursor
-
-Open `~/.cursor/mcp.json` (create it if it doesn't exist) and paste:
-
-```json
-{
-  "mcpServers": {
-    "swsd": {
-      "command": "npx",
-      "args": ["-y", "swsd-mcp"],
-      "env": {
-        "SWSD_TOKEN": "your-jwt-here",
-        "SWSD_BASE_URL": "https://api.samanage.com"
-      }
-    }
-  }
-}
-```
-
-Restart Cursor.
-
-### Continue, Cline, and other MCP clients
-
-Most MCP clients use the same JSON config shape — just different file paths. The pattern:
-
-```json
-{
-  "mcpServers": {
-    "swsd": {
-      "command": "npx",
-      "args": ["-y", "swsd-mcp"],
-      "env": {
-        "SWSD_TOKEN": "your-jwt-here",
-        "SWSD_BASE_URL": "https://api.samanage.com"
-      }
-    }
-  }
-}
-```
-
-Check your client's docs for the config file location.
-
-### Microsoft Copilot Studio
-
-Copilot Studio requires an HTTP-transport MCP server (it can't spawn local processes). See [`copilot-studio/README.md`](./copilot-studio/README.md) for the full setup, including the [Azure Container Apps deployment recipe](./docs/deployment/azure-container-apps.md) for hosting the server.
-
-### Verify it works
+### 3. Verify it works
 
 In Claude (or any MCP client), ask:
 
