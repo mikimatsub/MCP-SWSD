@@ -146,15 +146,17 @@ Use `SWSD_ENABLE_EXTRAS=swsd_foo,swsd_bar` to add specific tools on top of a pro
 
 ---
 
-## Self-hosting
+## Hosting an HTTP server (advanced)
 
-Most users use `npx` (the Quick Start above). Self-host when:
+The Quick Start above already runs swsd-mcp on your own machine — your MCP client spawns it on demand via `npx`. **Most users stop there.**
 
-- You want to expose this to **Microsoft Copilot Studio** (requires HTTP transport)
-- You want a **shared instance** for your team (one deploy, many users with their own tokens)
-- You want **stricter network control** (private VNet, IP allowlist, etc.)
+Set up an HTTP-mode server only if you need one of these:
 
-### Docker (HTTP transport)
+- **Microsoft Copilot Studio** integration — Copilot Studio can't spawn local processes, so it needs an HTTP endpoint. After deployment, import the per-profile Swagger spec from [`copilot-studio/README.md`](./copilot-studio/README.md).
+- **One shared instance for a team** — one deploy, many users, each providing their own token per-request
+- **Stricter network control** — private VNet, IP allowlist, custom domain, etc.
+
+### Docker
 
 ```bash
 docker run --rm -d \
@@ -175,10 +177,6 @@ The Docker image runs anywhere — Azure, AWS, GCP, Render, Fly.io, your own VM.
 - [**Azure Container Apps**](./docs/deployment/azure-container-apps.md) — recommended for Microsoft Copilot Studio integration. Scale-to-zero pricing (~$0–5/month for low traffic).
 
 (More recipes coming. PRs welcome.)
-
-### Microsoft Copilot Studio integration
-
-After deploying the HTTP server, you import a Swagger 2.0 connector spec into Copilot Studio. Per-profile Swagger files and the import procedure are in [`copilot-studio/README.md`](./copilot-studio/README.md).
 
 ---
 
