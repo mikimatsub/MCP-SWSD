@@ -53,6 +53,9 @@ Desktop.ini
 .cache/
 .astro/
 
+# astro-d2 writes pre-rendered SVGs here at build time; regenerated on every build
+docs-site/public/d2/
+
 # Playwright MCP browser automation artifacts (snapshots, console logs, evaluations)
 .playwright-mcp/
 

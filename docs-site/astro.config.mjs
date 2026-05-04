@@ -1,6 +1,7 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
+import astroD2 from 'astro-d2';
 
 // https://astro.build/config
 export default defineConfig({
@@ -21,6 +22,7 @@ export default defineConfig({
       ],
       sidebar: [
         { label: 'Quick start', link: '/quickstart/' },
+        { label: 'Architecture', link: '/architecture/' },
         { label: 'Configuration', link: '/configuration/' },
         { label: 'Tools reference', link: '/tools/' },
         { label: 'Deployment', link: '/deployment/' },
@@ -31,6 +33,13 @@ export default defineConfig({
         baseUrl: 'https://github.com/mikimatsub/MCP-SWSD/edit/main/docs-site/',
       },
       lastUpdated: true,
+    }),
+    // D2 diagrams via WASM (no D2 binary required at build time — works on
+    // Cloudflare Pages without apt access). The experimental flag is required
+    // for the WASM path; if it ever destabilizes, the fallback is to commit
+    // pre-rendered SVGs and remove this integration.
+    astroD2({
+      experimental: { useD2js: true },
     }),
   ],
 });
