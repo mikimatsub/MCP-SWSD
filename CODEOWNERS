@@ -1,0 +1,19 @@
+# Code owners — anyone listed here will be automatically requested for review
+# on PRs touching these paths. Lines like `*` apply to everything.
+#
+# Currently a single-maintainer project. As contributors join, add their
+# handles to the appropriate paths.
+
+# Default — all changes
+* @mikimatsub
+
+# Build, CI, supply-chain-sensitive paths require extra scrutiny
+/.github/                 @mikimatsub
+/Dockerfile               @mikimatsub
+/.dockerignore            @mikimatsub
+/package.json             @mikimatsub
+/package-lock.json        @mikimatsub
+/eslint.config.js         @mikimatsub
+/tsconfig.json            @mikimatsub
+/SECURITY.md              @mikimatsub
+/CODEOWNERS               @mikimatsub

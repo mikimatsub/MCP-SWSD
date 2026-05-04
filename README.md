@@ -1,14 +1,24 @@
 # swsd-mcp
 
+[![CI](https://github.com/mikimatsub/MCP-SWSD/actions/workflows/ci.yml/badge.svg)](https://github.com/mikimatsub/MCP-SWSD/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+
 MCP server for SolarWinds Service Desk (SWSD / Samanage). Single binary, two
 transports:
 
 - **stdio** — for local agents (Claude Code, Claude Desktop, Cursor, etc.)
 - **Streamable HTTP** — for hosted deployments and Microsoft Copilot Studio
 
-The server holds zero credentials. Each user supplies their own SWSD API
+The server holds **zero credentials**. Each user supplies their own SWSD API
 token: through an environment variable for stdio, or per-request via the
-`Authorization` / `X-SWSD-Token` header for HTTP.
+`Authorization` / `X-SWSD-Token` header for HTTP. Tokens are never persisted,
+never logged, and only forwarded to the configured SWSD base URL (validated
+to require a `samanage.com` host).
+
+> **Not affiliated with SolarWinds.** SolarWinds, Samanage, and Service Desk
+> are trademarks of SolarWinds Worldwide, LLC. This project is an independent
+> open-source MCP server that wraps the publicly documented SWSD API; it is
+> not endorsed or sponsored by SolarWinds.
 
 ---
 
@@ -259,6 +269,18 @@ Three options for getting this in front of users:
 
 ---
 
+## Security
+
+For vulnerability disclosure, see [SECURITY.md](./SECURITY.md). Do not file public issues for security bugs.
+
+## Contributing
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md). Issues and PRs welcome.
+
 ## License
 
-MIT — see [LICENSE](./LICENSE).
+MIT — see [LICENSE](./LICENSE). Provided "as is" without warranty.
+
+## Trademarks
+
+SolarWinds, Samanage, and Service Desk are trademarks of SolarWinds Worldwide, LLC. This project is not affiliated with, endorsed by, or sponsored by SolarWinds.

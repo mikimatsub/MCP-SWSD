@@ -1,7 +1,13 @@
 # syntax=docker/dockerfile:1.7
 
+# Base image pinned by digest for supply-chain safety. To update: pull the
+# latest node:24-alpine, copy its sha256 digest from `docker inspect`, and
+# replace below. Dependabot's docker ecosystem will also propose updates
+# automatically (see .github/dependabot.yml).
+ARG NODE_IMAGE=node:24-alpine@sha256:d1b3b4da11eefd5941e7f0b9cf17783fc99d9c6fc34884a665f40a06dbdfc94f
+
 # === Builder stage ===
-FROM node:24-alpine AS builder
+FROM ${NODE_IMAGE} AS builder
 WORKDIR /app
 
 # Copy manifests first so npm ci is cached when only source changes.
@@ -18,7 +24,7 @@ RUN npm prune --omit=dev
 
 
 # === Runtime stage ===
-FROM node:24-alpine AS runtime
+FROM ${NODE_IMAGE} AS runtime
 WORKDIR /app
 
 # Copy production deps and built artifacts only. Explicit ownership avoids

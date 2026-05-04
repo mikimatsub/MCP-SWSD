@@ -1,7 +1,7 @@
 {
   "name": "swsd-mcp",
   "version": "0.5.0",
-  "description": "MCP server for SolarWinds Service Desk (SWSD / Samanage). Dual transport: stdio for local agents, Streamable HTTP for Copilot Studio and hosted deployments.",
+  "description": "MCP server for SolarWinds Service Desk (SWSD / Samanage). Dual transport: stdio for local agents, Streamable HTTP for Copilot Studio and hosted deployments. Not affiliated with SolarWinds.",
   "type": "module",
   "engines": {
     "node": ">=24.15.0 <25"
@@ -13,7 +13,8 @@
   "files": [
     "dist",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "SECURITY.md"
   ],
   "scripts": {
     "build": "tsc",
@@ -27,7 +28,8 @@
     "inspect:stdio": "npx -y @modelcontextprotocol/inspector node dist/cli.js --transport=stdio",
     "inspect:http": "npx -y @modelcontextprotocol/inspector",
     "generate:swagger": "tsx scripts/generate-copilot-swagger.ts",
-    "dump:custom-fields": "tsx scripts/dump-custom-fields.ts"
+    "dump:custom-fields": "tsx scripts/dump-custom-fields.ts",
+    "prepublishOnly": "npm run lint && npm run typecheck && npm test && npm run build"
   },
   "keywords": [
     "mcp",
@@ -37,9 +39,24 @@
     "service-desk",
     "swsd",
     "itsm",
+    "ticketing",
+    "knowledge-base",
     "copilot-studio"
   ],
   "license": "MIT",
+  "author": "MikiMatsub",
+  "homepage": "https://github.com/mikimatsub/MCP-SWSD#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mikimatsub/MCP-SWSD.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mikimatsub/MCP-SWSD/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.29.0",
     "express": "5.2.1",
