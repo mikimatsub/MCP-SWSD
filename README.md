@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 [![Provenance](https://img.shields.io/badge/Provenance-SLSA-blue.svg)](https://www.npmjs.com/package/swsd-mcp)
 
-**MCP server for SolarWinds Service Desk (SWSD / Samanage).** Lets AI assistants — Claude Desktop, Claude Code, Cursor, Continue, Microsoft Copilot Studio, and any other [Model Context Protocol](https://modelcontextprotocol.io) client — read and modify SWSD tickets, comments, knowledge-base articles, and more, using each user's own SWSD API token.
+**MCP server for SolarWinds Service Desk (SWSD / Samanage).** Lets AI assistants like Claude Desktop, Claude Code, Cursor, Continue, Microsoft Copilot Studio, and any other [Model Context Protocol](https://modelcontextprotocol.io) client read and modify SWSD tickets, comments, knowledge-base articles, and more, using each user's own SWSD API token.
 
 📖 **Full docs:** [mcp-swsd.pages.dev](https://mcp-swsd.pages.dev)
 
