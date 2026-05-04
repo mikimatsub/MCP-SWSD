@@ -1,26 +1,31 @@
 name: Publish to npm
 
-# Triggers on git tag matching v* (e.g., v1.0.0, v1.0.1). To release:
-#   1. Bump package.json version: `npm version major|minor|patch`
-#      (this also creates the git tag automatically)
-#   2. Push the commit AND tag: `git push && git push --tags`
-#   3. This workflow runs automatically.
+# Triggers on git tag matching v* (e.g., v1.0.0, v1.0.1). After the
+# initial publish (see "Chicken-and-egg" below), the release flow is:
+#   1. `npm version major|minor|patch` (bumps package.json + creates tag)
+#   2. `git push && git push --tags`
+#   3. This workflow runs automatically — OIDC mints a short-lived token,
+#      no NPM_TOKEN secret required.
 #
-# First-time setup (one-time, before first tag push):
-#   1. Configure trusted publishing on npmjs.com:
-#      - Log in to npmjs.com with hardware 2FA
-#      - Go to your account/org settings > Trusted Publishers
-#      - Add a new publisher: GitHub Actions
-#        * Repository: mikimatsub/MCP-SWSD
-#        * Workflow: .github/workflows/publish-npm.yml
+# Chicken-and-egg for the FIRST publish:
+#   npm trusted publishing is configured PER PACKAGE on npmjs.com — the
+#   package must exist on npm before the trusted-publisher entry can be
+#   created. So the very first publish must use manual auth.
+#
+# First-publish steps (run once from your local machine):
+#   1. `npm login` (browser auth; uses 2FA when enabled on your account)
+#   2. `npm version major` to bump 0.5.0 -> 1.0.0
+#   3. `npm publish --provenance --access public`
+#   4. `git push && git push --tags` (push the version-bump commit + tag)
+#   5. On npmjs.com: go to your now-existing package page
+#      (npmjs.com/package/swsd-mcp) -> Settings -> Trusted Publisher
+#      -> Add GitHub Actions publisher with:
+#        * Organization or user: mikimatsub
+#        * Repository: MCP-SWSD
+#        * Workflow filename: publish-npm.yml
 #        * Environment: (leave empty)
-#        * Package name: swsd-mcp (or @scope/swsd-mcp if scoped)
-#   2. Push a v1.0.0 tag — this workflow publishes via OIDC, no NPM_TOKEN.
-#
-# Alternative for first publish if trusted publishing isn't set up yet:
-#   Run `npm publish --provenance --access public` from your local machine
-#   after `npm login`. Then configure trusted publishing as above for
-#   subsequent automated releases.
+#   6. Future releases: just `npm version <bump> && git push --tags`
+#      and this workflow handles the rest via OIDC.
 
 on:
   push:
