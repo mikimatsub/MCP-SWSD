@@ -44,6 +44,8 @@ Every stdio-capable MCP client uses the same JSON shape. Add this under `mcpServ
 
 Replace `your-jwt-here` with your token. EU tenants use `https://apieu.samanage.com` instead.
 
+**To customize:** add any [configuration variable](https://mcp-swsd.pages.dev/configuration/) into the same `env` block. Common one is `SWSD_PROFILE` to switch from the default `agent` profile (21 tools) to `triage` (8), `knowledge` (11), or `full` (23) — for example, add `"SWSD_PROFILE": "full"` alongside `SWSD_TOKEN` and `SWSD_BASE_URL`.
+
 ### 2. Drop it in the right file
 
 | Client | Config file path |
