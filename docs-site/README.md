@@ -2,7 +2,7 @@
 
 [Astro Starlight](https://starlight.astro.build) documentation site for swsd-mcp. Deployed to Cloudflare Pages on every push to `main`.
 
-Live at: **[swsd-mcp.pages.dev](https://swsd-mcp.pages.dev)** _(once Cloudflare Pages is connected — see setup below)_
+Live at: **[mcp-swsd.pages.dev](https://mcp-swsd.pages.dev)** _(once Cloudflare Pages is connected — see setup below)_
 
 ## Local development
 

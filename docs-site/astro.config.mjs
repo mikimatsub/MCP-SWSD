@@ -8,7 +8,7 @@ export default defineConfig({
   // The `base` option below should remain '/' for any root-domain deploy
   // (Cloudflare Pages, custom domain). Only set base if you ever move to a
   // subpath deploy like GitHub Pages.
-  site: 'https://swsd-mcp.pages.dev',
+  site: 'https://mcp-swsd.pages.dev',
 
   integrations: [
     starlight({
