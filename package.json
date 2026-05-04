@@ -18,6 +18,7 @@
     "CHANGELOG.md"
   ],
   "scripts": {
+    "prebuild": "node -e \"if(process.env.CF_PAGES){throw new Error('Cloudflare Pages should build docs-site/, not the MCP server root. Set Root directory to docs-site in the Cloudflare Pages dashboard.');}\"",
     "build": "tsc",
     "dev": "tsx src/cli.ts",
     "start": "node dist/cli.js",
