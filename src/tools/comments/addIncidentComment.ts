@@ -12,8 +12,8 @@ export function registerAddIncidentComment(server: McpServer, ctx: ToolContext):
     {
       description:
         'Add a comment to a SWSD incident. Set `is_private: true` to make the comment ' +
-        'internal-only (default false = visible to the requester). Comments cannot be edited ' +
-        'after creation in v0.2. WRITE — does not retry on transient failure.',
+        'internal-only (default false = visible to the requester). To edit a comment ' +
+        'after posting, use `swsd_update_comment`. WRITE — does not retry on transient failure.',
       inputSchema: AddIncidentCommentInput.shape,
       annotations: { readOnlyHint: false, openWorldHint: true, idempotentHint: false },
     },
