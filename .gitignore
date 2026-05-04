@@ -20,3 +20,6 @@ Thumbs.db
 
 # Playwright MCP browser automation artifacts (snapshots, console logs, evaluations)
 .playwright-mcp/
+
+# Temporary release-note staging (do not commit; one-off content for gh release create)
+.release-notes-temp/
