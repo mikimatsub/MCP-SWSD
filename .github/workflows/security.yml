@@ -1,0 +1,82 @@
+name: Security
+
+# Three independent scanners run in parallel:
+#   1. gitleaks  — secret scanning across the diff (PR) or history (push/cron)
+#   2. CodeQL    — SAST for JavaScript/TypeScript with the security-extended query pack
+#   3. OSV-Scan  — dependency vulnerability scan against the OSV database
+#
+# Triggers:
+#   - PRs to main:    catch issues before merge
+#   - Push to main:   catch issues that slipped through (e.g., rebase merges)
+#   - Weekly cron:    catch *new* CVEs disclosed against unchanged dependencies
+#                     (this is the killer feature — your code didn't change but
+#                      the upstream world did)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 7 * * 1'  # Mondays 07:00 UTC
+
+# All scans default to read-only; individual jobs upgrade as needed.
+permissions:
+  contents: read
+
+# Cancel older runs when a new commit lands on the same ref. Cron runs
+# don't have a meaningful "ref" so they're fine being concurrent.
+concurrency:
+  group: security-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gitleaks:
+    name: Secret scan (gitleaks)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    # gitleaks-action is free for public OSS repos; no GITLEAKS_LICENSE needed.
+    steps:
+      - name: Checkout (full history for accurate diff scanning)
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Run gitleaks
+        uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7  # v2.3.9
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  codeql:
+    name: CodeQL (JavaScript/TypeScript)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      security-events: write  # required to upload SARIF results
+      actions: read           # required for private repos; harmless on public
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@7851e55dc3be31ec4bcc3ef98453de2cb306e698  # codeql-bundle-v2.25.3
+        with:
+          languages: javascript-typescript
+          # security-extended adds high-confidence security queries on top of the default pack.
+          queries: security-extended
+
+      - name: Run CodeQL analysis
+        uses: github/codeql-action/analyze@7851e55dc3be31ec4bcc3ef98453de2cb306e698  # codeql-bundle-v2.25.3
+        with:
+          category: "/language:javascript-typescript"
+
+  osv-scanner:
+    name: OSV-Scanner (dependencies)
+    # Reusable workflow handles SARIF upload + scheduled-scan ergonomics.
+    # On PRs, scan results are also commented inline.
+    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@c51854704019a247608d928f370c98740469d4b5  # v2.3.5
+    permissions:
+      contents: read
+      security-events: write  # required to upload SARIF
+      actions: read

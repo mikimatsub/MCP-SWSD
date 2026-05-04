@@ -30,7 +30,13 @@
     "inspect:http": "npx -y @modelcontextprotocol/inspector",
     "generate:swagger": "tsx scripts/generate-copilot-swagger.ts",
     "dump:custom-fields": "tsx scripts/dump-custom-fields.ts",
-    "prepublishOnly": "npm run lint && npm run typecheck && npm test && npm run build"
+    "prepublishOnly": "npm run lint && npm run typecheck && npm test && npm run build",
+    "prepare": "husky || true"
+  },
+  "lint-staged": {
+    "*.{ts,js,mjs,cjs}": [
+      "eslint --fix --max-warnings=0"
+    ]
   },
   "keywords": [
     "mcp",
@@ -70,6 +76,8 @@
     "@types/node": "^25.6.0",
     "eslint": "10.3.0",
     "globals": "17.6.0",
+    "husky": "9.1.7",
+    "lint-staged": "16.4.0",
     "tsx": "4.21.0",
     "typescript": "6.0.3",
     "typescript-eslint": "8.59.1",
