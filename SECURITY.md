@@ -37,6 +37,11 @@ We follow standard coordinated disclosure: we ask reporters not to publicly disc
 
 ## Threat Model — what this server is and isn't
 
+For the comprehensive security posture (controls, supply-chain hardening,
+standards alignment, verification methods), see [`docs/SECURITY-POSTURE.md`](./docs/SECURITY-POSTURE.md).
+
+
+
 `swsd-mcp` is an MCP server that proxies SolarWinds Service Desk (SWSD / Samanage) API calls on behalf of the calling user. It is designed with a **zero-credentials-at-rest** architecture:
 
 - The server **never persists or logs** SWSD API tokens.

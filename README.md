@@ -271,7 +271,8 @@ Three options for getting this in front of users:
 
 ## Security
 
-For vulnerability disclosure, see [SECURITY.md](./SECURITY.md). Do not file public issues for security bugs.
+- **Vulnerability disclosure**: see [SECURITY.md](./SECURITY.md). Do not file public issues for security bugs.
+- **Security posture** (architectural controls, supply-chain hardening, standards alignment, verification methods): see [`docs/SECURITY-POSTURE.md`](./docs/SECURITY-POSTURE.md). This is the comprehensive write-up suitable for security-conscious adopters.
 
 ## Contributing
 
