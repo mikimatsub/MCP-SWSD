@@ -121,9 +121,10 @@ securityDefinitions:
     name: X-SWSD-Token
     description: |
       Your SolarWinds Service Desk API token (JWT). Generate one in the
-      SWSD UI: Setup → Account → API Token. The MCP server forwards this
-      to SWSD as \`X-Samanage-Authorization: Bearer <token>\` and never
-      persists it.
+      SWSD UI: Setup → Users & Groups → Users → click the user → Actions
+      → Generate JSON Web Token (Service Desk administrator rights
+      required). The MCP server forwards this to SWSD as
+      \`X-Samanage-Authorization: Bearer <token>\` and never persists it.
 security:
   - swsd_token: []
 `;
