@@ -1,0 +1,54 @@
+name: Feature request
+description: Propose a new tool, capability, or behavior change
+title: "[Feature] "
+labels: ["enhancement", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting an improvement. Concrete use cases help a lot — they let us judge whether a feature lives in the core profile, an extra, or as something a user can compose on their own.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem are you trying to solve?
+      description: Describe the workflow or outcome you can't accomplish today.
+      placeholder: As an SWSD admin, I want to ... so that ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: What new tool, parameter, or behavior would solve it? Sketch the shape if you have one in mind.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Existing tools you tried, manual workarounds, or workflows in other systems.
+
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Where would this live?
+      options:
+        - New tool
+        - New parameter on an existing tool
+        - New profile or change to an existing profile
+        - Configuration / env var
+        - Transport / hosting
+        - Documentation
+        - Not sure
+    validations:
+      required: true
+
+  - type: input
+    id: swsd-endpoint
+    attributes:
+      label: Underlying SWSD endpoint(s)
+      description: If you know which SWSD REST endpoint this would call, link it from [apidoc.samanage.com](https://apidoc.samanage.com/).
+      placeholder: e.g. POST /incidents/{id}/comments.json

@@ -300,11 +300,11 @@ See [`Dockerfile`](../Dockerfile).
 
 `/mcp` requests are rate-limited per `sha256(token + IP)`:
 
-- Default: 100 requests / 60 seconds
-- Configurable via `SWSD_RATE_LIMIT_MAX` and `SWSD_RATE_LIMIT_WINDOW_MS`
+- Conservative defaults shipped out of the box; tunable per deployment
+  via `SWSD_RATE_LIMIT_MAX` and `SWSD_RATE_LIMIT_WINDOW_MS`
 - Uses [express-rate-limit](https://github.com/express-rate-limit/express-rate-limit)
 - Standards-compliant `RateLimit-Policy` and `RateLimit` headers in
-  responses (draft-7 spec)
+  responses (draft-7 spec) so well-behaved clients can self-regulate
 - `/healthz` deliberately exempted — health probes from orchestrators
   hit it constantly
 
@@ -377,23 +377,6 @@ See [SECURITY.md](../SECURITY.md) for the full process. Summary:
 
 We don't claim formal certification against any of these — they're
 reference frameworks we've drawn from, not audits we've passed.
-
----
-
-## Known Limitations & Honest Gaps
-
-This section is the antidote to security-theater. Things that are
-NOT solved or are deferred:
-
-| Gap | Status |
-|---|---|
-| Custom-field WRITES through MCP tools | Not supported. Investigated during v0.5 — SWSD's API returns 500 on every payload variant tested. Documented in `swsd_describe_custom_fields` tool description. Workaround: use SWSD UI or service catalog forms. |
-| `pull_request_target` audit | We don't use this trigger; if we ever add a workflow that needs to comment on fork PRs, that audit becomes relevant. |
-| Independent third-party security audit | Not commissioned. This is a single-maintainer OSS project; a formal audit would cost more than the project's revenue (which is $0). |
-| Source-code SAST (e.g., CodeQL) | Not yet enabled. Considered for a future release. |
-| Image scanning in CI (Trivy, Snyk) | Not yet enabled. `npm audit` covers npm CVEs; Docker layer scanning would be additive. |
-| Hardware attestation of CI runners | GitHub-hosted runners are managed by GitHub; we trust them but don't independently verify. |
-| Provenance verification at install time | Users must opt in (`npm audit signatures`); we can't force it. |
 
 ---
 
