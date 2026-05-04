@@ -118,4 +118,17 @@ The root `eslint.config.js` ignores `docs-site/` for the same isolation reason.
 
 ## D2 diagrams
 
-Not yet integrated. The plan is to use [`astro-d2`](https://github.com/astrolicious/astro-d2) once content migration starts adding architecture diagrams. Tracking in a follow-up PR.
+Diagrams are written as fenced code blocks with the `d2` language tag inside any markdown page:
+
+````md
+```d2
+direction: right
+a -> b: hello
+```
+````
+
+`astro-d2` compiles them to SVG at build time using **D2.js (WASM)** — see the `experimental.useD2js: true` flag in [`astro.config.mjs`](./astro.config.mjs). This avoids requiring the D2 native binary, which Cloudflare Pages can't `apt install`.
+
+**Known local-dev quirk on Windows:** the `<img src>` for D2-generated SVGs comes out with backslash path separators (e.g., `/d2/docs\architecture-0.svg`) when built on Windows. This is purely cosmetic and only affects local Windows builds — Cloudflare Pages (Linux) generates correct forward-slash paths. If the local preview shows a broken image, that's why; it'll render correctly on the deployed site.
+
+If `experimental.useD2js` ever destabilizes, the fallback is to commit pre-rendered SVGs and remove the `astro-d2` integration.
