@@ -27,7 +27,7 @@ built around four principles:
    pinned to immutable identifiers.
 4. **Transparent governance** — open source under MIT license with explicit
    disclosure process, code review requirements, and change-management
-   tooling (Dependabot, CODEOWNERS, branch protection).
+   tooling (Renovate, CODEOWNERS, branch protection).
 
 For an organization considering adopting this tool: the realistic
 attack surface is documented in this file, mitigations are mapped to
@@ -48,9 +48,9 @@ verified.
 | DoS via hung outbound calls | Medium → Mitigated | 30-second per-request timeout via `AbortSignal.timeout` in [`src/swsd/client.ts`](../src/swsd/client.ts) |
 | DNS rebinding attack | Medium → Mitigated | `Origin` header validation hook on `/mcp` requests |
 | Compromised maintainer account → malicious release | High → Mitigated | npm OIDC trusted publishing (no long-lived `NPM_TOKEN` exists); hardware 2FA on npm + GitHub accounts; SLSA provenance attestations on every release |
-| Compromised dependency (transitive supply chain) | Medium → Mitigated | All direct dependencies pinned to exact versions in `package-lock.json`; Dependabot weekly updates; `npm audit` in CI; small dependency surface (4 direct production deps) |
-| Compromised GitHub Action | Medium → Mitigated | All actions in CI pinned to commit SHAs (not version tags); Dependabot auto-PRs new SHAs |
-| Compromised Docker base image | Medium → Mitigated | `node:24-alpine` pinned by SHA256 digest in `Dockerfile`; Dependabot tracks new digests |
+| Compromised dependency (transitive supply chain) | Medium → Mitigated | All direct dependencies pinned to exact versions in `package-lock.json`; Renovate weekly updates; `npm audit` in CI; small dependency surface (4 direct production deps) |
+| Compromised GitHub Action | Medium → Mitigated | All actions in CI pinned to commit SHAs (not version tags); Renovate auto-PRs new SHAs |
+| Compromised Docker base image | Medium → Mitigated | `node:24-alpine` pinned by SHA256 digest in `Dockerfile`; Renovate tracks new digests |
 | Tenant data leakage in error responses | Medium → Mitigated | Error mapper in [`src/swsd/errors.ts`](../src/swsd/errors.ts) sanitizes upstream error bodies; never includes tokens; structured tool errors return only the field-level validation failures, not raw responses |
 
 ### Out of scope
@@ -173,22 +173,28 @@ npm pack --dry-run
 # Compare output to what was actually published
 ```
 
-### Dependabot automation
+### Renovate automation
 
-[`.github/dependabot.yml`](../.github/dependabot.yml) configures weekly
-PRs for:
+[`renovate.json`](../renovate.json) extends the central
+[`mikimatsub/.github` Renovate config](https://github.com/mikimatsub/.github/blob/main/renovate-config.json),
+which builds on the upstream `config:best-practices` preset:
 
-- npm dependencies (production + dev)
-- GitHub Actions (catches new SHAs as actions release)
-- Docker base image (catches new `node:24-alpine` digests)
+- npm dependencies (production + dev), pinned exact for devDeps
+- GitHub Actions auto-PRs for new commit SHAs
+- Docker base image digest tracking
+- Weekly lock-file refresh (picks up transitive security fixes)
+- **3-day minimum-release-age** on npm packages — supply-chain attack
+  defense; recently published versions wait before being proposed
+- Abandonment detection — flags dependencies that have stopped
+  receiving updates upstream
 
-Security-flagged updates always get individual PRs (not grouped) for
-faster review and merge.
+Security-flagged updates bypass the minimum-release-age and get
+individual PRs for faster review and merge.
 
 ### `npm audit` in CI
 
 The `prepublishOnly` script in `package.json` runs lint + typecheck
-+ test before any publish. Combined with Dependabot's CVE-aware PRs,
++ test before any publish. Combined with Renovate's CVE-aware PRs,
 this gives multiple opportunities to catch vulnerable dependencies
 before they reach users.
 

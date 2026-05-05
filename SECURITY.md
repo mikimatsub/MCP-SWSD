@@ -58,7 +58,7 @@ The realistic attack surface:
 | Outbound exfiltration | `SWSD_BASE_URL` is allowlist-validated at startup to require a `samanage.com` host |
 | DDoS / abuse | Rate limiting on `/mcp` keyed by `sha256(token + IP)`, configurable via env |
 | Compromised maintainer account | Hardware 2FA on npm + GitHub; OIDC trusted publishing (no long-lived tokens); SLSA provenance attestations on every release |
-| Compromised dependency | Dependabot auto-PRs for upstream updates; small dependency surface; npm audit in CI |
+| Compromised dependency | Renovate auto-PRs for upstream updates with 3-day minimum-release-age cooldown; small dependency surface; npm audit in CI |
 
 ## Out of scope
 
