@@ -2,8 +2,8 @@
 
 # Base image pinned by digest for supply-chain safety. To update: pull the
 # latest node:24-alpine, copy its sha256 digest from `docker inspect`, and
-# replace below. Dependabot's docker ecosystem will also propose updates
-# automatically (see .github/dependabot.yml).
+# replace below. Renovate's docker manager (via the central config in
+# mikimatsub/.github) will also propose digest bumps automatically.
 ARG NODE_IMAGE=node:24-alpine@sha256:d1b3b4da11eefd5941e7f0b9cf17783fc99d9c6fc34884a665f40a06dbdfc94f
 
 # === Builder stage ===

@@ -78,9 +78,9 @@ Every published artifact is cryptographically tied to a specific source commit a
 | Layer | Mitigation |
 |---|---|
 | **npm package** | OIDC trusted publishing (no long-lived `NPM_TOKEN` exists); SLSA provenance attestations on every release; verifiable with `npm audit signatures` |
-| **Direct dependencies** | All pinned to exact versions in `package-lock.json`; Dependabot weekly updates; `npm audit` in CI; small surface (4 direct production deps) |
-| **GitHub Actions** | All pinned to commit SHAs (not version tags); Dependabot auto-PRs new SHAs |
-| **Docker base image** | `node:24-alpine` pinned by SHA256 digest in `Dockerfile`; Dependabot tracks new digests |
+| **Direct dependencies** | All pinned to exact versions in `package-lock.json`; Renovate weekly updates; `npm audit` in CI; small surface (4 direct production deps) |
+| **GitHub Actions** | All pinned to commit SHAs (not version tags); Renovate auto-PRs new SHAs |
+| **Docker base image** | `node:24-alpine` pinned by SHA256 digest in `Dockerfile`; Renovate tracks new digests |
 
 Verify provenance for any installed version:
 
@@ -126,9 +126,9 @@ Reference frameworks we've drawn from. **We don't claim formal certification aga
 | DoS via hung outbound calls | Medium → Mitigated | 30-second per-request timeout via `AbortSignal.timeout` |
 | DNS rebinding | Medium → Mitigated | `Origin` header validation hook on `/mcp` |
 | Compromised maintainer account → malicious release | High → Mitigated | npm OIDC; SLSA provenance |
-| Compromised dependency (transitive) | Medium → Mitigated | Pinned `package-lock.json`; Dependabot; `npm audit` in CI; small surface |
-| Compromised GitHub Action | Medium → Mitigated | All actions pinned to commit SHAs; Dependabot auto-PRs |
-| Compromised Docker base image | Medium → Mitigated | Pinned by SHA256 digest; Dependabot tracks |
+| Compromised dependency (transitive) | Medium → Mitigated | Pinned `package-lock.json`; Renovate; `npm audit` in CI; small surface |
+| Compromised GitHub Action | Medium → Mitigated | All actions pinned to commit SHAs; Renovate auto-PRs |
+| Compromised Docker base image | Medium → Mitigated | Pinned by SHA256 digest; Renovate tracks |
 | Tenant data leakage in error responses | Medium → Mitigated | Error mapper sanitizes upstream bodies |
 
 ### Out of scope

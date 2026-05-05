@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Migrated dependency-update automation from Dependabot to Renovate. The
+  `renovate.json` extends `mikimatsub/.github:renovate-config` (a central
+  config repo shared across mikimatsub's projects), which itself extends
+  the upstream `config:best-practices` preset. Notable behavior changes:
+  3-day minimum-release-age on npm packages (supply-chain attack defense),
+  weekly lock-file maintenance, abandonment detection, and pinned-digest
+  helpers for Docker and GitHub Actions.
+
 ## [1.0.0] — _pending first publish_
 
 ### Initial public release
