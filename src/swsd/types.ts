@@ -150,3 +150,42 @@ export interface UserMeRecord {
   /** ISO timestamp of the user's last login (only present from /profile.json). */
   last_login?: string;
 }
+
+export interface CatalogItemVariable {
+  /** Per-variable row id from SWSD. Pass through to swsd_create_service_request as `custom_field_id`. */
+  id: number;
+  /** Display name for the variable (e.g. "New Employee First Name"). */
+  name: string;
+  /** Catalog-item label for the field type (free_text / drop_down_menu / multi_select / date / user / null for section headers). */
+  kind?: string;
+  /** Numeric SAManage field type code (1, 2, 4, 5, 7, 8). Pass through alongside `kind`. */
+  field_type?: number;
+  /** Comma-/newline-separated allowed values for dropdown / multi_select kinds. */
+  options?: string;
+  /** "1" if required, "0" otherwise — preserved as string per SWSD's wire shape. */
+  required?: string;
+  /** Helper text shown to requesters in the SWSD portal — may contain HTML. */
+  helptext?: string;
+}
+
+export interface CatalogItemSummary {
+  id: number;
+  name: string;
+  state?: string;
+  category?: string;
+  subcategory?: string;
+  department?: string;
+  site?: string;
+  /** Number of times this item has been requested across the tenant (read from `request_count`). */
+  request_count?: number;
+  /** ISO timestamp of last update. */
+  updated_at?: string;
+  /** Number of variables on this item (compact summary; full details via swsd_get_catalog_item). */
+  variable_count?: number;
+}
+
+export type CatalogItemDetail = Record<string, unknown> & {
+  id: number;
+  name?: string;
+  variables?: CatalogItemVariable[];
+};

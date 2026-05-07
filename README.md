@@ -44,7 +44,7 @@ Every stdio-capable MCP client uses the same JSON shape. Add this under `mcpServ
 
 Replace `your-jwt-here` with your token. EU tenants use `https://apieu.samanage.com` instead.
 
-**To customize:** add any [configuration variable](https://mcp-swsd.pages.dev/configuration/) into the same `env` block. Common one is `SWSD_PROFILE` to switch from the default `agent` profile (21 tools) to `triage` (8), `knowledge` (11), or `full` (23) — for example, add `"SWSD_PROFILE": "full"` alongside `SWSD_TOKEN` and `SWSD_BASE_URL`.
+**To customize:** add any [configuration variable](https://mcp-swsd.pages.dev/configuration/) into the same `env` block. Common one is `SWSD_PROFILE` to switch from the default `agent` profile to `triage`, `knowledge`, or `full` — see the [Profiles](#profiles) section below for current tool counts. For example, add `"SWSD_PROFILE": "full"` alongside `SWSD_TOKEN` and `SWSD_BASE_URL`.
 
 ### 2. Drop it in the right file
 
@@ -80,7 +80,7 @@ The agent should call `swsd_health_check` and report success. If it does, you're
 
 ---
 
-## Tools (26 across 7 categories)
+## Tools (29 across 8 categories)
 
 | Category | Tools |
 |---|---|
@@ -88,11 +88,26 @@ The agent should call `swsd_health_check` and report success. If it does, you're
 | **Incidents** | `swsd_list_incidents`, `swsd_list_my_incidents`, `swsd_get_incident`, `swsd_create_incident`, `swsd_update_incident`, `swsd_assign_incident`, `swsd_update_incident_state`, `swsd_link_solution_to_incident` |
 | **Comments** | `swsd_list_incident_comments`, `swsd_add_incident_comment`, `swsd_update_comment` |
 | **Solutions / KB** | `swsd_search_solutions`, `swsd_get_solution`, `swsd_create_solution`, `swsd_update_solution` |
+| **Service Catalog** | `swsd_list_catalog_items`, `swsd_get_catalog_item`, `swsd_create_service_request` |
 | **Lookups** | `swsd_list_categories`, `swsd_list_sites`, `swsd_list_departments`, `swsd_list_users`, `swsd_list_groups`, `swsd_list_roles` |
 | **Custom fields** | `swsd_describe_custom_fields` |
 | **Audits** | `swsd_get_record_audits` |
 
 Each tool's input schema, description, and output shape is auto-discovered by your MCP client at runtime. Ask the agent "what swsd tools are available?" for the live list.
+
+---
+
+## Service Catalog tools
+
+When the user asks to **request** something — new hardware, software access, an account, a file restore — prefer the catalog flow over `swsd_create_incident`. SWSD's catalog items carry pre-defined approval routing, request variables (form fields), category/subcategory defaults, and SLA targets that a free-form incident misses.
+
+| Tool | Purpose |
+|---|---|
+| `swsd_list_catalog_items` | Browse what's offerable — find a catalog item that matches the user's request. Filter by `state`, `department`, `site`, or free-text `query`. Returns compact summaries with `request_count` and `variable_count`. |
+| `swsd_get_catalog_item` | Inspect a single item, including its `variables` (the form schema). Each variable carries an `id`, `name`, `kind` (free_text / drop_down_menu / multi_select / date / user), `options` (newline-separated allowed values for dropdowns), and `helptext`. |
+| `swsd_create_service_request` | Submit the request. Posts to `POST /catalog_items/{id}/service_requests.json`, which auto-sets `is_service_request: true` and inherits the catalog item's category/subcategory. Each `request_variables` entry maps a catalog variable's `id` (as `custom_field_id`) to a string `value`. |
+
+The server `instructions` advertise this preference order so capable agents (Claude Desktop, Claude Code, Copilot Studio, etc.) pick the catalog flow automatically when the user's intent matches.
 
 ---
 
@@ -158,10 +173,10 @@ Profiles control which tools are registered at startup. Cannot be changed mid-se
 
 | Profile | Intent | Tool count |
 |---|---|---|
-| `triage` | Read-heavy first-line support workflow + commenting | 10 |
-| `agent` | Full ticket-handler workflow + KB lookups + custom-field introspection (default) | 24 |
-| `knowledge` | KB-author workflow + incident reads + custom-field introspection | 13 |
-| `full` | Every tool | 26 |
+| `triage` | Read-heavy first-line support workflow + commenting | 12 |
+| `agent` | Full ticket-handler workflow + KB lookups + custom-field introspection (default) | 27 |
+| `knowledge` | KB-author workflow + incident reads + custom-field introspection | 15 |
+| `full` | Every tool | 29 |
 
 Use `SWSD_ENABLE_EXTRAS=swsd_foo,swsd_bar` to add specific tools on top of a profile.
 
