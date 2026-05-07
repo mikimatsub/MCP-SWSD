@@ -53,6 +53,12 @@ export function onHostInit<T>(handler: (msg: HostInitMessage<T>) => void): void 
 /**
  * Apply theme tokens supplied by the host as CSS custom properties on
  * `document.documentElement`. No-ops if `vars` is undefined or empty.
+ *
+ * Non-`--`-prefixed keys are ignored (defensive against non-spec-compliant
+ * hosts). `style.setProperty` itself does not validate the key shape — without
+ * this guard, a host posting `{ width: '100vw' }` would silently land as
+ * `<html style="width: 100vw">`. Only CSS custom properties (keys starting
+ * with `--`) are accepted.
  */
 export function applyHostThemeVariables(
   vars: Record<string, string> | undefined,
@@ -60,6 +66,7 @@ export function applyHostThemeVariables(
   if (!vars) return;
   const root = document.documentElement;
   for (const [key, value] of Object.entries(vars)) {
+    if (!key.startsWith('--')) continue;
     root.style.setProperty(key, value);
   }
 }

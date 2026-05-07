@@ -1,8 +1,7 @@
 import { defineConfig, type Plugin } from 'vite';
 import { viteSingleFile } from 'vite-plugin-singlefile';
 import { resolve } from 'node:path';
-
-const UI_TOOLS = ['_smoke', 'incident-detail'];
+import { UI_TOOLS } from './scripts/ui-tools.mjs';
 
 /**
  * `vite-plugin-singlefile` enables `output.inlineDynamicImports: true` on
