@@ -171,4 +171,86 @@ describe('buildIncidentWritePayload', () => {
     // returns 422 "Solution: Cannot find with missing parameters" if used on write.
     expect(p.incident).not.toHaveProperty('solutions');
   });
+
+  it('emits custom_fields under the SAManage nested wrapper (single field)', () => {
+    const p = buildIncidentWritePayload({
+      custom_fields: [{ name: 'Charge Number', value: 'CC-42' }],
+    });
+    expect(p).toEqual({
+      incident: {
+        custom_fields_values: {
+          custom_fields_value: [{ name: 'Charge Number', value: 'CC-42' }],
+        },
+      },
+    });
+  });
+
+  it('emits custom_fields with multiple rows in declared order', () => {
+    const p = buildIncidentWritePayload({
+      custom_fields: [
+        { name: 'Charge Number', value: 'CC-42' },
+        { name: 'Asset Purchase Type', value: 'Leased Asset' },
+        { name: 'Lease Commencement Date', value: '2026-01-15' },
+        { name: 'Qty On Hand', value: 42 },
+        { name: 'Request', value: 'Yes' },
+      ],
+    });
+    expect(p).toEqual({
+      incident: {
+        custom_fields_values: {
+          custom_fields_value: [
+            { name: 'Charge Number', value: 'CC-42' },
+            { name: 'Asset Purchase Type', value: 'Leased Asset' },
+            { name: 'Lease Commencement Date', value: '2026-01-15' },
+            { name: 'Qty On Hand', value: 42 },
+            { name: 'Request', value: 'Yes' },
+          ],
+        },
+      },
+    });
+  });
+
+  it('combines custom_fields with other fields under one incident wrapper', () => {
+    const p = buildIncidentWritePayload({
+      name: 'Test',
+      priority: 'High',
+      custom_fields: [{ name: 'Charge Number', value: 'CC-42' }],
+    });
+    expect(p).toEqual({
+      incident: {
+        name: 'Test',
+        priority: 'High',
+        custom_fields_values: {
+          custom_fields_value: [{ name: 'Charge Number', value: 'CC-42' }],
+        },
+      },
+    });
+  });
+
+  it('omits custom_fields_values entirely when custom_fields is undefined', () => {
+    const p = buildIncidentWritePayload({ name: 'Test' });
+    expect(p.incident).not.toHaveProperty('custom_fields_values');
+  });
+
+  it('omits custom_fields_values when custom_fields is empty array', () => {
+    const p = buildIncidentWritePayload({ name: 'Test', custom_fields: [] });
+    expect(p.incident).not.toHaveProperty('custom_fields_values');
+  });
+
+  it('preserves number and boolean value types (does not coerce to string)', () => {
+    const p = buildIncidentWritePayload({
+      custom_fields: [
+        { name: 'Qty On Hand', value: 42 },
+        { name: 'Verified', value: true },
+      ],
+    });
+    expect(p.incident).toEqual({
+      custom_fields_values: {
+        custom_fields_value: [
+          { name: 'Qty On Hand', value: 42 },
+          { name: 'Verified', value: true },
+        ],
+      },
+    });
+  });
 });

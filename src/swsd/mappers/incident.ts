@@ -48,6 +48,16 @@ export interface IncidentWriteFields {
    * correct write key.
    */
   solution_ids?: number[];
+  /**
+   * Tenant-specific custom field values. Each row is `{name, value}`.
+   * The mapper wraps these into SAManage's nested-wrapper shape:
+   *   custom_fields_values: { custom_fields_value: [{name, value}, ...] }
+   * which is the Rails-XML-fossilized-into-JSON pattern Samanage requires.
+   *
+   * Standardize on name keying (works for both incidents and solutions; the
+   * custom_field_id alternative is incidents-only).
+   */
+  custom_fields?: { name: string; value: string | number | boolean }[];
 }
 
 /**
@@ -68,6 +78,14 @@ export function buildIncidentWritePayload(
   if (fields.site_name !== undefined) incident.site = { name: fields.site_name };
   if (fields.department_name !== undefined) incident.department = { name: fields.department_name };
   if (fields.solution_ids !== undefined) incident.solution_ids = fields.solution_ids;
+  if (fields.custom_fields !== undefined && fields.custom_fields.length > 0) {
+    incident.custom_fields_values = {
+      custom_fields_value: fields.custom_fields.map((cf) => ({
+        name: cf.name,
+        value: cf.value,
+      })),
+    };
+  }
   return { incident };
 }
 
