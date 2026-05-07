@@ -19,10 +19,13 @@ export function registerDescribeCustomFields(
         'tenant configuration and documenting integrations. Default returns ' +
         'active fields only — pass `active_only: false` to see retired ones too. ' +
         'Filter by `scope` or `module` to narrow the surface (the tenant may ' +
-        'have 100+ fields). NOTE: writing custom field values via the incident ' +
-        'or solution write tools is not currently supported (SWSD returns 500 ' +
-        'on every payload variant tested) — set custom field values via the ' +
-        'SWSD UI or service catalog forms for now.',
+        'have 100+ fields). v2 NOTE: custom field WRITES are now supported via the `custom_fields` ' +
+        'parameter on swsd_create_incident, swsd_update_incident, ' +
+        'swsd_create_solution, and swsd_update_solution. Pass ' +
+        '`custom_fields: [{name, value}]` (name-keyed for portability). ' +
+        'Validated field types: Text, Dropdown, Number, Checkbox, Date. ' +
+        'Multi_picklist and User-type writes are not yet supported — set ' +
+        'those via the SWSD UI.',
       inputSchema: DescribeCustomFieldsInput.shape,
       annotations: { readOnlyHint: true, openWorldHint: true, idempotentHint: true },
     },
