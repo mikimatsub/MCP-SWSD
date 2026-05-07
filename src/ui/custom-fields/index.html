@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SWSD Custom Fields</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1 id="title">Custom Fields</h1>
+        <div class="filters">
+          <input
+            type="search"
+            id="search"
+            placeholder="Filter by name or help text"
+            autocomplete="off"
+          />
+          <select id="scope-filter" aria-label="Filter by scope">
+            <option value="">All scopes</option>
+          </select>
+          <select id="module-filter" aria-label="Filter by module">
+            <option value="">All modules</option>
+          </select>
+          <label class="active-only">
+            <input type="checkbox" id="active-only" checked />
+            Active only
+          </label>
+        </div>
+      </header>
+      <ul id="rows" class="cards"></ul>
+      <p id="empty" class="empty" hidden>No custom fields match the current filters.</p>
+    </main>
+    <script type="module" src="./index.ts"></script>
+  </body>
+</html>

@@ -1,11 +1,19 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import {
+  registerAppTool,
+  registerAppResource,
+  RESOURCE_MIME_TYPE,
+} from '@modelcontextprotocol/ext-apps/server';
 import { z } from 'zod';
 import { DescribeCustomFieldsInput } from '../../schemas/customField.js';
 import { PaginationOutput } from '../../schemas/output.js';
 import { structuredResult } from '../../mcp/output.js';
 import { mapSwsdError } from '../../swsd/errors.js';
 import { toCustomFieldSummary } from '../../swsd/mappers/customField.js';
+import { loadUiResource } from '../../mcp/uiResources.js';
 import type { ToolContext } from '../../config/toolRegistry.js';
+
+const UI_RESOURCE_URI = 'ui://swsd/custom-fields.html';
 
 const CustomFieldSummaryOutput = z.object({
   id: z.number().int(),
@@ -32,7 +40,8 @@ export function registerDescribeCustomFields(
   server: McpServer,
   ctx: ToolContext,
 ): void {
-  server.registerTool(
+  registerAppTool(
+    server,
     'swsd_describe_custom_fields',
     {
       description:
@@ -55,6 +64,7 @@ export function registerDescribeCustomFields(
         pagination: PaginationOutput,
       }).shape,
       annotations: { readOnlyHint: true, openWorldHint: true, idempotentHint: true },
+      _meta: { ui: { resourceUri: UI_RESOURCE_URI } },
     },
     async (input) => {
       try {
@@ -103,5 +113,21 @@ export function registerDescribeCustomFields(
         return mapSwsdError(err);
       }
     },
+  );
+
+  registerAppResource(
+    server,
+    'swsd-custom-fields-ui',
+    UI_RESOURCE_URI,
+    { description: 'Custom fields explorer rendered by Apps-capable hosts.' },
+    () => ({
+      contents: [
+        {
+          uri: UI_RESOURCE_URI,
+          mimeType: RESOURCE_MIME_TYPE,
+          text: loadUiResource('custom-fields'),
+        },
+      ],
+    }),
   );
 }

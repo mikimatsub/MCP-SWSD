@@ -14,6 +14,7 @@ const BUNDLES: Array<{ name: string; sentinel: string }> = [
   { name: 'incident-detail', sentinel: 'SWSD Incident' },
   { name: 'solution-detail', sentinel: 'SWSD Solution' },
   { name: 'incident-list', sentinel: 'SWSD Incidents' },
+  { name: 'custom-fields', sentinel: 'SWSD Custom Fields' },
 ];
 
 describe('UI build artifacts', () => {
