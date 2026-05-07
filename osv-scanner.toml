@@ -1,0 +1,36 @@
+# OSV-Scanner configuration
+# https://google.github.io/osv-scanner/configuration/
+#
+# This file documents intentionally-suppressed vulnerability findings.
+# Each entry MUST include a `reason` (justification) and SHOULD include
+# an `ignoreUntil` date so the suppression auto-expires and the finding
+# resurfaces if it remains relevant.
+
+[[IgnoredVulns]]
+id = "GHSA-v2v4-37r5-5v8g"
+ignoreUntil = "2026-05-15"
+reason = """
+XSS in ip-address@10.1.0 (Address6.group() / Address6.link() HTML-emission methods).
+Reached transitively via express-rate-limit@8.4.1, which exact-pins ip-address@10.1.0.
+
+NOT EXPLOITABLE in this codebase:
+- express-rate-limit uses ip-address only for IP-string parsing
+  (Address4/Address6 constructor + parsing methods).
+- This codebase does not call Address6.group() or Address6.link(), and the OSV
+  advisory itself notes "zero consumers" of these methods across 425 dependent
+  npm packages analyzed.
+- No HTML rendering path in this server takes ip-address output to innerHTML.
+
+WHY THIS IGNORE EXISTS (instead of a version bump):
+- The patched version (express-rate-limit@8.5.1) was published 2026-05-06
+  and is < 3 days old as of the ignore date — bumping it would violate the
+  Renovate-configured minimumReleaseAge: 3-day supply-chain defense rule.
+- Renovate is already tracking the upgrade in the dependency dashboard
+  (mikimatsub/MCP-SWSD#21) and will create the bump PR automatically once
+  the soak window clears (~2026-05-09). At that point this ignore should
+  expire on its own.
+
+ignoreUntil = 2026-05-15 gives a small buffer past the expected Renovate
+upgrade date. If the upgrade hasn't landed by then, the finding reappears
+and forces a fresh decision.
+"""
