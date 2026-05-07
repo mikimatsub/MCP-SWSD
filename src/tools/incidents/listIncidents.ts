@@ -1,7 +1,7 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { ListIncidentsInput } from '../../schemas/incident.js';
-import { PaginationOutput } from '../../schemas/output.js';
+import { PaginationWithScopeOutput } from '../../schemas/output.js';
 import { structuredResult } from '../../mcp/output.js';
 import { mapSwsdError } from '../../swsd/errors.js';
 import { toIncidentSummary } from '../../swsd/mappers/incident.js';
@@ -35,7 +35,12 @@ export function registerListIncidents(server: McpServer, ctx: ToolContext): void
       inputSchema: ListIncidentsInput.shape,
       outputSchema: z.object({
         incidents: z.array(IncidentSummaryOutput),
-        pagination: PaginationOutput,
+        pagination: PaginationWithScopeOutput,
+        applied_filters: z
+          .record(z.string(), z.unknown())
+          .describe(
+            'Echo of the filters applied to this query — empty object if none. Use this to reason about whether the result count reflects your filters or the tenant total.',
+          ),
       }).shape,
       annotations: { readOnlyHint: true, openWorldHint: true, idempotentHint: true },
     },
@@ -68,12 +73,52 @@ export function registerListIncidents(server: McpServer, ctx: ToolContext): void
           .map(toIncidentSummary)
           .filter((x): x is NonNullable<typeof x> => x !== null);
 
-        const data = { incidents, pagination };
+        // Echo the applied filters back for in-band scope reasoning.
+        const applied_filters: Record<string, unknown> = {};
+        if (input.states) applied_filters.states = input.states;
+        if (input.priorities) applied_filters.priorities = input.priorities;
+        if (input.categories) applied_filters.categories = input.categories;
+        if (input.assignee_email) applied_filters.assignee_email = input.assignee_email;
+        if (input.requester_email) applied_filters.requester_email = input.requester_email;
+        if (input.updated_from) applied_filters.updated_from = input.updated_from;
+        if (input.updated_to) applied_filters.updated_to = input.updated_to;
+        if (input.created_from) applied_filters.created_from = input.created_from;
+        if (input.created_to) applied_filters.created_to = input.created_to;
+        if (input.sites) applied_filters.sites = input.sites;
+        if (input.departments) applied_filters.departments = input.departments;
+        if (input.assigned_to_group !== undefined) applied_filters.assigned_to_group = input.assigned_to_group;
+        if (input.state_is_not) applied_filters.state_is_not = input.state_is_not;
+        if (input.sort_by) applied_filters.sort_by = input.sort_by;
+        if (input.sort_order) applied_filters.sort_order = input.sort_order;
+        if (input.query) applied_filters.query = input.query;
+
+        const hasAnyFilter = Object.keys(applied_filters).length > 0;
+        const total_scope: 'filtered' | 'tenant' | 'unknown' =
+          pagination.total === undefined
+            ? 'unknown'
+            : hasAnyFilter
+              ? 'filtered'
+              : 'tenant';
+
+        const filterDescription = hasAnyFilter
+          ? `matching your filters (${Object.entries(applied_filters)
+              .slice(0, 3)
+              .map(([k, v]) => `${k}=${Array.isArray(v) ? v.join(',') : String(v)}`)
+              .join(', ')}${Object.keys(applied_filters).length > 3 ? ', ...' : ''})`
+          : 'tenant-wide';
         const totalNote =
-          pagination.total !== undefined ? ` of ~${String(pagination.total)}` : '';
+          pagination.total !== undefined ? ` of ${String(pagination.total)}` : '';
         const moreNote = pagination.has_more ? ', more available' : '';
-        const summary = `Returned ${String(incidents.length)} incidents (page ${String(pagination.page)}${totalNote}${moreNote}).`;
-        return structuredResult(data, summary);
+        const summary = `Returned ${String(incidents.length)}${totalNote} ${filterDescription} incidents (page ${String(pagination.page)}${moreNote}).`;
+
+        return structuredResult(
+          {
+            incidents,
+            pagination: { ...pagination, total_scope },
+            applied_filters,
+          },
+          summary,
+        );
       } catch (err) {
         return mapSwsdError(err);
       }
