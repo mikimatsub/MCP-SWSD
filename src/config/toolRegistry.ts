@@ -36,6 +36,8 @@ import { registerDescribeCustomFields } from '../tools/customFields/describeCust
 
 import { registerGetRecordAudits } from '../tools/audits/getRecordAudits.js';
 
+import { registerListCatalogItems } from '../tools/catalog/listCatalogItems.js';
+
 export interface ToolContext {
   env: Env;
   profile: ProfileName;
@@ -79,6 +81,8 @@ const REGISTRARS: Record<string, Registrar> = {
   swsd_describe_custom_fields: registerDescribeCustomFields,
 
   swsd_get_record_audits: registerGetRecordAudits,
+
+  swsd_list_catalog_items: registerListCatalogItems,
 };
 
 export function registerTools(server: McpServer, ctx: ToolContext): void {

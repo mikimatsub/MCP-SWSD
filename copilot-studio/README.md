@@ -14,10 +14,10 @@ Re-run after any profile change.
 
 | File | Profile | Tools | When to use |
 |---|---|---|---|
-| `triage.swagger.yaml` | `triage` | 10 | First-line support agents who read tickets and post comments but don't reassign or close. |
-| `agent.swagger.yaml` | `agent` | 24 | Full ticket-handler workflow (default). |
-| `knowledge.swagger.yaml` | `knowledge` | 13 | KB authors browsing incident context plus full solution CRUD. |
-| `full.swagger.yaml` | `full` | 26 | Every tool. |
+| `triage.swagger.yaml` | `triage` | 11 | First-line support agents who read tickets and post comments but don't reassign or close. |
+| `agent.swagger.yaml` | `agent` | 25 | Full ticket-handler workflow (default). |
+| `knowledge.swagger.yaml` | `knowledge` | 14 | KB authors browsing incident context plus full solution CRUD. |
+| `full.swagger.yaml` | `full` | 27 | Every tool. |
 
 The four files differ only in `info.title` and `info.description`. The
 endpoint, auth, and protocol declarations are identical. Pick the file

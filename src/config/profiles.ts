@@ -10,6 +10,7 @@ const READ_BASE = [
   'swsd_list_incident_comments',
   'swsd_list_categories',
   'swsd_list_users',
+  'swsd_list_catalog_items',
 ] as const;
 
 export const PROFILE_TOOLS = {
@@ -47,6 +48,7 @@ export const PROFILE_TOOLS = {
     'swsd_get_incident',
     'swsd_list_categories',
     'swsd_list_users',
+    'swsd_list_catalog_items',
     // Full solution CRUD for KB authors
     'swsd_search_solutions',
     'swsd_get_solution',
@@ -75,6 +77,7 @@ export const PROFILE_TOOLS = {
     'swsd_list_users',
     'swsd_list_groups',
     'swsd_list_roles',
+    'swsd_list_catalog_items',
     'swsd_search_solutions',
     'swsd_get_solution',
     'swsd_create_solution',
