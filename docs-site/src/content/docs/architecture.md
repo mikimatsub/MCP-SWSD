@@ -44,7 +44,7 @@ Two categories, distinguished by where the swsd-mcp process actually runs:
 
 ### swsd-mcp
 
-The middle box. Single Node.js process, ~3000 lines of TypeScript, four direct production dependencies. Exposes [23 tools](/tools/) organized into [profiles](/configuration/#profiles).
+The middle box. Single Node.js process, TypeScript, five direct production dependencies (`@modelcontextprotocol/sdk`, `@modelcontextprotocol/ext-apps`, `express`, `express-rate-limit`, `zod`). Exposes [29 tools](/tools/) organized into [profiles](/configuration/#profiles).
 
 The server itself has no SWSD identity — every API call is made using the *caller's* token. The token exists in process memory only for the lifetime of a single request. There's no token cache, no session store, no persistence layer. See [Security → Zero credentials at rest](/security/#zero-credentials-at-rest).
 

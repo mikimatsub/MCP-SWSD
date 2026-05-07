@@ -48,7 +48,7 @@ verified.
 | DoS via hung outbound calls | Medium → Mitigated | 30-second per-request timeout via `AbortSignal.timeout` in [`src/swsd/client.ts`](../src/swsd/client.ts) |
 | DNS rebinding attack | Medium → Mitigated | `Origin` header validation hook on `/mcp` requests |
 | Compromised maintainer account → malicious release | High → Mitigated | npm OIDC trusted publishing (no long-lived `NPM_TOKEN` exists); hardware 2FA on npm + GitHub accounts; SLSA provenance attestations on every release |
-| Compromised dependency (transitive supply chain) | Medium → Mitigated | All direct dependencies pinned to exact versions in `package-lock.json`; Renovate weekly updates; `npm audit` in CI; small dependency surface (4 direct production deps) |
+| Compromised dependency (transitive supply chain) | Medium → Mitigated | All direct dependencies pinned to exact versions in `package-lock.json`; Renovate weekly updates; `npm audit` in CI; small dependency surface (5 direct production deps: `@modelcontextprotocol/sdk`, `@modelcontextprotocol/ext-apps`, `express`, `express-rate-limit`, `zod`) |
 | Compromised GitHub Action | Medium → Mitigated | All actions in CI pinned to commit SHAs (not version tags); Renovate auto-PRs new SHAs |
 | Compromised Docker base image | Medium → Mitigated | `node:24-alpine` pinned by SHA256 digest in `Dockerfile`; Renovate tracks new digests |
 | Tenant data leakage in error responses | Medium → Mitigated | Error mapper in [`src/swsd/errors.ts`](../src/swsd/errors.ts) sanitizes upstream error bodies; never includes tokens; structured tool errors return only the field-level validation failures, not raw responses |

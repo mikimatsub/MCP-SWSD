@@ -78,7 +78,7 @@ Every published artifact is cryptographically tied to a specific source commit a
 | Layer | Mitigation |
 |---|---|
 | **npm package** | OIDC trusted publishing (no long-lived `NPM_TOKEN` exists); SLSA provenance attestations on every release; verifiable with `npm audit signatures` |
-| **Direct dependencies** | All pinned to exact versions in `package-lock.json`; Renovate weekly updates; `npm audit` in CI; small surface (4 direct production deps) |
+| **Direct dependencies** | All pinned to exact versions in `package-lock.json`; Renovate weekly updates; `npm audit` in CI; small surface (5 direct production deps: `@modelcontextprotocol/sdk`, `@modelcontextprotocol/ext-apps`, `express`, `express-rate-limit`, `zod`) |
 | **GitHub Actions** | All pinned to commit SHAs (not version tags); Renovate auto-PRs new SHAs |
 | **Docker base image** | `node:24-alpine` pinned by SHA256 digest in `Dockerfile`; Renovate tracks new digests |
 

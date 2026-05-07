@@ -7,8 +7,8 @@ This guide gets swsd-mcp running locally in your MCP client (Claude Desktop, Cla
 
 ## What you need
 
-- An MCP client installed (Claude Desktop, Claude Code, Cursor, Continue, Cline, or any other [Model Context Protocol](https://modelcontextprotocol.io) client)
-- Node.js 20 or newer (for `npx`)
+- An MCP client installed (Claude Desktop, Claude Code, Cursor, Continue, Cline, ChatGPT, VS Code GitHub Copilot, or any other [Model Context Protocol](https://modelcontextprotocol.io) client)
+- Node.js 24.15.0 or newer (for `npx`; current LTS line, matches `package.json` engines)
 - A SolarWinds Service Desk **admin token** — see below
 
 ## Generate an SWSD admin token
@@ -46,7 +46,7 @@ Every stdio-capable MCP client uses the same JSON shape. Add this block under `m
 Replace `your-jwt-here` with the token from the previous step. **EU tenants** use `https://apieu.samanage.com` instead.
 
 :::tip[Customize behavior]
-Any variable from the [Configuration](/configuration/) page goes into this same `env` block. The most common one to add is `SWSD_PROFILE` to switch from the default `agent` profile (21 tools) to `triage` (8), `knowledge` (11), or `full` (23):
+Any variable from the [Configuration](/configuration/) page goes into this same `env` block. The most common one to add is `SWSD_PROFILE` to switch from the default `agent` profile (27 tools) to `triage` (12), `knowledge` (15), or `full` (29):
 
 ```json
 "env": {
@@ -97,10 +97,12 @@ If something doesn't work, see [Configuration](/configuration/) for the full env
 
 Try asking the agent things like:
 
-- _"List my recent open incidents."_ → calls `swsd_list_incidents`
-- _"Show me incident 12345 with comments."_ → calls `swsd_get_incident` + `swsd_list_incident_comments`
+- _"What tickets are assigned to me?"_ → calls `swsd_get_me` + `swsd_list_my_incidents` (the agent identifies you from the JWT, no manual email entry)
+- _"Show me incident 12345 with comments and audit trail."_ → calls `swsd_get_incident` + `swsd_list_incident_comments` + `swsd_get_record_audits` (and renders rich UI in MCP Apps-capable hosts)
 - _"Search the knowledge base for 'VPN troubleshooting'."_ → calls `swsd_search_solutions`
-- _"What custom fields are available on incidents?"_ → calls `swsd_describe_custom_fields`
+- _"What services can I request through the catalog?"_ → calls `swsd_list_catalog_items`
+- _"Submit a Software Request for Adobe Acrobat Pro."_ → calls `swsd_get_catalog_item` to read the form schema, then `swsd_create_service_request`
+- _"What custom fields are available on incidents?"_ → calls `swsd_describe_custom_fields` (with a searchable explorer UI in capable hosts)
 
 The full tool catalog is in [Tools reference](/tools/).
 
