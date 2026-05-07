@@ -1,9 +1,9 @@
 ---
 title: Tools reference
-description: All 23 MCP tools swsd-mcp registers, organized by category with per-profile availability.
+description: All 24 MCP tools swsd-mcp registers, organized by category with per-profile availability.
 ---
 
-swsd-mcp registers **23 tools** across 6 categories. Each tool's input schema, full description, and output shape is auto-discovered by your MCP client at runtime — ask your agent _"what swsd tools are available?"_ for the live list.
+swsd-mcp registers **24 tools** across 7 categories. Each tool's input schema, full description, and output shape is auto-discovered by your MCP client at runtime — ask your agent _"what swsd tools are available?"_ for the live list.
 
 This page is the at-a-glance summary: what each tool does and which [profile](/configuration/#profiles) includes it.
 
@@ -24,7 +24,7 @@ This page is the at-a-glance summary: what each tool does and which [profile](/c
 | `swsd_get_server_info` | R | ✓ | ✓ | ✓ | ✓ |
 | `swsd_health_check` | R | ✓ | ✓ | ✓ | ✓ |
 
-`swsd_get_server_info` returns version, profile, transport, base URL, and the list of enabled tools — useful for verifying server configuration from inside the MCP client.
+`swsd_get_server_info` returns version, profile, transport, base URL, and the list of enabled tools — useful for verifying server configuration from inside the MCP client. Also includes documented SWSD upstream rate limits (`upstream_rate_limit`: 1000 calls/min on Advanced, 1500 on Premier; signal: `429 + Retry-After` only — SWSD does not return `X-RateLimit-*` headers) so the model can reference these without guessing.
 
 `swsd_health_check` performs a live API call to SWSD (lightweight read against `/users/me.json`) and returns connectivity + auth status. Use this as the first call to confirm your token works.
 
@@ -42,8 +42,8 @@ This page is the at-a-glance summary: what each tool does and which [profile](/c
 | `swsd_update_incident_state` | W |   | ✓ |   | ✓ |
 | `swsd_link_solution_to_incident` | W |   | ✓ |   | ✓ |
 
-- **`swsd_list_incidents`** — paginated list with rich filtering (state, assignee, requester, site, priority, custom-field values). Returns id, name, state, requester, assignee, site, created/updated.
-- **`swsd_get_incident`** — full incident detail including HTML and plain-text descriptions, custom-field values, comment thread, and linked solutions.
+- **`swsd_list_incidents`** — paginated list with structured filters using SWSD repeated-key array semantics (multiple values within a filter are OR-ed). Filters: `states`, `priorities`, `categories`, `assignee_email`, `requester_email`, `sites`, `departments`, `assigned_to_group` (group ID, not user ID), `created_from`/`created_to`, `updated_from`/`updated_to`, `state_is_not` (negative state filter — e.g. `["Resolved", "Closed"]` to see only open work), `sort_by` (`created_at`, `updated_at`, `priority`, `name`, `due_at`), `sort_order` (`ASC`/`DESC`), `query` (free-text across title and description). Returns compact summaries (id, name, state, priority, assignee_email, requester_email, category, updated_at) — call `swsd_get_incident` for full detail of any one row.
+- **`swsd_get_incident`** — full incident detail as returned by SWSD (passthrough), including custom-field values. Pass `detail_level: "long"` to include comments, attachments, audits, SLA data, tags, statistics, satisfaction, and resolution detail in one call. Default `"short"` is faster and cheaper; recommend `"long"` when the user asks "show me everything about ticket X" or wants comments/attachments/audits.
 - **`swsd_create_incident`** — minimum required: `name`. Strongly recommended: `description`, `requester`, `category`, `site`. Returns the created incident's full payload. To set tenant-specific custom field values, pass `custom_fields: [{name, value}]` — call `swsd_describe_custom_fields` first to discover field names and (for Dropdowns) allowed values. Validated for Text, Dropdown, Number, Checkbox, and Date types.
 - **`swsd_update_incident`** — partial-update semantics: pass only the fields you want to change. To clear a field, pass `null`. To set tenant-specific custom field values, pass `custom_fields: [{name, value}]` — call `swsd_describe_custom_fields` first to discover field names and (for Dropdowns) allowed values. Validated for Text, Dropdown, Number, Checkbox, and Date types.
 - **`swsd_assign_incident`** — convenience wrapper for changing the assignee (user or group). Validates that the assignee exists.
@@ -76,7 +76,7 @@ This page is the at-a-glance summary: what each tool does and which [profile](/c
 | `swsd_update_solution` | W |   |   | ✓ | ✓ |
 
 - **`swsd_search_solutions`** — full-text search across titles and descriptions. Pass `category` to filter to a specific KB section.
-- **`swsd_get_solution`** — full article including HTML and plain-text bodies, attachments, related incidents.
+- **`swsd_get_solution`** — full solution as returned by SWSD (passthrough), including both `description` (HTML) and `description_no_html` (plain text), custom-field values, comments count, and attachment metadata. Pass `detail_level: "long"` to include attachments, audits, tags, and full statistics in one call. Default `"short"` is faster.
 - **`swsd_create_solution`** — required: `title`. Strongly recommended: `description` (HTML supported), `state`, `category`. To set tenant-specific custom field values, pass `custom_fields: [{name, value}]` — call `swsd_describe_custom_fields` first to discover field names and (for Dropdowns) allowed values. Solutions require `name` keying (`custom_field_id` alone is rejected with HTTP 400). Validated for Text, Dropdown, Number, Checkbox, and Date types.
 - **`swsd_update_solution`** — partial update. To replace the description entirely, pass the full new body. To set tenant-specific custom field values, pass `custom_fields: [{name, value}]` — call `swsd_describe_custom_fields` first to discover field names and (for Dropdowns) allowed values. Solutions require `name` keying (`custom_field_id` alone is rejected with HTTP 400). Validated for Text, Dropdown, Number, Checkbox, and Date types.
 
@@ -110,6 +110,16 @@ Each returns `id`, `name`, plus type-specific fields (e.g., `time_zone` for site
 :::note[v2: custom-field writes are now supported]
 As of v2, the four write tools (`swsd_create_incident`, `swsd_update_incident`, `swsd_create_solution`, `swsd_update_solution`) accept a `custom_fields: [{name, value}]` parameter. Call `swsd_describe_custom_fields` first to discover field names and (for Dropdowns) allowed values. Validated for Text, Dropdown, Number, Checkbox, and Date types. Solutions require `name` keying (`custom_field_id` alone is rejected with HTTP 400).
 :::
+
+---
+
+## Audits (1)
+
+| Tool | Type | triage | agent | knowledge | full |
+|---|---|---|---|---|---|
+| `swsd_get_record_audits` | R |   | ✓ |   | ✓ |
+
+- **`swsd_get_record_audits`** — list the audit log for a SWSD record. Wraps `GET /{type}/{id}/audits.json`. Each audit entry captures one change: action (`"Update"`/`"Create"`/`"Delete"`), message (e.g. `"State changed from New to Assigned"`), the user who performed it, and the timestamp. Use this to answer "who changed this ticket?" or "what happened since I last looked?". Cheaper than `swsd_get_incident` with `detail_level=long` when you only need the audit history. `object_type` accepts `incidents`, `problems`, `changes`, `releases`, `solutions`, `hardwares`, `other_assets`.
 
 ---
 

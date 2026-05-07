@@ -1,4 +1,5 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { z } from 'zod';
 import { structuredResult } from '../../mcp/output.js';
 import { mapSwsdError } from '../../swsd/errors.js';
 import type { ToolContext } from '../../config/toolRegistry.js';
@@ -11,6 +12,11 @@ export function registerHealthCheck(server: McpServer, ctx: ToolContext): void {
         'Verify connectivity and authentication to SWSD by making a minimal request. ' +
         'Returns ok=true on success, otherwise an error explaining the failure (401 = bad token, 403 = insufficient permission, network error = unreachable).',
       inputSchema: {},
+      outputSchema: z.object({
+        ok: z.boolean(),
+        base_url: z.string(),
+        api_version: z.string(),
+      }).shape,
       annotations: { readOnlyHint: true, openWorldHint: true, idempotentHint: true },
     },
     async () => {

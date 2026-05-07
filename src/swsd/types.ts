@@ -108,3 +108,20 @@ export interface CustomFieldSummary {
   help_text?: string;
   searchable: boolean;
 }
+
+export interface AuditSummary {
+  id: number;
+  /** Human-readable change description, e.g. "State changed from New to On Hold". */
+  message: string;
+  /** Action taken — typically "Update", "Create", or "Delete". */
+  action?: string;
+  created_at?: string;
+  /** The user who performed the action (display name; user_id is separate). */
+  user?: string;
+  user_id?: number;
+  /** Free-text note attached to the audit, often empty. */
+  note?: string;
+  /** Optional: source-record reference fields (helpful for global /audits queries). */
+  source_type?: string;
+  source_id?: number;
+}

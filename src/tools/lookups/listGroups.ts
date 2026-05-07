@@ -1,10 +1,20 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { z } from 'zod';
 import { ListLookupInput } from '../../schemas/lookup.js';
+import { PaginationOutput } from '../../schemas/output.js';
 import { structuredResult } from '../../mcp/output.js';
 import { mapSwsdError } from '../../swsd/errors.js';
 import { toGroupSummary } from '../../swsd/mappers/lookup.js';
 import { fetchAndMap } from '../../swsd/list-helper.js';
 import type { ToolContext } from '../../config/toolRegistry.js';
+
+const GroupSummaryOutput = z.object({
+  id: z.number().int(),
+  name: z.string(),
+  description: z.string().optional(),
+  disabled: z.boolean(),
+  member_count: z.number().int().optional(),
+});
 
 export function registerListGroups(server: McpServer, ctx: ToolContext): void {
   server.registerTool(
@@ -14,6 +24,10 @@ export function registerListGroups(server: McpServer, ctx: ToolContext): void {
         'List SWSD groups (assignment teams). Returns id, name, description, disabled, ' +
         'member_count. Useful for understanding team structure when triaging tickets.',
       inputSchema: ListLookupInput.shape,
+      outputSchema: z.object({
+        groups: z.array(GroupSummaryOutput),
+        pagination: PaginationOutput,
+      }).shape,
       annotations: { readOnlyHint: true, openWorldHint: true, idempotentHint: true },
     },
     async (input) => {

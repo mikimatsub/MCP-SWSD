@@ -25,6 +25,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The v0.5 documented limitation that "SWSD returns 500 on every payload variant tested" for custom-field writes was **incorrect**. v1's investigation tested only the array-direct shape `{custom_fields_values: [{name, value}]}`. The actual shape SWSD requires is the SAManage-documented nested wrapper `{custom_fields_values: {custom_fields_value: [{name, value}]}}` — confirmed live against the live tenant on May 6, 2026 and against the official `SAManage/Samples` Ruby code (https://github.com/SAManage/Samples/blob/master/Sync%20Users/sync_users.rb). The `swsd_describe_custom_fields` tool description and the server-level INSTRUCTIONS string have been updated accordingly.
 
+### Added (Tier 1 — v2 quick wins)
+
+- `detail_level: 'short' | 'long'` parameter on `swsd_get_incident` and `swsd_get_solution`. Use `'long'` to fold SWSD's `?layout=long` extras (comments, attachments, audits, SLA data, tags, statistics, satisfaction, resolution for incidents; attachments, audits, tags, full statistics for solutions) into one call. Replaces the typical 2–3 round-trip pattern.
+- New tool `swsd_get_record_audits` — wraps `GET /{type}/{id}/audits.json` for `incidents`, `problems`, `changes`, `releases`, `solutions`, `hardwares`, and `other_assets`. In the `agent` and `full` profiles. Lets the model answer "who changed this and when?" without parsing layout=long.
+- Expanded `swsd_list_incidents` filters: `sites`, `departments`, `assigned_to_group`, `created_from`/`created_to`, `updated_to`, `state_is_not`, `sort_by`, `sort_order`, free-text `query`. All forward-only — no breaking changes.
+- `outputSchema` declared on all 15 read tools — enables client-side response validation, particularly useful for Microsoft Copilot Studio response shape validation.
+- `upstream_rate_limit` block added to `swsd_get_server_info` output. Documents SWSD's account-wide rate limits (1000 cpm Advanced / 1500 cpm Premier; signal: `429 + Retry-After` only — no `X-RateLimit-*` headers).
+- New tool `swsd_get_record_audits` registered in `agent` and `full` profiles, raising tool count from 23 to 24 across 7 categories (added the Audits category).
+
+### Changed (Tier 1 — v2 quick wins)
+
+- `@modelcontextprotocol/sdk` floor relaxed from exact `1.29.0` to `^1.26.0`. Picks up `GHSA-345p-7cg4-v4c7` (cross-client response-leak) fix as defense-in-depth even though v1's per-request server construction was already safe.
+
+### Tests (Tier 1 — v2 quick wins)
+
+- New `tests/unit/mappers/audit.test.ts` — 8 edge-case tests for `toAuditSummary`.
+- New `tests/unit/toolNames.test.ts` — 25 tests asserting every tool in `PROFILE_TOOLS` matches the SEP-986 name regex (`^[a-zA-Z][a-zA-Z0-9_-]{0,127}$`). Defense against future drift.
+
 ## [1.0.0] — _pending first publish_
 
 ### Initial public release

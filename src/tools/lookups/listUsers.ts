@@ -1,10 +1,24 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { z } from 'zod';
 import { ListUsersInput } from '../../schemas/lookup.js';
+import { PaginationOutput } from '../../schemas/output.js';
 import { structuredResult } from '../../mcp/output.js';
 import { mapSwsdError } from '../../swsd/errors.js';
 import { toUserSummary } from '../../swsd/mappers/lookup.js';
 import { fetchAndMap } from '../../swsd/list-helper.js';
 import type { ToolContext } from '../../config/toolRegistry.js';
+
+const UserSummaryOutput = z.object({
+  id: z.number().int(),
+  name: z.string(),
+  email: z.string().optional(),
+  disabled: z.boolean(),
+  available_for_assignment: z.boolean().optional(),
+  role: z.string().optional(),
+  site: z.string().optional(),
+  department: z.string().optional(),
+  title: z.string().optional(),
+});
 
 export function registerListUsers(server: McpServer, ctx: ToolContext): void {
   server.registerTool(
@@ -15,6 +29,10 @@ export function registerListUsers(server: McpServer, ctx: ToolContext): void {
         'site, department, title. Set `available_for_assignment_only: true` to find valid ' +
         'assignees for swsd_assign_incident. Set `email` to look up one user exactly.',
       inputSchema: ListUsersInput.shape,
+      outputSchema: z.object({
+        users: z.array(UserSummaryOutput),
+        pagination: PaginationOutput,
+      }).shape,
       annotations: { readOnlyHint: true, openWorldHint: true, idempotentHint: true },
     },
     async (input) => {

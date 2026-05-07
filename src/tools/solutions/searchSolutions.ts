@@ -1,10 +1,27 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { z } from 'zod';
 import { SearchSolutionsInput } from '../../schemas/solution.js';
+import { PaginationOutput } from '../../schemas/output.js';
 import { structuredResult } from '../../mcp/output.js';
 import { mapSwsdError } from '../../swsd/errors.js';
 import { toSolutionSummary } from '../../swsd/mappers/solution.js';
 import { fetchAndMap } from '../../swsd/list-helper.js';
 import type { ToolContext } from '../../config/toolRegistry.js';
+
+const SolutionSummaryOutput = z.object({
+  id: z.number().int(),
+  number: z.number().int().optional(),
+  name: z.string(),
+  state: z.string().optional(),
+  category: z.string().optional(),
+  excerpt: z.string().optional(),
+  requester_email: z.string().optional(),
+  updated_at: z.string().optional(),
+  href: z
+    .string()
+    .optional()
+    .describe('Relative API path to the solution (e.g. /solutions/1234.json).'),
+});
 
 export function registerSearchSolutions(server: McpServer, ctx: ToolContext): void {
   server.registerTool(
@@ -19,6 +36,10 @@ export function registerSearchSolutions(server: McpServer, ctx: ToolContext): vo
         'last few minutes (sometimes hours) may not appear yet. To verify a just-created ' +
         'article, use swsd_get_solution with the ID returned by swsd_create_solution.',
       inputSchema: SearchSolutionsInput.shape,
+      outputSchema: z.object({
+        solutions: z.array(SolutionSummaryOutput),
+        pagination: PaginationOutput,
+      }).shape,
       annotations: { readOnlyHint: true, openWorldHint: true, idempotentHint: true },
     },
     async (input) => {

@@ -1,4 +1,5 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { z } from 'zod';
 import { GetSolutionInput } from '../../schemas/solution.js';
 import { structuredResult } from '../../mcp/output.js';
 import { toolError } from '../../mcp/errors.js';
@@ -15,17 +16,25 @@ export function registerGetSolution(server: McpServer, ctx: ToolContext): void {
         'returned by SWSD (passthrough), including both `description` (HTML) and ' +
         '`description_no_html` (plain text) fields, custom_fields_values, comments ' +
         'count, and attachment metadata. Use swsd_search_solutions first if you ' +
-        'only have a topic — IDs are not guessable.',
+        'only have a topic — IDs are not guessable.' +
+        ' Pass detail_level: "long" to include attachments, audits, and tags in one call.',
       inputSchema: GetSolutionInput.shape,
+      outputSchema: z.object({
+        solution: z.record(z.string(), z.unknown()),
+      }).shape,
       annotations: { readOnlyHint: true, openWorldHint: true, idempotentHint: true },
     },
-    async ({ id }) => {
+    async (input) => {
       try {
-        const { body } = await ctx.client.get<unknown>(`/solutions/${String(id)}.json`);
+        const params = input.detail_level === 'long' ? { layout: 'long' } : {};
+        const { body } = await ctx.client.get<unknown>(
+          `/solutions/${String(input.id)}.json`,
+          params,
+        );
         const solution = toSolutionDetail(body);
         if (!solution) {
           return toolError(
-            `Could not parse solution ${String(id)} response from SWSD.`,
+            `Could not parse solution ${String(input.id)} response from SWSD.`,
             'The response was not a JSON object with a numeric id field. Verify the solution exists with swsd_search_solutions.',
           );
         }
