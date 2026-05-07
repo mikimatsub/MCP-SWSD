@@ -8,7 +8,11 @@ import { toAuditSummary } from '../../swsd/mappers/audit.js';
 import type { ToolContext } from '../../config/toolRegistry.js';
 
 const AuditSummaryOutput = z.object({
-  id: z.number().int(),
+  uuid: z
+    .string()
+    .describe(
+      'Stable identifier for the audit row (SWSD assigns a UUID; no numeric id is exposed).',
+    ),
   message: z
     .string()
     .describe('Human-readable change description, e.g. "State changed from New to On Hold".'),

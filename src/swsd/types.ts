@@ -110,7 +110,11 @@ export interface CustomFieldSummary {
 }
 
 export interface AuditSummary {
-  id: number;
+  /**
+   * Stable identifier for the audit entry. SWSD assigns a UUID string per
+   * audit row (no numeric id is exposed by /{object}/{id}/audits.json).
+   */
+  uuid: string;
   /** Human-readable change description, e.g. "State changed from New to On Hold". */
   message: string;
   /** Action taken — typically "Update", "Create", or "Delete". */
