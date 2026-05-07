@@ -13,6 +13,7 @@ const BUNDLES: Array<{ name: string; sentinel: string }> = [
   { name: '_smoke', sentinel: 'SWSD UI Smoke' },
   { name: 'incident-detail', sentinel: 'SWSD Incident' },
   { name: 'solution-detail', sentinel: 'SWSD Solution' },
+  { name: 'incident-list', sentinel: 'SWSD Incidents' },
 ];
 
 describe('UI build artifacts', () => {
