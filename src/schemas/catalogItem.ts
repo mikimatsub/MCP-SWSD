@@ -38,5 +38,9 @@ export const ListCatalogItemsInput = z.object({
 });
 
 export const GetCatalogItemInput = z.object({
-  id: z.number().int().describe('Catalog item id from swsd_list_catalog_items.'),
+  id: z
+    .number()
+    .int()
+    .positive()
+    .describe('Catalog item id from swsd_list_catalog_items.'),
 });

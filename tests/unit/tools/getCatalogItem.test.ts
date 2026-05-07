@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { registerGetCatalogItem } from '../../../src/tools/catalog/getCatalogItem.js';
+import { GetCatalogItemInput } from '../../../src/schemas/catalogItem.js';
 import type { ToolContext } from '../../../src/config/toolRegistry.js';
 import type { SwsdClient, SwsdGetResult } from '../../../src/swsd/client.js';
 
@@ -234,6 +235,22 @@ describe('swsd_get_catalog_item', () => {
     )) as StructuredCallToolResult;
     const text = result.content?.[0]?.text ?? '';
     expect(text).toContain('New Employee Onboarding Process');
-    expect(text).toContain('2');
+    // Use a word-boundary match so the assertion is satisfied by the variable
+    // count, not by the digit '2' that also happens to appear in the input id.
+    expect(text).toMatch(/\b2 variables\b/);
+  });
+
+  it('rejects non-positive ids at the schema boundary', () => {
+    // The zod schema's .positive() guard should reject 0 and negative ids
+    // before they ever hit the API — preventing wasted /catalog_items/-5.json
+    // 404s and surfacing the problem at the input layer. The MCP transport
+    // runs this validation before the tool handler is invoked; tested
+    // directly here against the schema for a stable, transport-independent
+    // assertion.
+    expect(GetCatalogItemInput.safeParse({ id: -1 }).success).toBe(false);
+    expect(GetCatalogItemInput.safeParse({ id: 0 }).success).toBe(false);
+    expect(GetCatalogItemInput.safeParse({ id: 1.5 }).success).toBe(false);
+    expect(GetCatalogItemInput.safeParse({ id: 'abc' }).success).toBe(false);
+    expect(GetCatalogItemInput.safeParse({ id: 2757496 }).success).toBe(true);
   });
 });
