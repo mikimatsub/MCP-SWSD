@@ -16,6 +16,19 @@ const FALLBACK_UI_DIR = resolve(process.cwd(), 'dist', 'ui');
 
 const cache = new Map<string, string>();
 
+/**
+ * Loads an inlined UI bundle produced by `npm run build:ui`.
+ *
+ * @param name - Bundle slug WITHOUT the `.html` extension (e.g. `_smoke`,
+ *   `incident-detail`). Mirrors the entry name in `vite.config.ts` UI_TOOLS.
+ * @returns The full inlined HTML string ready to ship as an MCP resource —
+ *   `vite-plugin-singlefile` has already inlined every `<script>` and `<link>`.
+ * @throws If the bundle file is missing, with a build-hint message pointing
+ *   at `npm run build:ui`.
+ *
+ * Reads are cached for the process lifetime; the file is read from disk only
+ * the first time a given `name` is requested.
+ */
 export function loadUiResource(name: string): string {
   const cached = cache.get(name);
   if (cached !== undefined) return cached;
@@ -35,7 +48,7 @@ export function loadUiResource(name: string): string {
   return html;
 }
 
-/** Internal — reset cache between tests. Not exported from the package. */
+/** Internal — leading underscore signals not-public-API; used only by uiResources tests to reset state between cases. */
 export function _resetCacheForTests(): void {
   cache.clear();
 }
