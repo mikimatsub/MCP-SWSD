@@ -33,6 +33,13 @@ export const GetSolutionInput = z.object({
     .int()
     .positive()
     .describe('SWSD solution ID (numeric).'),
+  detail_level: z
+    .enum(['short', 'long'])
+    .default('short')
+    .describe(
+      'Use "long" to include attachments, audits, tags, and full statistics ' +
+        'in one call. Default "short" is faster.',
+    ),
 });
 
 export const CreateSolutionInput = z.object({
