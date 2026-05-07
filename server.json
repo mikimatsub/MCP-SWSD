@@ -1,0 +1,45 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.mikimatsub/swsd",
+  "description": "MCP server for SolarWinds Service Desk: tickets, knowledge base, and the service catalog.",
+  "version": "2.0.0",
+  "websiteUrl": "https://mcp-swsd.pages.dev",
+  "repository": {
+    "url": "https://github.com/mikimatsub/MCP-SWSD",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "swsd-mcp",
+      "version": "2.0.0",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "SWSD_TOKEN",
+          "description": "SolarWinds Service Desk admin token (JWT). Generate in the SWSD UI: Setup -> Users & Groups -> Users -> [your user] -> Actions -> Generate JSON Web Token. Service Desk administrator rights required.",
+          "isRequired": true,
+          "isSecret": true,
+          "format": "string"
+        },
+        {
+          "name": "SWSD_BASE_URL",
+          "description": "SWSD API base URL. US tenants: https://api.samanage.com (default). EU tenants: https://apieu.samanage.com.",
+          "isRequired": false,
+          "format": "string",
+          "default": "https://api.samanage.com"
+        },
+        {
+          "name": "SWSD_PROFILE",
+          "description": "Tool registration profile: 'triage' (12 read-heavy tools), 'agent' (27 default), 'knowledge' (15 KB-author), 'full' (29 every tool).",
+          "isRequired": false,
+          "format": "string",
+          "default": "agent",
+          "choices": ["triage", "agent", "knowledge", "full"]
+        }
+      ]
+    }
+  ]
+}
