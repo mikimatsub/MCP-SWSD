@@ -1,14 +1,23 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import {
+  registerAppTool,
+  registerAppResource,
+  RESOURCE_MIME_TYPE,
+} from '@modelcontextprotocol/ext-apps/server';
 import { z } from 'zod';
 import { GetSolutionInput } from '../../schemas/solution.js';
 import { structuredResult } from '../../mcp/output.js';
 import { toolError } from '../../mcp/errors.js';
 import { mapSwsdError } from '../../swsd/errors.js';
 import { toSolutionDetail } from '../../swsd/mappers/solution.js';
+import { loadUiResource } from '../../mcp/uiResources.js';
 import type { ToolContext } from '../../config/toolRegistry.js';
 
+const UI_RESOURCE_URI = 'ui://swsd/solution-detail.html';
+
 export function registerGetSolution(server: McpServer, ctx: ToolContext): void {
-  server.registerTool(
+  registerAppTool(
+    server,
     'swsd_get_solution',
     {
       description:
@@ -23,6 +32,7 @@ export function registerGetSolution(server: McpServer, ctx: ToolContext): void {
         solution: z.record(z.string(), z.unknown()),
       }).shape,
       annotations: { readOnlyHint: true, openWorldHint: true, idempotentHint: true },
+      _meta: { ui: { resourceUri: UI_RESOURCE_URI } },
     },
     async (input) => {
       try {
@@ -44,5 +54,21 @@ export function registerGetSolution(server: McpServer, ctx: ToolContext): void {
         return mapSwsdError(err);
       }
     },
+  );
+
+  registerAppResource(
+    server,
+    'swsd-solution-detail-ui',
+    UI_RESOURCE_URI,
+    { description: 'Solution detail view rendered by Apps-capable hosts.' },
+    () => ({
+      contents: [
+        {
+          uri: UI_RESOURCE_URI,
+          mimeType: RESOURCE_MIME_TYPE,
+          text: loadUiResource('solution-detail'),
+        },
+      ],
+    }),
   );
 }

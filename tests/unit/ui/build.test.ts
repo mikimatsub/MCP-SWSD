@@ -12,6 +12,7 @@ const distUi = resolve(process.cwd(), 'dist', 'ui');
 const BUNDLES: Array<{ name: string; sentinel: string }> = [
   { name: '_smoke', sentinel: 'SWSD UI Smoke' },
   { name: 'incident-detail', sentinel: 'SWSD Incident' },
+  { name: 'solution-detail', sentinel: 'SWSD Solution' },
 ];
 
 describe('UI build artifacts', () => {
