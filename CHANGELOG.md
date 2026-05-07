@@ -7,6 +7,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-05-07
+
+The v2 release. Strictly additive over v1.0.1 — no existing tool's input or
+output schema changed, no tool was removed, no breaking change in any wire
+contract. The major-version bump is for scope (5 new tools, MCP Apps UI
+capability, identity tools, audits, custom-field writes, and the Service
+Catalog category) rather than for SemVer-compatibility breakage.
+
+Highlights:
+
+- **Identity** — `swsd_get_me` decodes the JWT, looks up the authenticated
+  user via `/users/{id}.json`, and returns user_id + email + groups so
+  agents can answer "my X" queries without manual entry. `swsd_list_my_incidents`
+  is the Asana-style wrapper.
+- **MCP Apps UI** — four read tools (`swsd_get_incident`, `swsd_get_solution`,
+  `swsd_list_incidents`, `swsd_describe_custom_fields`) ship rich UI bundles
+  for hosts that support [SEP-1865](https://modelcontextprotocol.io/specification/2025-11-25).
+  Hosts without MCP Apps support are unaffected.
+- **Service Catalog** — three new tools (`swsd_list_catalog_items`,
+  `swsd_get_catalog_item`, `swsd_create_service_request`) so agents can
+  fulfill requests through SWSD's catalog instead of always creating
+  generic incidents.
+- **Audits** — `swsd_get_record_audits` exposes the per-record change log.
+- **Custom-field writes** — `swsd_create_incident`, `swsd_update_incident`,
+  `swsd_create_solution`, `swsd_update_solution` accept a `custom_fields`
+  parameter that maps to SWSD's nested-wrapper write convention.
+- **Scope discriminator** — list tools now return `pagination.total_scope`
+  (`filtered` / `tenant` / `unknown`) and `applied_filters` echo so agents
+  can distinguish "narrowed to my filters" from "all tenant data".
+
 ### Added (Tier 2 — v2 Service Catalog support)
 
 - Three new tools that surface SWSD's Service Catalog:
@@ -229,5 +259,7 @@ Detailed history available via `git log`.
 * **2026-05-03** — `0.1.0`: initial dual-transport foundation +
   incident reads (4 tools)
 
-[Unreleased]: https://github.com/mikimatsub/MCP-SWSD/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/mikimatsub/MCP-SWSD/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/mikimatsub/MCP-SWSD/compare/v1.0.1...v2.0.0
+[1.0.1]: https://github.com/mikimatsub/MCP-SWSD/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/mikimatsub/MCP-SWSD/releases/tag/v1.0.0
