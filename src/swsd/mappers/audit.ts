@@ -2,16 +2,21 @@ import type { AuditSummary } from '../types.js';
 
 /**
  * Project a raw SWSD audit entry into a compact summary.
- * Strips department/site nested fields — those belong on the parent record,
- * not on each audit. Preserves empty-string note as distinct from missing.
+ *
+ * The canonical identifier is `uuid` (string) — SWSD's
+ * /{object}/{id}/audits.json endpoint does not expose a numeric id.
+ *
+ * Strips department/site/hardware_href nested fields — those belong on the
+ * parent record, not on each audit. Preserves empty-string note as distinct
+ * from missing.
  */
 export function toAuditSummary(raw: unknown): AuditSummary | null {
   if (!isPlainObject(raw)) return null;
-  const id = numberOrNull(raw.id);
-  if (id === null) return null;
+  const uuid = nonEmptyStringOrNull(raw.uuid);
+  if (uuid === null) return null;
 
   return {
-    id,
+    uuid,
     message: stringOrEmpty(raw.message),
     action: stringOrUndefined(raw.action),
     created_at: stringOrUndefined(raw.created_at),
@@ -25,6 +30,10 @@ export function toAuditSummary(raw: unknown): AuditSummary | null {
 
 function isPlainObject(v: unknown): v is Record<string, unknown> {
   return typeof v === 'object' && v !== null && !Array.isArray(v);
+}
+
+function nonEmptyStringOrNull(v: unknown): string | null {
+  return typeof v === 'string' && v.length > 0 ? v : null;
 }
 
 function numberOrNull(v: unknown): number | null {
