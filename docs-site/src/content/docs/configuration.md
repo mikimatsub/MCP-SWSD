@@ -48,10 +48,10 @@ Profiles control which tools are registered at startup. The choice is made once 
 
 | Profile | Intent | Tool count |
 |---|---|---|
-| `triage` | Read-heavy first-line support workflow + commenting | 8 |
-| `agent` | Full ticket-handler workflow + KB lookups + custom-field introspection (default) | 21 |
-| `knowledge` | KB-author workflow + incident reads + custom-field introspection | 11 |
-| `full` | Every tool registered | 23 |
+| `triage` | Read-heavy first-line support workflow + commenting | 12 |
+| `agent` | Full ticket-handler workflow + KB lookups + custom-field introspection + service-catalog (default) | 27 |
+| `knowledge` | KB-author workflow + incident reads + custom-field introspection | 15 |
+| `full` | Every tool registered | 29 |
 
 ### When to pick which
 
@@ -73,10 +73,12 @@ This gives you the `triage` profile **plus** solution lookups — handy when fir
 
 ## Verifying configuration at startup
 
-In stdio mode, the server prints a single line at startup with the active configuration:
+**Stdio mode is intentionally silent on stdout** — the MCP transport multiplexes JSON-RPC over stdout, so the server cannot print human-readable banners there. To verify configuration in stdio mode, call the `swsd_get_server_info` tool from your MCP client; it returns the active profile, base URL, version, transport, and full tool list as a structured response.
+
+**HTTP mode** prints a single startup line on stderr (no token leakage):
 
 ```
-swsd-mcp 1.0.1 — profile=agent, transport=stdio, baseUrl=https://api.samanage.com, tools=21
+swsd-mcp 1.0.1 HTTP transport listening on :3000 (POST /mcp, GET /healthz; rate limit 100/60s, request timeout 30s)
 ```
 
-In HTTP mode, hit `/healthz` for `{"ok":true}` (deliberately minimal — no version disclosure to anonymous callers) or call the `swsd_get_server_info` MCP tool through your authenticated client for full configuration details.
+In HTTP mode, hit `GET /healthz` for `{"ok":true}` (deliberately minimal — no version disclosure to anonymous callers) or call `swsd_get_server_info` through an authenticated MCP client for full configuration details.

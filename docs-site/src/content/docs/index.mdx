@@ -19,13 +19,19 @@ import { Card, CardGrid } from '@astrojs/starlight/components';
 
 <CardGrid stagger>
   <Card title="Multi-client" icon="puzzle">
-    Drop-in support for Claude Desktop, Claude Code, Cursor, Continue, Cline, and Microsoft Copilot Studio.
+    Drop-in support for Claude Desktop, Claude Code, Cursor, Continue, Cline, ChatGPT, VS Code GitHub Copilot, Microsoft Copilot Studio, Goose, and any other Model Context Protocol client.
   </Card>
   <Card title="Zero credentials at rest" icon="seti:lock">
     Each user's SWSD token is forwarded per-request, never persisted, never logged.
   </Card>
   <Card title="Profile-scoped tools" icon="setting">
-    Pick `triage`, `agent`, `knowledge`, or `full` to control which of the 23 tools each deployment exposes.
+    Pick `triage`, `agent`, `knowledge`, or `full` to control which of the 29 tools across 8 categories each deployment exposes.
+  </Card>
+  <Card title="MCP Apps UI" icon="laptop">
+    Four read tools (`swsd_get_incident`, `swsd_get_solution`, `swsd_list_incidents`, `swsd_describe_custom_fields`) ship rich UI bundles for capable hosts. Text-only clients are unaffected.
+  </Card>
+  <Card title="Service Catalog" icon="add-document">
+    Browse, inspect, and submit catalog requests with `swsd_list_catalog_items`, `swsd_get_catalog_item`, and `swsd_create_service_request`.
   </Card>
   <Card title="Self-hostable" icon="rocket">
     Stdio for local agents, Streamable HTTP for hosted/Copilot Studio. Docker image and Azure Container Apps recipe included.
