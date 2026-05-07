@@ -37,6 +37,13 @@ export interface SolutionWriteFields {
   description?: string;
   state?: string;
   category_name?: string;
+  /**
+   * Tenant-specific custom field values. Each row is `{name, value}`.
+   * IMPORTANT: solutions REQUIRE name keying — the custom_field_id-only
+   * variant returns 400 (verified live May 6, 2026). For incidents either
+   * works; standardize on name for cross-entity portability.
+   */
+  custom_fields?: { name: string; value: string | number | boolean }[];
 }
 
 /**
@@ -52,6 +59,14 @@ export function buildSolutionWritePayload(
   if (fields.description !== undefined) solution.description = fields.description;
   if (fields.state !== undefined) solution.state = fields.state;
   if (fields.category_name !== undefined) solution.category = { name: fields.category_name };
+  if (fields.custom_fields !== undefined && fields.custom_fields.length > 0) {
+    solution.custom_fields_values = {
+      custom_fields_value: fields.custom_fields.map((cf) => ({
+        name: cf.name,
+        value: cf.value,
+      })),
+    };
+  }
   return { solution };
 }
 

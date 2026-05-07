@@ -133,4 +133,63 @@ describe('buildSolutionWritePayload', () => {
     });
   });
 
+  it('emits custom_fields under the SAManage nested wrapper (single field)', () => {
+    const p = buildSolutionWritePayload({
+      custom_fields: [{ name: 'Charge Number', value: 'CC-42' }],
+    });
+    expect(p).toEqual({
+      solution: {
+        custom_fields_values: {
+          custom_fields_value: [{ name: 'Charge Number', value: 'CC-42' }],
+        },
+      },
+    });
+  });
+
+  it('emits custom_fields with multiple rows in declared order', () => {
+    const p = buildSolutionWritePayload({
+      custom_fields: [
+        { name: 'Charge Number', value: 'CC-42' },
+        { name: 'Lease Commencement Date', value: '2026-01-15' },
+      ],
+    });
+    expect(p).toEqual({
+      solution: {
+        custom_fields_values: {
+          custom_fields_value: [
+            { name: 'Charge Number', value: 'CC-42' },
+            { name: 'Lease Commencement Date', value: '2026-01-15' },
+          ],
+        },
+      },
+    });
+  });
+
+  it('combines custom_fields with other fields under one solution wrapper', () => {
+    const p = buildSolutionWritePayload({
+      name: 'How to reset a printer',
+      state: 'Published',
+      custom_fields: [{ name: 'Charge Number', value: 'CC-42' }],
+    });
+    expect(p).toEqual({
+      solution: {
+        name: 'How to reset a printer',
+        state: 'Published',
+        custom_fields_values: {
+          custom_fields_value: [{ name: 'Charge Number', value: 'CC-42' }],
+        },
+      },
+    });
+  });
+
+  it('omits custom_fields_values entirely when custom_fields is undefined', () => {
+    const p = buildSolutionWritePayload({ name: 'x' });
+    expect(p.solution).not.toHaveProperty('custom_fields_values');
+  });
+
+  it('omits custom_fields_values when custom_fields is empty array', () => {
+    const p = buildSolutionWritePayload({ name: 'x', custom_fields: [] });
+    expect(p.solution).not.toHaveProperty('custom_fields_values');
+  });
+
 });
