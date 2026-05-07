@@ -32,6 +32,8 @@ import { registerUpdateSolution } from '../tools/solutions/updateSolution.js';
 
 import { registerDescribeCustomFields } from '../tools/customFields/describeCustomFields.js';
 
+import { registerGetRecordAudits } from '../tools/audits/getRecordAudits.js';
+
 export interface ToolContext {
   env: Env;
   profile: ProfileName;
@@ -70,6 +72,8 @@ const REGISTRARS: Record<string, Registrar> = {
   swsd_update_solution: registerUpdateSolution,
 
   swsd_describe_custom_fields: registerDescribeCustomFields,
+
+  swsd_get_record_audits: registerGetRecordAudits,
 };
 
 export function registerTools(server: McpServer, ctx: ToolContext): void {

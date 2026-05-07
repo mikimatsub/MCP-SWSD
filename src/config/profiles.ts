@@ -33,6 +33,8 @@ export const PROFILE_TOOLS = {
     'swsd_get_solution',
     // Custom-field schema introspection (validate before writing)
     'swsd_describe_custom_fields',
+    // Audit log lookup — "who changed this ticket and when?"
+    'swsd_get_record_audits',
   ],
   knowledge: [
     'swsd_get_server_info',
@@ -72,5 +74,6 @@ export const PROFILE_TOOLS = {
     'swsd_create_solution',
     'swsd_update_solution',
     'swsd_describe_custom_fields',
+    'swsd_get_record_audits',
   ],
 } as const satisfies Record<ProfileName, readonly string[]>;

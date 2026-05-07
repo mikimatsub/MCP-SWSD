@@ -80,7 +80,7 @@ The agent should call `swsd_health_check` and report success. If it does, you're
 
 ---
 
-## Tools (23 across 6 categories)
+## Tools (24 across 7 categories)
 
 | Category | Tools |
 |---|---|
@@ -90,6 +90,7 @@ The agent should call `swsd_health_check` and report success. If it does, you're
 | **Solutions / KB** | `swsd_search_solutions`, `swsd_get_solution`, `swsd_create_solution`, `swsd_update_solution` |
 | **Lookups** | `swsd_list_categories`, `swsd_list_sites`, `swsd_list_departments`, `swsd_list_users`, `swsd_list_groups`, `swsd_list_roles` |
 | **Custom fields** | `swsd_describe_custom_fields` |
+| **Audits** | `swsd_get_record_audits` |
 
 Each tool's input schema, description, and output shape is auto-discovered by your MCP client at runtime. Ask the agent "what swsd tools are available?" for the live list.
 
@@ -143,9 +144,9 @@ Profiles control which tools are registered at startup. Cannot be changed mid-se
 | Profile | Intent | Tool count |
 |---|---|---|
 | `triage` | Read-heavy first-line support workflow + commenting | 8 |
-| `agent` | Full ticket-handler workflow + KB lookups + custom-field introspection (default) | 21 |
+| `agent` | Full ticket-handler workflow + KB lookups + custom-field introspection (default) | 22 |
 | `knowledge` | KB-author workflow + incident reads + custom-field introspection | 11 |
-| `full` | Every tool | 23 |
+| `full` | Every tool | 24 |
 
 Use `SWSD_ENABLE_EXTRAS=swsd_foo,swsd_bar` to add specific tools on top of a profile.
 
