@@ -13,17 +13,22 @@ export function registerGetIncident(server: McpServer, ctx: ToolContext): void {
       description:
         'Fetch one SWSD incident by numeric ID. Returns the full incident detail ' +
         'as returned by SWSD (passthrough), including custom_fields_values when present. ' +
-        'Use swsd_list_incidents first if you only have a name or filter — IDs are not guessable.',
+        'Use swsd_list_incidents first if you only have a name or filter — IDs are not guessable.' +
+        ' Pass detail_level: "long" to include comments, attachments, audits, SLA data, and resolution in one call.',
       inputSchema: GetIncidentInput.shape,
       annotations: { readOnlyHint: true, openWorldHint: true, idempotentHint: true },
     },
-    async ({ id }) => {
+    async (input) => {
       try {
-        const { body } = await ctx.client.get<unknown>(`/incidents/${String(id)}.json`);
+        const params = input.detail_level === 'long' ? { layout: 'long' } : {};
+        const { body } = await ctx.client.get<unknown>(
+          `/incidents/${String(input.id)}.json`,
+          params,
+        );
         const incident = toIncidentDetail(body);
         if (!incident) {
           return toolError(
-            `Could not parse incident ${String(id)} response from SWSD.`,
+            `Could not parse incident ${String(input.id)} response from SWSD.`,
             'The response was not a JSON object with a numeric id field. Verify the incident exists with swsd_list_incidents.',
           );
         }

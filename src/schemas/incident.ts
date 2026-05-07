@@ -51,6 +51,15 @@ export const GetIncidentInput = z.object({
     .int()
     .positive()
     .describe('SWSD incident ID (numeric).'),
+  detail_level: z
+    .enum(['short', 'long'])
+    .default('short')
+    .describe(
+      'Use "long" to include comments, attachments, audits, SLA data, tags, ' +
+        'statistics, satisfaction, and resolution detail in one call. Default ' +
+        '"short" is faster and cheaper. Recommend "long" when the user asks ' +
+        '"show me everything about ticket X" or wants comments/attachments/audits.',
+    ),
 });
 
 export const CreateIncidentInput = z.object({
