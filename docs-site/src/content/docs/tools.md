@@ -1,9 +1,9 @@
 ---
 title: Tools reference
-description: All 25 MCP tools swsd-mcp registers, organized by category with per-profile availability.
+description: All 26 MCP tools swsd-mcp registers, organized by category with per-profile availability.
 ---
 
-swsd-mcp registers **25 tools** across 7 categories. Each tool's input schema, full description, and output shape is auto-discovered by your MCP client at runtime — ask your agent _"what swsd tools are available?"_ for the live list.
+swsd-mcp registers **26 tools** across 7 categories. Each tool's input schema, full description, and output shape is auto-discovered by your MCP client at runtime — ask your agent _"what swsd tools are available?"_ for the live list.
 
 This page is the at-a-glance summary: what each tool does and which [profile](/configuration/#profiles) includes it.
 
@@ -33,11 +33,12 @@ This page is the at-a-glance summary: what each tool does and which [profile](/c
 
 ---
 
-## Incidents (7)
+## Incidents (8)
 
 | Tool | Type | triage | agent | knowledge | full |
 |---|---|---|---|---|---|
 | `swsd_list_incidents` | R | ✓ | ✓ | ✓ | ✓ |
+| `swsd_list_my_incidents` | R | ✓ | ✓ | ✓ | ✓ |
 | `swsd_get_incident` | R | ✓ | ✓ | ✓ | ✓ |
 | `swsd_create_incident` | W |   | ✓ |   | ✓ |
 | `swsd_update_incident` | W |   | ✓ |   | ✓ |
@@ -46,6 +47,7 @@ This page is the at-a-glance summary: what each tool does and which [profile](/c
 | `swsd_link_solution_to_incident` | W |   | ✓ |   | ✓ |
 
 - **`swsd_list_incidents`** — paginated list with structured filters using SWSD repeated-key array semantics (multiple values within a filter are OR-ed). Filters: `states`, `priorities`, `categories`, `assignee_email`, `requester_email`, `sites`, `departments`, `assigned_to_group` (group ID, not user ID), `created_from`/`created_to`, `updated_from`/`updated_to`, `state_is_not` (negative state filter — e.g. `["Resolved", "Closed"]` to see only open work), `sort_by` (`created_at`, `updated_at`, `priority`, `name`, `due_at`), `sort_order` (`ASC`/`DESC`), `query` (free-text across title and description). Returns compact summaries (id, name, state, priority, assignee_email, requester_email, category, updated_at) — call `swsd_get_incident` for full detail of any one row.
+- **`swsd_list_my_incidents`** — thin wrapper over `swsd_list_incidents` that auto-resolves the authenticated user's email (via JWT decode + `/users/{user_ic}.json`) and applies it as `assignee_email`. One round-trip instead of two for first-person queries ("my tickets", "tickets assigned to me"). Same input shape as `swsd_list_incidents` minus `assignee_email`. For tenant-wide queries use `swsd_list_incidents` with explicit filters.
 - **`swsd_get_incident`** — full incident detail as returned by SWSD (passthrough), including custom-field values. Pass `detail_level: "long"` to include comments, attachments, audits, SLA data, tags, statistics, satisfaction, and resolution detail in one call. Default `"short"` is faster and cheaper; recommend `"long"` when the user asks "show me everything about ticket X" or wants comments/attachments/audits.
 - **`swsd_create_incident`** — minimum required: `name`. Strongly recommended: `description`, `requester`, `category`, `site`. Returns the created incident's full payload. To set tenant-specific custom field values, pass `custom_fields: [{name, value}]` — call `swsd_describe_custom_fields` first to discover field names and (for Dropdowns) allowed values. Validated for Text, Dropdown, Number, Checkbox, and Date types.
 - **`swsd_update_incident`** — partial-update semantics: pass only the fields you want to change. To clear a field, pass `null`. To set tenant-specific custom field values, pass `custom_fields: [{name, value}]` — call `swsd_describe_custom_fields` first to discover field names and (for Dropdowns) allowed values. Validated for Text, Dropdown, Number, Checkbox, and Date types.

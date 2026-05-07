@@ -8,6 +8,7 @@ import { registerHealthCheck } from '../tools/utility/healthCheck.js';
 import { registerGetMe } from '../tools/utility/getMe.js';
 
 import { registerListIncidents } from '../tools/incidents/listIncidents.js';
+import { registerListMyIncidents } from '../tools/incidents/listMyIncidents.js';
 import { registerGetIncident } from '../tools/incidents/getIncident.js';
 import { registerCreateIncident } from '../tools/incidents/createIncident.js';
 import { registerUpdateIncident } from '../tools/incidents/updateIncident.js';
@@ -51,6 +52,7 @@ const REGISTRARS: Record<string, Registrar> = {
   swsd_get_me: registerGetMe,
 
   swsd_list_incidents: registerListIncidents,
+  swsd_list_my_incidents: registerListMyIncidents,
   swsd_get_incident: registerGetIncident,
   swsd_create_incident: registerCreateIncident,
   swsd_update_incident: registerUpdateIncident,
