@@ -19,7 +19,8 @@
   ],
   "scripts": {
     "prebuild": "node -e \"if(process.env.CF_PAGES){throw new Error('Cloudflare Pages should build docs-site/, not the MCP server root. Set Root directory to docs-site in the Cloudflare Pages dashboard.');}\"",
-    "build": "tsc",
+    "build:ui": "vite build",
+    "build": "npm run build:ui && tsc",
     "dev": "tsx src/cli.ts",
     "start": "node dist/cli.js",
     "test": "vitest run",
@@ -66,7 +67,8 @@
     "provenance": true
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.26.0",
+    "@modelcontextprotocol/ext-apps": "^1.7.1",
+    "@modelcontextprotocol/sdk": "^1.29.0",
     "express": "5.2.1",
     "express-rate-limit": "8.4.1",
     "zod": "4.4.2"
@@ -82,6 +84,8 @@
     "tsx": "4.21.0",
     "typescript": "6.0.3",
     "typescript-eslint": "8.59.1",
+    "vite": "^7.3.3",
+    "vite-plugin-singlefile": "^2.3.3",
     "vitest": "4.1.5"
   }
 }
