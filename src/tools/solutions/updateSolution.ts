@@ -18,7 +18,7 @@ export function registerUpdateSolution(server: McpServer, ctx: ToolContext): voi
         'to change. Only provided fields are sent — others stay as-is. To replace ' +
         'the description entirely, pass the full new body. WRITE — does not retry ' +
         'on transient failure.' +
-        ' To set tenant-specific custom field values, pass `custom_fields: [{name, value}]` — call swsd_describe_custom_fields first to discover field names. Solutions require `name` keying (custom_field_id alone is rejected with HTTP 400). Validated for Text, Dropdown, Number, Checkbox, and Date types.',
+        ' To set tenant-specific custom field values, pass `custom_fields: [{name, value}]` — call swsd_describe_custom_fields first to discover field names and (for Dropdowns) allowed values. Solutions require `name` keying (custom_field_id alone is rejected with HTTP 400). Validated for Text, Dropdown, Number, Checkbox, and Date types.',
       inputSchema: UpdateSolutionInput.shape,
       annotations: { readOnlyHint: false, openWorldHint: true, idempotentHint: false },
     },
