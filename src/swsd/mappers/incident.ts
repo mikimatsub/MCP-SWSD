@@ -1,4 +1,5 @@
 import type { IncidentSummary, IncidentDetail } from '../types.js';
+import type { CustomFieldWrite } from '../../schemas/customFieldWrite.js';
 
 /**
  * Project a raw SWSD incident into a compact summary.
@@ -57,7 +58,7 @@ export interface IncidentWriteFields {
    * Standardize on name keying (works for both incidents and solutions; the
    * custom_field_id alternative is incidents-only).
    */
-  custom_fields?: { name: string; value: string | number | boolean }[];
+  custom_fields?: CustomFieldWrite[];
 }
 
 /**

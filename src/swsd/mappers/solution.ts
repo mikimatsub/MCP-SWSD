@@ -1,4 +1,5 @@
 import type { SolutionSummary, SolutionDetail } from '../types.js';
+import type { CustomFieldWrite } from '../../schemas/customFieldWrite.js';
 
 const EXCERPT_MAX_CHARS = 240;
 
@@ -43,7 +44,7 @@ export interface SolutionWriteFields {
    * variant returns 400 (verified live May 6, 2026). For incidents either
    * works; standardize on name for cross-entity portability.
    */
-  custom_fields?: { name: string; value: string | number | boolean }[];
+  custom_fields?: CustomFieldWrite[];
 }
 
 /**
