@@ -147,6 +147,10 @@ or exposes a top-level `/service_requests.json` collection (currently
 - New `tests/unit/mappers/audit.test.ts` — 8 edge-case tests for `toAuditSummary`.
 - New `tests/unit/toolNames.test.ts` — 25 tests asserting every tool in `PROFILE_TOOLS` matches the SEP-986 name regex (`^[a-zA-Z][a-zA-Z0-9_-]{0,127}$`). Defense against future drift.
 
+## [1.0.1] - 2026-05-03
+
+Patch release. Mechanical version bump only (`package.json` and `package-lock.json`) — no source-code or behavior changes versus v1.0.0. Published to npm 2026-05-04.
+
 ## [1.0.0] — _pending first publish_
 
 ### Initial public release
