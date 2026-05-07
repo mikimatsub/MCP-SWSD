@@ -19,8 +19,9 @@ const cache = new Map<string, string>();
 /**
  * Loads an inlined UI bundle produced by `npm run build:ui`.
  *
- * @param name - Bundle slug WITHOUT the `.html` extension (e.g. `_smoke`,
- *   `incident-detail`). Mirrors the entry name in `vite.config.ts` UI_TOOLS.
+ * @param name - Bundle slug WITHOUT the `.html` extension (e.g.
+ *   `incident-detail`, `solution-detail`, `incident-list`, `custom-fields`).
+ *   Mirrors the entry name in `scripts/ui-tools.mjs` UI_TOOLS.
  * @returns The full inlined HTML string ready to ship as an MCP resource —
  *   `vite-plugin-singlefile` has already inlined every `<script>` and `<link>`.
  * @throws If the bundle file is missing, with a build-hint message pointing

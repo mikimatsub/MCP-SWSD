@@ -10,7 +10,6 @@ const distUi = resolve(process.cwd(), 'dist', 'ui');
  * placeholder we want to know.
  */
 const BUNDLES: Array<{ name: string; sentinel: string }> = [
-  { name: '_smoke', sentinel: 'SWSD UI Smoke' },
   { name: 'incident-detail', sentinel: 'SWSD Incident' },
   { name: 'solution-detail', sentinel: 'SWSD Solution' },
   { name: 'incident-list', sentinel: 'SWSD Incidents' },

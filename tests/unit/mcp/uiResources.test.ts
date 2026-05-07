@@ -5,10 +5,10 @@ describe('loadUiResource', () => {
   beforeEach(() => _resetCacheForTests());
 
   it('reads a UI bundle from dist/ui/<name>.html and caches it', () => {
-    // dist/ui/_smoke.html is produced by `npm run build:ui` (run before tests in CI).
-    const html = loadUiResource('_smoke');
+    // dist/ui/incident-detail.html is produced by `npm run build:ui` (run before tests in CI).
+    const html = loadUiResource('incident-detail');
     expect(html).toContain('<!doctype html>');
-    expect(html).toContain('SWSD UI Smoke');
+    expect(html).toContain('SWSD Incident');
   });
 
   it('throws a clear error when the bundle is missing', () => {
@@ -18,8 +18,8 @@ describe('loadUiResource', () => {
   });
 
   it('caches reads (second call returns the same string reference)', () => {
-    const a = loadUiResource('_smoke');
-    const b = loadUiResource('_smoke');
+    const a = loadUiResource('incident-detail');
+    const b = loadUiResource('incident-detail');
     expect(a).toBe(b);
   });
 });

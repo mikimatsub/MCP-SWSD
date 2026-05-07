@@ -12,6 +12,19 @@ const INSTRUCTIONS = [
 ].join(' ');
 
 export function createMcpServer(): McpServer {
+  // MCP Apps capability note (SEP-1865, spec 2025-11-25):
+  // We register UI-bearing tools via `registerAppTool` from
+  // `@modelcontextprotocol/ext-apps/server`, which writes `_meta.ui.resourceUri`
+  // (and the legacy `_meta["ui/resourceUri"]` mirror) into the tool entry. The
+  // matching HTML resources are registered via `registerAppResource` with the
+  // `text/html;profile=mcp-app` MIME type. No explicit server-level
+  // capability declaration is required: the spec advertises support
+  // tool-by-tool through `_meta.ui.resourceUri`, and resource-level fallbacks
+  // through the dedicated MIME profile. Hosts without MCP Apps support simply
+  // ignore the `_meta.ui` field and render the tool as text-only — no graceful
+  // degradation path needed at the server-construction level. (See ext-apps
+  // `server/index.d.ts` `getUiCapability` — that helper is for *reading* what
+  // the *client* declares, not for the server to declare anything.)
   return new McpServer(
     { name: SERVER_NAME, version: SERVER_VERSION },
     {

@@ -21,7 +21,7 @@ import { UI_TOOLS } from './scripts/ui-tools.mjs';
  * to `<entry-name>.html` at the outDir root. This keeps `dist/ui/<name>.html`
  * predictable for `loadUiResource(name)` while letting Rollup name JS chunks
  * however it wants — the singlefile plugin's classifier picks the right HTML
- * asset because `_smoke.html` (a chunk) is no longer in the bundle.
+ * asset because the entry-name chunk is no longer in the bundle.
  */
 function flattenHtmlOutput(): Plugin {
   return {
