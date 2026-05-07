@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "types": ["vite/client"],
+    "noEmit": true,
+    "module": "ESNext",
+    "moduleResolution": "Bundler"
+  },
+  "include": ["src/ui/**/*"],
+  "exclude": []
+}

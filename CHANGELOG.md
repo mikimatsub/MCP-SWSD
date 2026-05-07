@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added (Tier 1 — v2 MCP Apps capability)
+
+- MCP Apps support (SEP-1865, spec 2025-11-25) for `swsd_get_incident`,
+  `swsd_get_solution`, `swsd_list_incidents`, and
+  `swsd_describe_custom_fields`. Capable hosts render rich UI (single-record
+  detail views, filterable/sortable tables, searchable explorers); text-only
+  clients are unaffected — the `_meta.ui.resourceUri` advertisement is
+  silently ignored and the tools return their normal text + structured
+  output. UI bundles are single-file inlined HTML (`text/html;profile=mcp-app`)
+  with no external network access. New build pipeline (Vite +
+  vite-plugin-singlefile) emits the bundles under `dist/ui/`; the server
+  registers them via `registerAppTool` / `registerAppResource` from
+  `@modelcontextprotocol/ext-apps@^1.7.1`.
+
 ### Changed
 
 - Migrated dependency-update automation from Dependabot to Renovate. The

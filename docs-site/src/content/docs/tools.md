@@ -7,6 +7,19 @@ swsd-mcp registers **26 tools** across 7 categories. Each tool's input schema, f
 
 This page is the at-a-glance summary: what each tool does and which [profile](/configuration/#profiles) includes it.
 
+## MCP Apps UI bundles
+
+Four read tools ship interactive UI bundles using the [MCP Apps capability](https://modelcontextprotocol.io/specification/2025-11-25) (SEP-1865). Hosts that support MCP Apps render a rich UI alongside the structured response — single-record detail views, filterable/sortable tables, searchable explorers — instead of (or in addition to) plain text. Hosts without MCP Apps support are unaffected: the same tools continue to return their normal text + structured output, and the `_meta.ui.resourceUri` advertisement is silently ignored.
+
+| Tool | UI |
+|---|---|
+| `swsd_get_incident` | Single-record detail view |
+| `swsd_get_solution` | Single-record detail view |
+| `swsd_list_incidents` | Filterable, sortable table |
+| `swsd_describe_custom_fields` | Searchable explorer with scope/module filters |
+
+Tools with a UI bundle are marked **UI** in the Type column below.
+
 ## Legend
 
 | Symbol | Meaning |
@@ -14,6 +27,7 @@ This page is the at-a-glance summary: what each tool does and which [profile](/c
 | ✓ | Tool is registered in this profile |
 | W | Write tool — modifies SWSD state. Does not retry on transient failure (avoids duplicate writes). |
 | R | Read tool — safe to retry; auto-retries up to `SWSD_RETRY_MAX_ATTEMPTS` on 5xx/network errors. |
+| UI | Ships an [MCP Apps](#mcp-apps-ui-bundles) UI bundle (SEP-1865). Capable hosts render a rich interactive view; text-only clients are unaffected. |
 
 ---
 
@@ -37,9 +51,9 @@ This page is the at-a-glance summary: what each tool does and which [profile](/c
 
 | Tool | Type | triage | agent | knowledge | full |
 |---|---|---|---|---|---|
-| `swsd_list_incidents` | R | ✓ | ✓ | ✓ | ✓ |
+| `swsd_list_incidents` | R, UI | ✓ | ✓ | ✓ | ✓ |
 | `swsd_list_my_incidents` | R | ✓ | ✓ | ✓ | ✓ |
-| `swsd_get_incident` | R | ✓ | ✓ | ✓ | ✓ |
+| `swsd_get_incident` | R, UI | ✓ | ✓ | ✓ | ✓ |
 | `swsd_create_incident` | W |   | ✓ |   | ✓ |
 | `swsd_update_incident` | W |   | ✓ |   | ✓ |
 | `swsd_assign_incident` | W |   | ✓ |   | ✓ |
@@ -80,7 +94,7 @@ As of v2, `swsd_list_incidents` and `swsd_list_my_incidents` return an `applied_
 | Tool | Type | triage | agent | knowledge | full |
 |---|---|---|---|---|---|
 | `swsd_search_solutions` | R |   | ✓ | ✓ | ✓ |
-| `swsd_get_solution` | R |   | ✓ | ✓ | ✓ |
+| `swsd_get_solution` | R, UI |   | ✓ | ✓ | ✓ |
 | `swsd_create_solution` | W |   |   | ✓ | ✓ |
 | `swsd_update_solution` | W |   |   | ✓ | ✓ |
 
@@ -112,7 +126,7 @@ Each returns `id`, `name`, plus type-specific fields (e.g., `time_zone` for site
 
 | Tool | Type | triage | agent | knowledge | full |
 |---|---|---|---|---|---|
-| `swsd_describe_custom_fields` | R |   | ✓ | ✓ | ✓ |
+| `swsd_describe_custom_fields` | R, UI |   | ✓ | ✓ | ✓ |
 
 - **`swsd_describe_custom_fields`** — schema introspection for custom fields defined in your tenant. Returns each field's `name`, `type`, `category`, allowed values (for picklists), and which entity types it applies to.
 

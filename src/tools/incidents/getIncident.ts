@@ -1,14 +1,23 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import {
+  registerAppTool,
+  registerAppResource,
+  RESOURCE_MIME_TYPE,
+} from '@modelcontextprotocol/ext-apps/server';
 import { z } from 'zod';
 import { GetIncidentInput } from '../../schemas/incident.js';
 import { structuredResult } from '../../mcp/output.js';
 import { toolError } from '../../mcp/errors.js';
 import { mapSwsdError } from '../../swsd/errors.js';
 import { toIncidentDetail } from '../../swsd/mappers/incident.js';
+import { loadUiResource } from '../../mcp/uiResources.js';
 import type { ToolContext } from '../../config/toolRegistry.js';
 
+const UI_RESOURCE_URI = 'ui://swsd/incident-detail.html';
+
 export function registerGetIncident(server: McpServer, ctx: ToolContext): void {
-  server.registerTool(
+  registerAppTool(
+    server,
     'swsd_get_incident',
     {
       description:
@@ -21,6 +30,7 @@ export function registerGetIncident(server: McpServer, ctx: ToolContext): void {
         incident: z.record(z.string(), z.unknown()),
       }).shape,
       annotations: { readOnlyHint: true, openWorldHint: true, idempotentHint: true },
+      _meta: { ui: { resourceUri: UI_RESOURCE_URI } },
     },
     async (input) => {
       try {
@@ -43,5 +53,21 @@ export function registerGetIncident(server: McpServer, ctx: ToolContext): void {
         return mapSwsdError(err);
       }
     },
+  );
+
+  registerAppResource(
+    server,
+    'swsd-incident-detail-ui',
+    UI_RESOURCE_URI,
+    { description: 'Incident detail view rendered by Apps-capable hosts.' },
+    () => ({
+      contents: [
+        {
+          uri: UI_RESOURCE_URI,
+          mimeType: RESOURCE_MIME_TYPE,
+          text: loadUiResource('incident-detail'),
+        },
+      ],
+    }),
   );
 }

@@ -96,6 +96,21 @@ Each tool's input schema, description, and output shape is auto-discovered by yo
 
 ---
 
+## MCP Apps support
+
+swsd-mcp ships interactive UI bundles for four read tools using the [MCP Apps capability](https://modelcontextprotocol.io/specification/2025-11-25) (SEP-1865). When a host that supports MCP Apps calls one of these tools, it can render a rich UI alongside the structured response — single-record detail views, filterable/sortable tables, searchable explorers — instead of (or in addition to) plain text.
+
+| Tool | UI |
+|---|---|
+| `swsd_get_incident` | Single-record detail view |
+| `swsd_get_solution` | Single-record detail view |
+| `swsd_list_incidents` | Filterable, sortable table |
+| `swsd_describe_custom_fields` | Searchable explorer with scope/module filters |
+
+The UI bundles are inlined HTML resources (`text/html;profile=mcp-app`) that read the tool's `structuredContent` from the MCP Apps host bridge — no external network access, no third-party scripts. Hosts without MCP Apps support are unaffected: the same tools continue to return their normal text + structured output, and the `_meta.ui.resourceUri` advertisement is silently ignored.
+
+---
+
 ## Configuration
 
 All settings via environment variables. Most users only need `SWSD_TOKEN` and `SWSD_BASE_URL`.
