@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { decodeJwtPayload } from '../../../src/swsd/jwt.js';
+import { decodeJwtPayload, getUserIdFromJwtClaims } from '../../../src/swsd/jwt.js';
 
 describe('decodeJwtPayload', () => {
   // Sample SWSD JWT from the official API docs (header.payload.signature).
@@ -63,5 +63,41 @@ describe('decodeJwtPayload', () => {
     expect(decodeJwtPayload(null as unknown as string)).toBeNull();
     expect(decodeJwtPayload(undefined as unknown as string)).toBeNull();
     expect(decodeJwtPayload('' as string)).toBeNull();
+  });
+});
+
+describe('getUserIdFromJwtClaims', () => {
+  it('reads user_id (modern, observed in 2026 production tokens)', () => {
+    expect(getUserIdFromJwtClaims({ user_id: 11643235, generated_at: '2026-03-11 20:34:59' })).toBe(11643235);
+  });
+
+  it('reads user_ic (legacy, cited in older API docs samples)', () => {
+    expect(getUserIdFromJwtClaims({ user_ic: 1256943, generated_at: '2017-06-07 09:17:29' })).toBe(1256943);
+  });
+
+  it('prefers user_id over user_ic when both are present', () => {
+    expect(getUserIdFromJwtClaims({ user_id: 100, user_ic: 200 })).toBe(100);
+  });
+
+  it('returns null when neither claim is present', () => {
+    expect(getUserIdFromJwtClaims({})).toBeNull();
+    expect(getUserIdFromJwtClaims({ generated_at: '2026-01-01 00:00:00' })).toBeNull();
+  });
+
+  it('returns null when user_id is non-finite (NaN, Infinity)', () => {
+    expect(getUserIdFromJwtClaims({ user_id: NaN })).toBeNull();
+    expect(getUserIdFromJwtClaims({ user_id: Infinity })).toBeNull();
+  });
+
+  it('returns null when user_id is the wrong type (string, boolean, null)', () => {
+    expect(getUserIdFromJwtClaims({ user_id: '123' })).toBeNull();
+    expect(getUserIdFromJwtClaims({ user_id: true })).toBeNull();
+    expect(getUserIdFromJwtClaims({ user_id: null })).toBeNull();
+  });
+
+  it('falls back to user_ic when user_id is invalid', () => {
+    // user_id present but not a finite number — fall back to user_ic
+    expect(getUserIdFromJwtClaims({ user_id: '123', user_ic: 456 })).toBe(456);
+    expect(getUserIdFromJwtClaims({ user_id: NaN, user_ic: 789 })).toBe(789);
   });
 });
