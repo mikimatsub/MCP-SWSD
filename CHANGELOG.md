@@ -7,6 +7,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added (Tier 2 — v2 Service Catalog support)
+
+- Three new tools that surface SWSD's Service Catalog:
+  - `swsd_list_catalog_items` — paginated browse of catalog items with
+    `state`, `department`, `site`, and free-text `query` filters. Returns
+    compact summaries (id, name, state, category/subcategory, request_count,
+    updated_at, variable_count). Carries the same Plan B
+    `applied_filters` echo + `pagination.total_scope` discriminator as
+    `swsd_list_incidents`.
+  - `swsd_get_catalog_item` — single-item lookup that exposes the full
+    `variables` array (the request form schema). Each variable carries
+    `id` (consume as `custom_field_id` when submitting), `name`, `kind`
+    (`free_text` / `drop_down_menu` / `multi_select` / `date` / `user`),
+    `field_type` (numeric SAManage code), `options` (newline-separated
+    allowed values for dropdowns), `required`, and `helptext`.
+  - `swsd_create_service_request` — submits a request via
+    `POST /catalog_items/{id}/service_requests.json`. The endpoint
+    auto-sets `is_service_request: true` and inherits the catalog item's
+    category/subcategory. Variables are sent as
+    `request_variables_attributes` (Rails-style nested-attributes shape
+    discovered through live probe — the read-shape `request_variables`
+    field name is silently dropped by SWSD on this endpoint). Requester
+    defaults to the JWT-authenticated user; the tool resolves the user's
+    email via `GET /users/{id}.json` because this endpoint rejects
+    `requester: {id}` and requires `requester: {email}`.
+- Server `instructions` augmented with catalog-first guidance: when the
+  user asks to "request" something, agents should call
+  `swsd_list_catalog_items` → `swsd_get_catalog_item` →
+  `swsd_create_service_request`, falling back to `swsd_create_incident`
+  only when no catalog item matches.
+- Tool counts after Plan E: `triage` 12, `agent` 27 (default),
+  `knowledge` 15, `full` 29 across 8 categories (added the
+  Service Catalog category). Per-profile Swagger specs regenerated.
+- e2e smoke test (`.research/v2/smoke-tests/mcp-e2e-smoke.mjs`) extended
+  with Test 8 verifying catalog endpoint integration end-to-end.
+
+**Not shipped (deferred to v2.5):** `swsd_list_my_service_requests`. The
+SAManage REST API has no documented filter parameter that narrows the
+`/incidents.json` collection to service-request rows. We probed 14
+candidate filters (`is_service_request=true`, `sub_type=*`,
+`request_type=*`, `incident_type=*`, etc.) and all were silently ignored
+(returned the unfiltered set). A wrapper that paginated through tens of
+thousands of incidents to find the few service-request rows would be a
+bad tool. Will revisit once SWSD documents the correct filter mechanism
+or exposes a top-level `/service_requests.json` collection (currently
+404).
+
 ### Added (Tier 1 — v2 MCP Apps capability)
 
 - MCP Apps support (SEP-1865, spec 2025-11-25) for `swsd_get_incident`,

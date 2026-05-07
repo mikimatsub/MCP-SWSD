@@ -1,9 +1,9 @@
 ---
 title: Tools reference
-description: All 26 MCP tools swsd-mcp registers, organized by category with per-profile availability.
+description: All 29 MCP tools swsd-mcp registers, organized by category with per-profile availability.
 ---
 
-swsd-mcp registers **26 tools** across 7 categories. Each tool's input schema, full description, and output shape is auto-discovered by your MCP client at runtime — ask your agent _"what swsd tools are available?"_ for the live list.
+swsd-mcp registers **29 tools** across 8 categories. Each tool's input schema, full description, and output shape is auto-discovered by your MCP client at runtime — ask your agent _"what swsd tools are available?"_ for the live list.
 
 This page is the at-a-glance summary: what each tool does and which [profile](/configuration/#profiles) includes it.
 
@@ -71,6 +71,26 @@ Tools with a UI bundle are marked **UI** in the Type column below.
 
 :::note[v2: list responses echo your filters and discriminate scope]
 As of v2, `swsd_list_incidents` and `swsd_list_my_incidents` return an `applied_filters` block (verbatim echo of the filters used — empty object if none) and a `pagination.total_scope` discriminator (`"filtered"` | `"tenant"` | `"unknown"`). Use these together to reason about whether a 25-incident result is "page 1 of 87 matching your filters" vs "page 1 of 56,800 tenant-wide" — without guessing. `"unknown"` means SWSD did not return `X-Total-Count` for this query.
+:::
+
+---
+
+## Service Catalog (3)
+
+| Tool | Type | triage | agent | knowledge | full |
+|---|---|---|---|---|---|
+| `swsd_list_catalog_items` | R | ✓ | ✓ | ✓ | ✓ |
+| `swsd_get_catalog_item` | R | ✓ | ✓ | ✓ | ✓ |
+| `swsd_create_service_request` | W |   | ✓ |   | ✓ |
+
+Use the catalog flow when the user asks to **request** something — new hardware, software access, an account, a file restore — instead of `swsd_create_incident`. SWSD's catalog items carry pre-defined approval routing, request variables (form fields), category/subcategory defaults, and SLA targets that a free-form incident misses. The server `instructions` advertise this preference order so capable agents pick the catalog flow automatically.
+
+- **`swsd_list_catalog_items`** — paginated list of catalog items with `state`, `department`, `site`, and free-text `query` filters. Returns compact summaries (id, name, state, category/subcategory, request_count, updated_at, variable_count). Carries the same `applied_filters` echo + `pagination.total_scope` discriminator as `swsd_list_incidents`. Call this first when you need to find the right catalog item.
+- **`swsd_get_catalog_item`** — single-item lookup that exposes the full `variables` array (the request form schema). Each variable carries `id` (consume as `custom_field_id` when submitting), `name`, `kind` (`free_text` / `drop_down_menu` / `multi_select` / `date` / `user`), `field_type` (numeric SAManage code), `options` (newline-separated allowed values for dropdowns), `required`, and `helptext`. Inspect the variables before filling them — for dropdowns, the `value` you submit must match one of the `options` verbatim.
+- **`swsd_create_service_request`** — submits a request via `POST /catalog_items/{id}/service_requests.json`. The endpoint auto-sets `is_service_request: true` and inherits the catalog item's category/subcategory. Each `request_variables` entry maps a catalog variable's `id` (as `custom_field_id`) to a string `value`. Requester defaults to the JWT-authenticated user; pass `requester_id` to file the request on behalf of someone else. Optionally accepts `description` (initial comment) and `custom_fields_values` (SWSD-level custom fields, separate from the catalog's `request_variables`).
+
+:::note[v2.5 deferred: `swsd_list_my_service_requests`]
+A "list my service requests" wrapper is not shipped. The SAManage REST API has no documented filter parameter that narrows `/incidents.json` to service-request rows (we probed 14 candidates including `is_service_request=true`, `sub_type=*`, `request_type=*`, all silently ignored). A wrapper that paginated through tens of thousands of incidents to find the few service-request rows would be a bad tool. Will revisit once SWSD documents the correct filter mechanism.
 :::
 
 ---

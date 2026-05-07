@@ -44,7 +44,7 @@ Every stdio-capable MCP client uses the same JSON shape. Add this under `mcpServ
 
 Replace `your-jwt-here` with your token. EU tenants use `https://apieu.samanage.com` instead.
 
-**To customize:** add any [configuration variable](https://mcp-swsd.pages.dev/configuration/) into the same `env` block. Common one is `SWSD_PROFILE` to switch from the default `agent` profile (21 tools) to `triage` (8), `knowledge` (11), or `full` (23) — for example, add `"SWSD_PROFILE": "full"` alongside `SWSD_TOKEN` and `SWSD_BASE_URL`.
+**To customize:** add any [configuration variable](https://mcp-swsd.pages.dev/configuration/) into the same `env` block. Common one is `SWSD_PROFILE` to switch from the default `agent` profile to `triage`, `knowledge`, or `full` — see the [Profiles](#profiles) section below for current tool counts. For example, add `"SWSD_PROFILE": "full"` alongside `SWSD_TOKEN` and `SWSD_BASE_URL`.
 
 ### 2. Drop it in the right file
 
@@ -94,6 +94,20 @@ The agent should call `swsd_health_check` and report success. If it does, you're
 | **Audits** | `swsd_get_record_audits` |
 
 Each tool's input schema, description, and output shape is auto-discovered by your MCP client at runtime. Ask the agent "what swsd tools are available?" for the live list.
+
+---
+
+## Service Catalog tools
+
+When the user asks to **request** something — new hardware, software access, an account, a file restore — prefer the catalog flow over `swsd_create_incident`. SWSD's catalog items carry pre-defined approval routing, request variables (form fields), category/subcategory defaults, and SLA targets that a free-form incident misses.
+
+| Tool | Purpose |
+|---|---|
+| `swsd_list_catalog_items` | Browse what's offerable — find a catalog item that matches the user's request. Filter by `state`, `department`, `site`, or free-text `query`. Returns compact summaries with `request_count` and `variable_count`. |
+| `swsd_get_catalog_item` | Inspect a single item, including its `variables` (the form schema). Each variable carries an `id`, `name`, `kind` (free_text / drop_down_menu / multi_select / date / user), `options` (newline-separated allowed values for dropdowns), and `helptext`. |
+| `swsd_create_service_request` | Submit the request. Posts to `POST /catalog_items/{id}/service_requests.json`, which auto-sets `is_service_request: true` and inherits the catalog item's category/subcategory. Each `request_variables` entry maps a catalog variable's `id` (as `custom_field_id`) to a string `value`. |
+
+The server `instructions` advertise this preference order so capable agents (Claude Desktop, Claude Code, Copilot Studio, etc.) pick the catalog flow automatically when the user's intent matches.
 
 ---
 
