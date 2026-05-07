@@ -17,6 +17,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   weekly lock-file maintenance, abandonment detection, and pinned-digest
   helpers for Docker and GitHub Actions.
 
+### Added (Tier 1 — v2 identity & scope)
+
+- New tool `swsd_get_me` — JWT-payload decode + `GET /users/{id}.json` + optional `GET /profile.json` enrichment. Returns the authenticated user's id, email, name, role, department, site, group_ids, and assignment status. **Call this first when the request mentions "me", "my", or "I"** — server INSTRUCTIONS now teach the model this pattern.
+- New tool `swsd_list_my_incidents` — thin wrapper that internally calls `swsd_get_me` then `swsd_list_incidents` with `assignee_email = your email`. Same input shape as `swsd_list_incidents` minus the `assignee_email` parameter. Asana-style explicit-my-X pattern (Stream 4 research).
+- `applied_filters` echo + `pagination.total_scope` discriminator (`filtered` | `tenant` | `unknown`) on `swsd_list_incidents` and `swsd_list_my_incidents` responses. Closes the brief's scope-ambiguity failure mode in-band: the model can now distinguish "25 of 87 matching your filters" from "25 of 56,800 tenant-wide" without guessing. **No comparable MCP server in the ecosystem ships this** as of May 2026 (Linear, GitHub, Atlassian, Asana, ServiceNow, Notion, Slack, Stripe — verified during v2 research).
+- Server `INSTRUCTIONS` augmented with whoami-first guidance — model receives this in the MCP `initialize` response, mirroring GitHub's `serverInstructions` "Always call get_me first" pattern.
+- New JWT decoder helper (`src/swsd/jwt.ts`) — extracts user_ic + any other JWT claims locally, no HTTP cost. Defensive parsing returns null on any malformed input.
+
+### Tests (Tier 1 — v2 identity & scope)
+
+- New `tests/unit/swsd/jwt.test.ts` — 8 edge cases (sample SWSD JWT, ESM extra claims, invalid base64, non-JSON payload, non-object payload, defensive null/undefined inputs).
+- New `tests/unit/mappers/me.test.ts` — 8 edge cases on `toUserMeRecord` (full record projection, /profile.json enrichment, defensive null handling, non-numeric id rejection, group_ids filtering of non-numeric entries).
+
 ### Added (Tier 1 — v2 custom-field writes)
 
 - `custom_fields` parameter on `swsd_create_incident`, `swsd_update_incident`, `swsd_create_solution`, and `swsd_update_solution`. Accepts `[{name, value}]` rows. Name-keyed for cross-entity portability (Solutions reject `custom_field_id`-only keying with HTTP 400; Incidents accept either). Validated field types: Text, Dropdown, Number, Checkbox, Date.
