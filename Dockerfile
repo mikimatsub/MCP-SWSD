@@ -14,9 +14,12 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 
-# Copy source and build
-COPY tsconfig.json ./
+# Copy source and build. The build chains `vite build` (UI bundles) + `tsc`
+# (server), so Vite's config, the UI tsconfig, and the scripts/ helpers are
+# all required at build time.
+COPY tsconfig.json tsconfig.ui.json vite.config.ts ./
 COPY src ./src
+COPY scripts ./scripts
 RUN npm run build
 
 # Drop devDependencies for the runtime stage
