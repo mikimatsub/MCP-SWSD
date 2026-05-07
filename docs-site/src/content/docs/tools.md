@@ -55,6 +55,10 @@ This page is the at-a-glance summary: what each tool does and which [profile](/c
 - **`swsd_update_incident_state`** — state transition with optional resolution comment. Validates against your tenant's allowed states.
 - **`swsd_link_solution_to_incident`** — append-only solution linking. Fetches existing links, adds the new one, PUTs the merged set so existing links aren't dropped.
 
+:::note[v2: list responses echo your filters and discriminate scope]
+As of v2, `swsd_list_incidents` and `swsd_list_my_incidents` return an `applied_filters` block (verbatim echo of the filters used — empty object if none) and a `pagination.total_scope` discriminator (`"filtered"` | `"tenant"` | `"unknown"`). Use these together to reason about whether a 25-incident result is "page 1 of 87 matching your filters" vs "page 1 of 56,800 tenant-wide" — without guessing. `"unknown"` means SWSD did not return `X-Total-Count` for this query.
+:::
+
 ---
 
 ## Comments (3)
