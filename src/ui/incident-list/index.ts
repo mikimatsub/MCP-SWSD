@@ -1,4 +1,4 @@
-import { onHostInit, applyHostThemeVariables } from '../shared/host.js';
+import { mountApp } from '../shared/host.js';
 import { el, clear } from '../shared/dom.js';
 import {
   pickString,
@@ -71,13 +71,18 @@ if (!titleEl || !searchEl || !rowsEl || !emptyEl) {
   throw new Error('incident-list UI: missing one of #title, #search, #rows, #empty');
 }
 
-onHostInit<Payload>((msg) => {
-  applyHostThemeVariables(msg.styles?.variables);
-  if (Array.isArray(msg.data?.incidents)) {
-    all = msg.data.incidents;
-  }
-  updateTitle(all.length, msg.data?.pagination);
-  render();
+mountApp<Payload>({
+  name: 'swsd-mcp/incident-list',
+  version: '2.0.1',
+  onResult: (data) => {
+    if (Array.isArray(data?.incidents)) {
+      all = data.incidents;
+    }
+    updateTitle(all.length, data?.pagination);
+    render();
+  },
+}).catch((err) => {
+  console.error('incident-list: failed to connect MCP App', err);
 });
 
 searchEl.addEventListener('input', render);

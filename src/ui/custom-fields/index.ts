@@ -1,4 +1,4 @@
-import { onHostInit, applyHostThemeVariables } from '../shared/host.js';
+import { mountApp } from '../shared/host.js';
 import { el, clear } from '../shared/dom.js';
 import {
   filterFields,
@@ -67,15 +67,20 @@ if (
   );
 }
 
-onHostInit<Payload>((msg) => {
-  applyHostThemeVariables(msg.styles?.variables);
-  if (Array.isArray(msg.data?.custom_fields)) {
-    all = msg.data.custom_fields;
-  }
-  updateTitle(all.length, msg.data?.pagination);
-  populateFilter(scopeFilterEl, extractFilterOptions(all, 'scope'));
-  populateFilter(moduleFilterEl, extractFilterOptions(all, 'module'));
-  render();
+mountApp<Payload>({
+  name: 'swsd-mcp/custom-fields',
+  version: '2.0.1',
+  onResult: (data) => {
+    if (Array.isArray(data?.custom_fields)) {
+      all = data.custom_fields;
+    }
+    updateTitle(all.length, data?.pagination);
+    populateFilter(scopeFilterEl, extractFilterOptions(all, 'scope'));
+    populateFilter(moduleFilterEl, extractFilterOptions(all, 'module'));
+    render();
+  },
+}).catch((err) => {
+  console.error('custom-fields: failed to connect MCP App', err);
 });
 
 searchEl.addEventListener('input', render);

@@ -7,6 +7,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.1] - 2026-05-07
+
+### Fixed
+
+- **MCP Apps widget protocol.** The four UI-bearing tools
+  (`swsd_get_incident`, `swsd_get_solution`, `swsd_list_incidents`,
+  `swsd_describe_custom_fields`) now use the canonical `App` class from
+  `@modelcontextprotocol/ext-apps` for view ↔ host communication. The
+  prior hand-rolled `{type:'init'}/{type:'ready'}` postMessage shape was
+  incompatible with spec-compliant hosts (VS Code Insiders Copilot Chat,
+  Claude Desktop, etc.) — the SDK's `PostMessageTransport` silently
+  drops messages without `jsonrpc: "2.0"`, which left widgets stuck in
+  their initial empty state in every spec host. Widgets now perform the
+  spec-mandated `ui/initialize` → `ui/notifications/initialized` →
+  `ui/notifications/tool-result` handshake via `App.connect()` and
+  `addEventListener('toolresult', ...)`. Tool handlers, output schemas,
+  and the wire shape on the server side are unchanged — this is purely
+  a fix to the iframe-side data channel.
+- Replaced our hand-rolled `applyHostThemeVariables` `--`-prefix guard
+  with the SDK's `applyHostStyleVariables` (the type signature
+  `McpUiStyles = Record<McpUiStyleVariableKey, string | undefined>`
+  enforces the prefix at the type level, so the runtime guard is
+  delegated to the spec). Also wires `applyDocumentTheme` and
+  `applyHostFonts` so widgets respond to host theme + font changes,
+  not just CSS variables.
+
+### Internal
+
+- Bundle size budget for UI artifacts raised from 200 KB to 500 KB to
+  accommodate the canonical SDK (`tests/unit/ui/build.test.ts`).
+  Empirical bundle size is ~340 KB raw / ~82 KB gzipped per widget.
+  The change is metadata-only; the npm tarball grows from ~97 KB to
+  ~320 KB compressed.
+- Removed `tests/unit/ui/host.test.ts` — its 4 tests pinned a runtime
+  `--`-prefix guard on the deleted `applyHostThemeVariables` helper.
+  The SDK's `applyHostStyleVariables` enforces the same constraint at
+  the type level, so the runtime test no longer applies.
+
 ## [2.0.0] - 2026-05-07
 
 The v2 release. Strictly additive over v1.0.1 — no existing tool's input or
@@ -263,7 +301,8 @@ Detailed history available via `git log`.
 * **2026-05-03** — `0.1.0`: initial dual-transport foundation +
   incident reads (4 tools)
 
-[Unreleased]: https://github.com/mikimatsub/MCP-SWSD/compare/v2.0.0...HEAD
+[Unreleased]: https://github.com/mikimatsub/MCP-SWSD/compare/v2.0.1...HEAD
+[2.0.1]: https://github.com/mikimatsub/MCP-SWSD/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/mikimatsub/MCP-SWSD/compare/v1.0.1...v2.0.0
 [1.0.1]: https://github.com/mikimatsub/MCP-SWSD/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/mikimatsub/MCP-SWSD/releases/tag/v1.0.0
