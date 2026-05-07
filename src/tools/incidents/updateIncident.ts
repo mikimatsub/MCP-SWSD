@@ -29,7 +29,7 @@ export function registerUpdateIncident(server: McpServer, ctx: ToolContext): voi
         if (Object.keys(payload.incident).length === 0) {
           return toolError(
             'No fields to update — provide at least one field besides id.',
-            'Pass any of: name, description, priority, category_name, site_name, department_name.',
+            'Pass any of: name, description, priority, category_name, site_name, department_name, custom_fields.',
           );
         }
         const { body } = await ctx.client.put<unknown>(`/incidents/${String(id)}.json`, payload);
