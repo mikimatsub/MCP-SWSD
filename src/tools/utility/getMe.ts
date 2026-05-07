@@ -4,7 +4,7 @@ import { GetMeInput } from '../../schemas/me.js';
 import { structuredResult } from '../../mcp/output.js';
 import { toolError } from '../../mcp/errors.js';
 import { mapSwsdError } from '../../swsd/errors.js';
-import { decodeJwtPayload } from '../../swsd/jwt.js';
+import { decodeJwtPayload, getUserIdFromJwtClaims } from '../../swsd/jwt.js';
 import { toUserMeRecord } from '../../swsd/mappers/me.js';
 import type { ToolContext } from '../../config/toolRegistry.js';
 
@@ -39,7 +39,7 @@ export function registerGetMe(server: McpServer, ctx: ToolContext): void {
           'Which paths populated the response. "jwt" is always present (JWT decode is mandatory). "users-endpoint" is present when /users/{id}.json succeeded. "profile-fallback" is present when /profile.json succeeded (adds last_login).',
         ),
         jwt_claims: z.record(z.string(), z.unknown()).describe(
-          'All claims found in the JWT payload. SWSD typically includes user_ic and generated_at; ESM tenants may include service_provider_id or similar.',
+          'All claims found in the JWT payload. SWSD typically includes user_id (modern; observed in 2026 production tokens) or user_ic (legacy; cited in older API docs samples), plus generated_at. ESM tenants may include service_provider_id or similar.',
         ),
       }).shape,
       annotations: { readOnlyHint: true, openWorldHint: true, idempotentHint: true },
@@ -51,9 +51,9 @@ export function registerGetMe(server: McpServer, ctx: ToolContext): void {
         if (claims === null) {
           return toolError('Could not decode the SWSD JWT payload. The configured SWSD_TOKEN may be malformed.');
         }
-        const userIc = claims.user_ic;
-        if (typeof userIc !== 'number') {
-          return toolError('JWT payload missing user_ic (numeric). The token may be from an unsupported issuer.');
+        const userId = getUserIdFromJwtClaims(claims);
+        if (userId === null) {
+          return toolError('JWT payload missing user_id (or legacy user_ic). The token may be from an unsupported issuer.');
         }
 
         const sources: string[] = ['jwt'];
@@ -61,7 +61,7 @@ export function registerGetMe(server: McpServer, ctx: ToolContext): void {
         // Path B: /users/{id}.json — documented endpoint.
         let usersBody: unknown;
         try {
-          const result = await ctx.client.get<unknown>(`/users/${String(userIc)}.json`);
+          const result = await ctx.client.get<unknown>(`/users/${String(userId)}.json`);
           usersBody = result.body;
           sources.push('users-endpoint');
         } catch (err) {
@@ -83,7 +83,7 @@ export function registerGetMe(server: McpServer, ctx: ToolContext): void {
 
         const user = toUserMeRecord(usersBody, profileBody);
         if (user === null) {
-          return toolError(`Could not parse user record for id ${String(userIc)}.`);
+          return toolError(`Could not parse user record for id ${String(userId)}.`);
         }
 
         const summary = `You are ${user.name ?? '(unknown name)'} <${user.email ?? '(no email)'}>` +

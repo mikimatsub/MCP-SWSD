@@ -6,7 +6,7 @@ import { structuredResult } from '../../mcp/output.js';
 import { toolError } from '../../mcp/errors.js';
 import { mapSwsdError } from '../../swsd/errors.js';
 import { toIncidentSummary } from '../../swsd/mappers/incident.js';
-import { decodeJwtPayload } from '../../swsd/jwt.js';
+import { decodeJwtPayload, getUserIdFromJwtClaims } from '../../swsd/jwt.js';
 import { toUserMeRecord } from '../../swsd/mappers/me.js';
 import type { ToolContext } from '../../config/toolRegistry.js';
 
@@ -56,13 +56,17 @@ export function registerListMyIncidents(server: McpServer, ctx: ToolContext): vo
       try {
         // Step 1: Resolve the authenticated user's email via JWT + /users/{id}.
         const claims = decodeJwtPayload(ctx.token);
-        if (claims === null || typeof claims.user_ic !== 'number') {
+        if (claims === null) {
           return toolError('Could not decode SWSD JWT to identify the authenticated user.');
         }
-        const usersResult = await ctx.client.get<unknown>(`/users/${String(claims.user_ic)}.json`);
+        const userId = getUserIdFromJwtClaims(claims);
+        if (userId === null) {
+          return toolError('JWT payload missing user_id (or legacy user_ic). The token may be from an unsupported issuer.');
+        }
+        const usersResult = await ctx.client.get<unknown>(`/users/${String(userId)}.json`);
         const me = toUserMeRecord(usersResult.body);
         if (me === null || me.email === undefined) {
-          return toolError(`Could not resolve email for user_ic ${String(claims.user_ic)}.`);
+          return toolError(`Could not resolve email for user id ${String(userId)}.`);
         }
 
         // Step 2: Build /incidents.json query with assignee_email = me.email + the input filters.
