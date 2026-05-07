@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { CustomFieldsArray } from './customFieldWrite.js';
 
 export const ListIncidentsInput = z.object({
   page: z
@@ -88,6 +89,7 @@ export const CreateIncidentInput = z.object({
     .string()
     .optional()
     .describe('Department name (see swsd_list_departments).'),
+  custom_fields: CustomFieldsArray,
 });
 
 export const UpdateIncidentInput = z.object({
@@ -102,6 +104,7 @@ export const UpdateIncidentInput = z.object({
   category_name: z.string().optional().describe('New category name.'),
   site_name: z.string().optional().describe('New site name.'),
   department_name: z.string().optional().describe('New department name.'),
+  custom_fields: CustomFieldsArray,
 });
 
 export const LinkSolutionToIncidentInput = z.object({
