@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { CustomFieldsArray } from './customFieldWrite.js';
 
 export const SearchSolutionsInput = z.object({
   page: z
@@ -52,6 +53,7 @@ export const CreateSolutionInput = z.object({
     .string()
     .optional()
     .describe('Category name (see swsd_list_categories — solution and incident categories share the same backing in SWSD).'),
+  custom_fields: CustomFieldsArray,
 });
 
 export const UpdateSolutionInput = z.object({
@@ -64,6 +66,7 @@ export const UpdateSolutionInput = z.object({
   description: z.string().optional().describe('New body (replaces existing).'),
   state: z.string().optional().describe('New visibility state.'),
   category_name: z.string().optional().describe('New category name.'),
+  custom_fields: CustomFieldsArray,
 });
 
 export type SearchSolutionsInput = z.infer<typeof SearchSolutionsInput>;

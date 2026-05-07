@@ -17,7 +17,8 @@ export function registerUpdateIncident(server: McpServer, ctx: ToolContext): voi
         'Update an existing SWSD incident. Pass `id` and any fields to change. Only fields ' +
         'you provide are sent — others stay as-is. For state transitions prefer swsd_update_incident_state ' +
         '(safer wrapper); for assignment prefer swsd_assign_incident; for comments use swsd_add_incident_comment. ' +
-        'WRITE — does not retry on transient failure.',
+        'WRITE — does not retry on transient failure.' +
+        ' To set tenant-specific custom field values, pass `custom_fields: [{name, value}]` — call swsd_describe_custom_fields first to discover field names and (for Dropdowns) allowed values. Validated for Text, Dropdown, Number, Checkbox, and Date types.',
       inputSchema: UpdateIncidentInput.shape,
       annotations: { readOnlyHint: false, openWorldHint: true, idempotentHint: false },
     },
@@ -28,7 +29,7 @@ export function registerUpdateIncident(server: McpServer, ctx: ToolContext): voi
         if (Object.keys(payload.incident).length === 0) {
           return toolError(
             'No fields to update — provide at least one field besides id.',
-            'Pass any of: name, description, priority, category_name, site_name, department_name.',
+            'Pass any of: name, description, priority, category_name, site_name, department_name, custom_fields.',
           );
         }
         const { body } = await ctx.client.put<unknown>(`/incidents/${String(id)}.json`, payload);

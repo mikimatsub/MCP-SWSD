@@ -17,7 +17,8 @@ export function registerUpdateSolution(server: McpServer, ctx: ToolContext): voi
         'Update an existing SWSD knowledge-base solution. Pass `id` and any fields ' +
         'to change. Only provided fields are sent — others stay as-is. To replace ' +
         'the description entirely, pass the full new body. WRITE — does not retry ' +
-        'on transient failure.',
+        'on transient failure.' +
+        ' To set tenant-specific custom field values, pass `custom_fields: [{name, value}]` — call swsd_describe_custom_fields first to discover field names and (for Dropdowns) allowed values. Solutions require `name` keying (custom_field_id alone is rejected with HTTP 400). Validated for Text, Dropdown, Number, Checkbox, and Date types.',
       inputSchema: UpdateSolutionInput.shape,
       annotations: { readOnlyHint: false, openWorldHint: true, idempotentHint: false },
     },
@@ -28,7 +29,7 @@ export function registerUpdateSolution(server: McpServer, ctx: ToolContext): voi
         if (Object.keys(payload.solution).length === 0) {
           return toolError(
             'No fields to update — provide at least one field besides id.',
-            'Pass any of: name, description, state, category_name.',
+            'Pass any of: name, description, state, category_name, custom_fields.',
           );
         }
         const { body } = await ctx.client.put<unknown>(`/solutions/${String(id)}.json`, payload);
