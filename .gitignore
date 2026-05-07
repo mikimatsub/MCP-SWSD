@@ -59,5 +59,9 @@ docs-site/public/d2/
 # Playwright MCP browser automation artifacts (snapshots, console logs, evaluations)
 .playwright-mcp/
 
+# Claude Code session metadata (worktrees, transient research artifacts)
+.claude/
+.research/
+
 # Temporary release-note staging (do not commit; one-off content for gh release create)
 .release-notes-temp/

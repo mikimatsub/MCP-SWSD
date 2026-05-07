@@ -75,8 +75,15 @@ jobs:
     name: OSV-Scanner (dependencies)
     # Reusable workflow handles SARIF upload + scheduled-scan ergonomics.
     # On PRs, scan results are also commented inline.
+    #
+    # `scan-args` explicitly points to osv-scanner.toml at the repo root so
+    # documented IgnoredVulns entries are respected. Without `--config`,
+    # auto-detection has been observed to silently miss the config file in
+    # this reusable-workflow context.
     uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@c51854704019a247608d928f370c98740469d4b5  # v2.3.5
     permissions:
       contents: read
       security-events: write  # required to upload SARIF
       actions: read
+    with:
+      scan-args: --config=osv-scanner.toml --recursive ./
