@@ -2,7 +2,7 @@ swagger: '2.0'
 info:
   title: SWSD MCP — full profile
   description: |
-    SolarWinds Service Desk MCP server, full profile (27 tools).
+    SolarWinds Service Desk MCP server, full profile (28 tools).
 
     Every non-destructive tool that has been validated against the live SWSD tenant. Includes incident CRUD + solution-linking, comment CRU (create/read/update), all lookups, solution CRUD, and custom-field schema introspection.
 
