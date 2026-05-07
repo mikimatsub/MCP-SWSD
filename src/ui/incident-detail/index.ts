@@ -1,5 +1,12 @@
 import { onHostInit, applyHostThemeVariables } from '../shared/host.js';
 import { el, clear } from '../shared/dom.js';
+import {
+  pickString,
+  pickNumber,
+  pickNestedString,
+  formatDate,
+  isSafeHttpUrl,
+} from '../shared/format.js';
 
 /**
  * Payload shape: this UI is mounted by `swsd_get_incident`, which returns
@@ -85,43 +92,4 @@ function render(rootEl: HTMLElement, inc: Incident): void {
   clear(rootEl);
   rootEl.appendChild(el('header', undefined, headerChildren));
   rootEl.appendChild(dl);
-}
-
-function pickString(obj: Incident, key: string): string | undefined {
-  const v = obj[key];
-  return typeof v === 'string' && v.length > 0 ? v : undefined;
-}
-
-function pickNumber(obj: Incident, key: string): number | undefined {
-  const v = obj[key];
-  return typeof v === 'number' && Number.isFinite(v) ? v : undefined;
-}
-
-function pickNestedString(
-  obj: Incident,
-  parentKey: string,
-  childKey: string,
-): string | undefined {
-  const parent = obj[parentKey];
-  if (parent && typeof parent === 'object' && !Array.isArray(parent)) {
-    const v = (parent as Record<string, unknown>)[childKey];
-    if (typeof v === 'string' && v.length > 0) return v;
-  }
-  return undefined;
-}
-
-function formatDate(iso: string): string {
-  const d = new Date(iso);
-  return Number.isNaN(d.getTime()) ? iso : d.toLocaleString();
-}
-
-/**
- * Defense in depth on top of the safe-DOM helper's URL-scheme check: only
- * render an "Open in SWSD" link when the source URL looks like an http(s)
- * absolute URL or a same-origin relative path. Anything else just falls
- * through to no-link rendering.
- */
-function isSafeHttpUrl(s: string): boolean {
-  if (s.startsWith('/')) return true;
-  return /^https?:\/\//i.test(s);
 }

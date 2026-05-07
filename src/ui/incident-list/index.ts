@@ -1,5 +1,18 @@
 import { onHostInit, applyHostThemeVariables } from '../shared/host.js';
 import { el, clear } from '../shared/dom.js';
+import {
+  pickString,
+  pickNumber,
+  pickNestedString,
+  formatDate,
+  isSafeHttpUrl,
+} from '../shared/format.js';
+import {
+  SORT_KEYS,
+  filterAndSort,
+  type Incident,
+  type SortKey,
+} from './logic.js';
 
 /**
  * Payload shape: this UI is mounted by `swsd_list_incidents`, which returns
@@ -24,9 +37,11 @@ import { el, clear } from '../shared/dom.js';
  * Interactivity is purely client-side filtering of the already-passed dataset
  * — no re-invocation of the tool. A v2.5 capability could add re-invocation
  * for cross-page navigation, gated on host support.
+ *
+ * The pure filter/sort/comparator functions live in `./logic.ts` so they can
+ * be unit-tested without a DOM. This file is the DOM wiring; `logic.ts` is
+ * the canonical entry point for tests.
  */
-
-type Incident = Record<string, unknown>;
 
 interface Pagination {
   page?: number;
@@ -42,24 +57,6 @@ interface Payload {
   pagination?: Pagination;
   applied_filters?: Record<string, unknown>;
 }
-
-/** Sort keys correspond to `data-sort` attributes on the table headers. */
-type SortKey =
-  | 'number'
-  | 'name'
-  | 'state'
-  | 'priority'
-  | 'assignee_email'
-  | 'updated_at';
-
-const SORT_KEYS: ReadonlySet<SortKey> = new Set([
-  'number',
-  'name',
-  'state',
-  'priority',
-  'assignee_email',
-  'updated_at',
-]);
 
 let all: Incident[] = [];
 let sortKey: SortKey = 'updated_at';
@@ -114,26 +111,13 @@ function updateTitle(shown: number, pagination: Pagination | undefined): void {
 
 function render(): void {
   if (!searchEl || !rowsEl || !emptyEl) return;
-  const q = searchEl.value.trim().toLowerCase();
-  const filtered = all.filter((i) => matchesQuery(i, q));
-  filtered.sort((a, b) => cmp(pickSortValue(a, sortKey), pickSortValue(b, sortKey)) * (sortDesc ? -1 : 1));
+  const filtered = filterAndSort(all, searchEl.value, sortKey, sortDesc);
 
   clear(rowsEl);
   for (const i of filtered) {
     rowsEl.appendChild(renderRow(i));
   }
   emptyEl.hidden = filtered.length > 0;
-}
-
-function matchesQuery(inc: Incident, q: string): boolean {
-  if (!q) return true;
-  const haystack: Array<string | undefined> = [
-    pickString(inc, 'name'),
-    pickString(inc, 'assignee_email'),
-    pickString(inc, 'requester_email'),
-    pickString(inc, 'category') ?? pickNestedString(inc, 'category', 'name'),
-  ];
-  return haystack.some((v) => typeof v === 'string' && v.toLowerCase().includes(q));
 }
 
 function renderRow(inc: Incident): HTMLTableRowElement {
@@ -161,60 +145,4 @@ function renderRow(inc: Incident): HTMLTableRowElement {
     el('td', undefined, [assignee]),
     el('td', undefined, [updatedAt ? formatDate(updatedAt) : '']),
   ]);
-}
-
-function pickSortValue(inc: Incident, key: SortKey): unknown {
-  // The "category" key isn't sortable in this UI, so all SortKey values map
-  // 1:1 onto IncidentSummary fields. Number → numeric sort, everything else
-  // → string sort via cmp().
-  if (key === 'number') return pickNumber(inc, 'number');
-  return pickString(inc, key);
-}
-
-function cmp(a: unknown, b: unknown): number {
-  // Push undefined/null to the end regardless of sort direction so empty
-  // values cluster predictably at the bottom of "asc" and the top of "desc".
-  // (The existing UX decision, mirrored by other ITSM apps.)
-  if (a === undefined || a === null) return 1;
-  if (b === undefined || b === null) return -1;
-  if (typeof a === 'number' && typeof b === 'number') return a - b;
-  return String(a).localeCompare(String(b));
-}
-
-function pickString(obj: Incident, key: string): string | undefined {
-  const v = obj[key];
-  return typeof v === 'string' && v.length > 0 ? v : undefined;
-}
-
-function pickNumber(obj: Incident, key: string): number | undefined {
-  const v = obj[key];
-  return typeof v === 'number' && Number.isFinite(v) ? v : undefined;
-}
-
-function pickNestedString(
-  obj: Incident,
-  parentKey: string,
-  childKey: string,
-): string | undefined {
-  const parent = obj[parentKey];
-  if (parent && typeof parent === 'object' && !Array.isArray(parent)) {
-    const v = (parent as Record<string, unknown>)[childKey];
-    if (typeof v === 'string' && v.length > 0) return v;
-  }
-  return undefined;
-}
-
-function formatDate(iso: string): string {
-  const d = new Date(iso);
-  return Number.isNaN(d.getTime()) ? iso : d.toLocaleString();
-}
-
-/**
- * Defense in depth on top of the safe-DOM helper's URL-scheme check: only
- * render an anchor when the source URL looks like an http(s) absolute URL or
- * a same-origin relative path. Anything else falls through to plain text.
- */
-function isSafeHttpUrl(s: string): boolean {
-  if (s.startsWith('/')) return true;
-  return /^https?:\/\//i.test(s);
 }
