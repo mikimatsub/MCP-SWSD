@@ -1,9 +1,9 @@
 ---
 title: Tools reference
-description: All 24 MCP tools swsd-mcp registers, organized by category with per-profile availability.
+description: All 25 MCP tools swsd-mcp registers, organized by category with per-profile availability.
 ---
 
-swsd-mcp registers **24 tools** across 7 categories. Each tool's input schema, full description, and output shape is auto-discovered by your MCP client at runtime — ask your agent _"what swsd tools are available?"_ for the live list.
+swsd-mcp registers **25 tools** across 7 categories. Each tool's input schema, full description, and output shape is auto-discovered by your MCP client at runtime — ask your agent _"what swsd tools are available?"_ for the live list.
 
 This page is the at-a-glance summary: what each tool does and which [profile](/configuration/#profiles) includes it.
 
@@ -17,16 +17,19 @@ This page is the at-a-glance summary: what each tool does and which [profile](/c
 
 ---
 
-## Utility (2)
+## Utility (3)
 
 | Tool | Type | triage | agent | knowledge | full |
 |---|---|---|---|---|---|
 | `swsd_get_server_info` | R | ✓ | ✓ | ✓ | ✓ |
 | `swsd_health_check` | R | ✓ | ✓ | ✓ | ✓ |
+| `swsd_get_me` | R | ✓ | ✓ | ✓ | ✓ |
 
 `swsd_get_server_info` returns version, profile, transport, base URL, and the list of enabled tools — useful for verifying server configuration from inside the MCP client. Also includes documented SWSD upstream rate limits (`upstream_rate_limit`: 1000 calls/min on Advanced, 1500 on Premier; signal: `429 + Retry-After` only — SWSD does not return `X-RateLimit-*` headers) so the model can reference these without guessing.
 
 `swsd_health_check` performs a live API call to SWSD (lightweight read against `/users/me.json`) and returns connectivity + auth status. Use this as the first call to confirm your token works.
+
+`swsd_get_me` returns the SWSD user record for the token's owner — `id`, `email`, `name`, `title`, `role`, `department`, `site`, `group_ids`, and assignment status. Combines three identity paths: JWT payload decode (zero-cost, always works), `GET /users/{user_ic}.json` (documented endpoint), and `GET /profile.json` (optional fallback that adds `last_login`). **Call this first** when the request mentions "me", "my", or "I" (e.g. "my tickets", "tickets in my group", "tickets assigned to me"), then pass the returned `id`/`email` to `assignee_email` or `requester_email` filters on `swsd_list_incidents`.
 
 ---
 

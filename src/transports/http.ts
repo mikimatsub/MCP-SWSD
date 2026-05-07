@@ -101,6 +101,7 @@ export async function runHttp(env: Env): Promise<void> {
       profile: env.SWSD_PROFILE,
       client,
       enabledTools,
+      token,
     });
 
     const transport = new StreamableHTTPServerTransport({

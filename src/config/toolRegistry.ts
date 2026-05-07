@@ -5,6 +5,7 @@ import type { SwsdClient } from '../swsd/client.js';
 
 import { registerGetServerInfo } from '../tools/utility/getServerInfo.js';
 import { registerHealthCheck } from '../tools/utility/healthCheck.js';
+import { registerGetMe } from '../tools/utility/getMe.js';
 
 import { registerListIncidents } from '../tools/incidents/listIncidents.js';
 import { registerGetIncident } from '../tools/incidents/getIncident.js';
@@ -39,6 +40,7 @@ export interface ToolContext {
   profile: ProfileName;
   client: SwsdClient;
   enabledTools: string[];
+  token: string;
 }
 
 type Registrar = (server: McpServer, ctx: ToolContext) => void;
@@ -46,6 +48,7 @@ type Registrar = (server: McpServer, ctx: ToolContext) => void;
 const REGISTRARS: Record<string, Registrar> = {
   swsd_get_server_info: registerGetServerInfo,
   swsd_health_check: registerHealthCheck,
+  swsd_get_me: registerGetMe,
 
   swsd_list_incidents: registerListIncidents,
   swsd_get_incident: registerGetIncident,
