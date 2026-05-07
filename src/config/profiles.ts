@@ -28,6 +28,8 @@ export const PROFILE_TOOLS = {
     'swsd_assign_incident',
     'swsd_update_incident_state',
     'swsd_link_solution_to_incident',
+    // Service catalog WRITE — submit a catalog request as an SR-flagged incident
+    'swsd_create_service_request',
     'swsd_list_sites',
     'swsd_list_departments',
     'swsd_list_groups',
@@ -81,6 +83,7 @@ export const PROFILE_TOOLS = {
     'swsd_list_roles',
     'swsd_list_catalog_items',
     'swsd_get_catalog_item',
+    'swsd_create_service_request',
     'swsd_search_solutions',
     'swsd_get_solution',
     'swsd_create_solution',

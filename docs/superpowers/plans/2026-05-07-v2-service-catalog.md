@@ -639,7 +639,67 @@ git commit -m "feat(catalog): add swsd_get_catalog_item with variable form schem
 - Create: `tests/unit/tools/createServiceRequest.test.ts`
 - Modify: `src/config/toolRegistry.ts`, `src/config/profiles.ts`
 
-- [ ] **Step 1: Verify the wire shape with a live POST against a SAFE catalog item**
+- [x] **Step 1: Verify the wire shape with a live POST against a SAFE catalog item** -- DONE (2026-05-07)
+
+**ACTUAL ACCEPTED SHAPE (verified live against the production tenant):**
+
+- **Endpoint:** `POST /catalog_items/{catalog_item_id}/service_requests.json`
+  - The flat `POST /incidents.json` endpoint from the plan's draft schema is wrong: SWSD silently drops `is_service_request`, `catalog_item_id`/`catalog_item`, and `request_variables` from that endpoint, creating a plain incident instead.
+  - `POST /service_requests.json` returns 404 (no top-level resource).
+- **Body wrapper:** `{ "incident": { ... } }` (NOT `{"service_request": {...}}` — that 422s with "Please enter subject" because SWSD doesn't recognize the wrapper).
+- **Field name for variables:** `request_variables_attributes` (Rails-style nested-attributes assignment), NOT `request_variables`.
+  - Sending the variables as `request_variables` (matching the read-shape field name) silently drops them — same with `variable_id`, `field_id`, `uuid`. Only `request_variables_attributes` persists.
+- **Per-variable shape:** `{ custom_field_id: <catalog item variable id>, value: <string> }`.
+- **Auto-populated from the catalog item:** `category`, `subcategory`, and `is_service_request: true`.
+- **Server-overridden:** the SR's `name` on the response is the catalog item's name, not the `name` you sent in the body.
+- **`requester` MUST be by email** — `requester: {id: <user_id>}` returns 422 "Please provide a registered requester to get updates". Use `requester: {email: ...}`. The default-to-JWT-user pattern therefore needs an extra `GET /users/{user_id}.json` call to resolve the email (mirrors `swsd_list_my_incidents`'s self-resolution).
+
+**Canonical request:**
+
+```json
+POST /catalog_items/794451/service_requests.json
+{
+  "incident": {
+    "name": "Data Recovery",
+    "requester": { "email": "user@example.com" },
+    "request_variables_attributes": [
+      { "custom_field_id": 2181315, "value": "test_folder" },
+      { "custom_field_id": 2181363, "value": "Z:\\test\\path" }
+    ]
+  }
+}
+```
+
+**Canonical response excerpt** (full sample at `.research/v2/swsd-probes/created_service_request.json`):
+
+```json
+{
+  "id": 181278194,
+  "number": 60356,
+  "name": "Data Recovery",
+  "is_service_request": true,
+  "category": { "id": 934345, "name": "File System" },
+  "subcategory": { "id": 934350, "name": "Backup - Restore" },
+  "request_variables": [
+    {
+      "id": 421911332,
+      "custom_field_id": 2181315,
+      "name": "File or Folder Name:",
+      "value": "test_folder",
+      "type": 6,
+      "type_name": "Text_Area"
+    }
+  ]
+}
+```
+
+**CONSEQUENCE FOR THE SCHEMA + TOOL:**
+
+- The tool input still surfaces `catalog_item_id` and `request_variables` (the names users would expect from `swsd_get_catalog_item.variables`); the wire-shape translation happens in the tool handler.
+- Plan B's `getUserIdFromJwtClaims` resolves the user_id, then the handler does a single `GET /users/{user_id}.json` to fetch the email (since `requester_id` isn't accepted on this endpoint).
+- `is_service_request` is set automatically by the endpoint; we don't send it in the body.
+
+**ORIGINAL PLAN NOTES (kept for reference):**
 
 ⚠️ **This step creates a real ticket in production.** Before implementing the schema, the implementer MUST verify the request body shape SWSD actually accepts. Use one of these strategies:
 

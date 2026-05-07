@@ -38,6 +38,7 @@ import { registerGetRecordAudits } from '../tools/audits/getRecordAudits.js';
 
 import { registerListCatalogItems } from '../tools/catalog/listCatalogItems.js';
 import { registerGetCatalogItem } from '../tools/catalog/getCatalogItem.js';
+import { registerCreateServiceRequest } from '../tools/catalog/createServiceRequest.js';
 
 export interface ToolContext {
   env: Env;
@@ -85,6 +86,7 @@ const REGISTRARS: Record<string, Registrar> = {
 
   swsd_list_catalog_items: registerListCatalogItems,
   swsd_get_catalog_item: registerGetCatalogItem,
+  swsd_create_service_request: registerCreateServiceRequest,
 };
 
 export function registerTools(server: McpServer, ctx: ToolContext): void {
