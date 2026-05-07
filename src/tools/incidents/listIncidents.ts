@@ -1,9 +1,27 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { z } from 'zod';
 import { ListIncidentsInput } from '../../schemas/incident.js';
+import { PaginationOutput } from '../../schemas/output.js';
 import { structuredResult } from '../../mcp/output.js';
 import { mapSwsdError } from '../../swsd/errors.js';
 import { toIncidentSummary } from '../../swsd/mappers/incident.js';
 import type { ToolContext } from '../../config/toolRegistry.js';
+
+const IncidentSummaryOutput = z.object({
+  id: z.number().int(),
+  number: z.number().int().optional(),
+  name: z.string(),
+  state: z.string().optional(),
+  priority: z.string().optional(),
+  assignee_email: z.string().optional(),
+  requester_email: z.string().optional(),
+  category: z.string().optional(),
+  updated_at: z.string().optional(),
+  url: z
+    .string()
+    .optional()
+    .describe('SWSD UI URL for this incident (from href_account_domain).'),
+});
 
 export function registerListIncidents(server: McpServer, ctx: ToolContext): void {
   server.registerTool(
@@ -15,6 +33,10 @@ export function registerListIncidents(server: McpServer, ctx: ToolContext): void
         'category, updated_at) — call swsd_get_incident for the full detail of any one row. ' +
         'Filters use SWSD repeated-key array semantics (multiple values within a filter are OR-ed).',
       inputSchema: ListIncidentsInput.shape,
+      outputSchema: z.object({
+        incidents: z.array(IncidentSummaryOutput),
+        pagination: PaginationOutput,
+      }).shape,
       annotations: { readOnlyHint: true, openWorldHint: true, idempotentHint: true },
     },
     async (input) => {

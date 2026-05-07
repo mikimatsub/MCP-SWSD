@@ -1,9 +1,31 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { z } from 'zod';
 import { GetRecordAuditsInput } from '../../schemas/audit.js';
+import { PaginationOutput } from '../../schemas/output.js';
 import { structuredResult } from '../../mcp/output.js';
 import { mapSwsdError } from '../../swsd/errors.js';
 import { toAuditSummary } from '../../swsd/mappers/audit.js';
 import type { ToolContext } from '../../config/toolRegistry.js';
+
+const AuditSummaryOutput = z.object({
+  id: z.number().int(),
+  message: z
+    .string()
+    .describe('Human-readable change description, e.g. "State changed from New to On Hold".'),
+  action: z
+    .string()
+    .optional()
+    .describe('Action taken — typically "Update", "Create", or "Delete".'),
+  created_at: z.string().optional(),
+  user: z
+    .string()
+    .optional()
+    .describe('The user who performed the action (display name; user_id is separate).'),
+  user_id: z.number().int().optional(),
+  note: z.string().optional().describe('Free-text note attached to the audit, often empty.'),
+  source_type: z.string().optional(),
+  source_id: z.number().int().optional(),
+});
 
 export function registerGetRecordAudits(server: McpServer, ctx: ToolContext): void {
   server.registerTool(
@@ -18,6 +40,10 @@ export function registerGetRecordAudits(server: McpServer, ctx: ToolContext): vo
         'when you only need the audit history. object_type accepts incidents, ' +
         'problems, changes, releases, solutions, hardwares, other_assets.',
       inputSchema: GetRecordAuditsInput.shape,
+      outputSchema: z.object({
+        audits: z.array(AuditSummaryOutput),
+        pagination: PaginationOutput,
+      }).shape,
       annotations: { readOnlyHint: true, openWorldHint: true, idempotentHint: true },
     },
     async (input) => {

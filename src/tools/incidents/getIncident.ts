@@ -1,4 +1,5 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { z } from 'zod';
 import { GetIncidentInput } from '../../schemas/incident.js';
 import { structuredResult } from '../../mcp/output.js';
 import { toolError } from '../../mcp/errors.js';
@@ -16,6 +17,9 @@ export function registerGetIncident(server: McpServer, ctx: ToolContext): void {
         'Use swsd_list_incidents first if you only have a name or filter — IDs are not guessable.' +
         ' Pass detail_level: "long" to include comments, attachments, audits, SLA data, and resolution in one call.',
       inputSchema: GetIncidentInput.shape,
+      outputSchema: z.object({
+        incident: z.record(z.string(), z.unknown()),
+      }).shape,
       annotations: { readOnlyHint: true, openWorldHint: true, idempotentHint: true },
     },
     async (input) => {

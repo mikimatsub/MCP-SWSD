@@ -1,4 +1,5 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { z } from 'zod';
 import { SERVER_NAME, SERVER_VERSION } from '../../mcp/server.js';
 import { structuredResult } from '../../mcp/output.js';
 import type { ToolContext } from '../../config/toolRegistry.js';
@@ -12,6 +13,20 @@ export function registerGetServerInfo(server: McpServer, ctx: ToolContext): void
         'enabled tools, and the SWSD base URL host. Local-only — does not call SWSD.' +
         ' Includes documented SWSD upstream rate limits (the model can reference these without guessing).',
       inputSchema: {},
+      outputSchema: z.object({
+        name: z.string(),
+        version: z.string(),
+        profile: z.string(),
+        tools: z.array(z.string()),
+        base_url_host: z.string(),
+        api_version: z.string(),
+        upstream_rate_limit: z.object({
+          advanced_plan: z.string(),
+          premier_plan: z.string(),
+          signal: z.string(),
+          client_behavior: z.string(),
+        }),
+      }).shape,
       annotations: { readOnlyHint: true, openWorldHint: false, idempotentHint: true },
     },
     () => {

@@ -1,9 +1,32 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { z } from 'zod';
 import { DescribeCustomFieldsInput } from '../../schemas/customField.js';
+import { PaginationOutput } from '../../schemas/output.js';
 import { structuredResult } from '../../mcp/output.js';
 import { mapSwsdError } from '../../swsd/errors.js';
 import { toCustomFieldSummary } from '../../swsd/mappers/customField.js';
 import type { ToolContext } from '../../config/toolRegistry.js';
+
+const CustomFieldSummaryOutput = z.object({
+  id: z.number().int(),
+  name: z.string(),
+  type: z
+    .string()
+    .describe('Human-readable field type (e.g. "Text", "Date", "Dropdown", "Multi-picklist").'),
+  required: z.boolean(),
+  active: z.boolean(),
+  scope: z
+    .string()
+    .optional()
+    .describe('Scope name (e.g. "Global", "Service_Catalog", "Incident").'),
+  module: z.string().optional().describe('Module the field is scoped to, when applicable.'),
+  values: z
+    .array(z.string())
+    .optional()
+    .describe('Allowed values for Dropdown / Multi-picklist field types.'),
+  help_text: z.string().optional(),
+  searchable: z.boolean(),
+});
 
 export function registerDescribeCustomFields(
   server: McpServer,
@@ -27,6 +50,10 @@ export function registerDescribeCustomFields(
         'Multi_picklist and User-type writes are not yet supported — set ' +
         'those via the SWSD UI.',
       inputSchema: DescribeCustomFieldsInput.shape,
+      outputSchema: z.object({
+        custom_fields: z.array(CustomFieldSummaryOutput),
+        pagination: PaginationOutput,
+      }).shape,
       annotations: { readOnlyHint: true, openWorldHint: true, idempotentHint: true },
     },
     async (input) => {

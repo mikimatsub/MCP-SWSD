@@ -1,4 +1,5 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { z } from 'zod';
 import { GetSolutionInput } from '../../schemas/solution.js';
 import { structuredResult } from '../../mcp/output.js';
 import { toolError } from '../../mcp/errors.js';
@@ -18,6 +19,9 @@ export function registerGetSolution(server: McpServer, ctx: ToolContext): void {
         'only have a topic — IDs are not guessable.' +
         ' Pass detail_level: "long" to include attachments, audits, and tags in one call.',
       inputSchema: GetSolutionInput.shape,
+      outputSchema: z.object({
+        solution: z.record(z.string(), z.unknown()),
+      }).shape,
       annotations: { readOnlyHint: true, openWorldHint: true, idempotentHint: true },
     },
     async (input) => {
