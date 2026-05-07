@@ -29,7 +29,7 @@ export function registerUpdateSolution(server: McpServer, ctx: ToolContext): voi
         if (Object.keys(payload.solution).length === 0) {
           return toolError(
             'No fields to update — provide at least one field besides id.',
-            'Pass any of: name, description, state, category_name.',
+            'Pass any of: name, description, state, category_name, custom_fields.',
           );
         }
         const { body } = await ctx.client.put<unknown>(`/solutions/${String(id)}.json`, payload);
