@@ -1,9 +1,9 @@
 ---
 title: Tools reference
-description: All 24 MCP tools swsd-mcp registers, organized by category with per-profile availability.
+description: All 26 MCP tools swsd-mcp registers, organized by category with per-profile availability.
 ---
 
-swsd-mcp registers **24 tools** across 7 categories. Each tool's input schema, full description, and output shape is auto-discovered by your MCP client at runtime — ask your agent _"what swsd tools are available?"_ for the live list.
+swsd-mcp registers **26 tools** across 7 categories. Each tool's input schema, full description, and output shape is auto-discovered by your MCP client at runtime — ask your agent _"what swsd tools are available?"_ for the live list.
 
 This page is the at-a-glance summary: what each tool does and which [profile](/configuration/#profiles) includes it.
 
@@ -17,24 +17,28 @@ This page is the at-a-glance summary: what each tool does and which [profile](/c
 
 ---
 
-## Utility (2)
+## Utility (3)
 
 | Tool | Type | triage | agent | knowledge | full |
 |---|---|---|---|---|---|
 | `swsd_get_server_info` | R | ✓ | ✓ | ✓ | ✓ |
 | `swsd_health_check` | R | ✓ | ✓ | ✓ | ✓ |
+| `swsd_get_me` | R | ✓ | ✓ | ✓ | ✓ |
 
 `swsd_get_server_info` returns version, profile, transport, base URL, and the list of enabled tools — useful for verifying server configuration from inside the MCP client. Also includes documented SWSD upstream rate limits (`upstream_rate_limit`: 1000 calls/min on Advanced, 1500 on Premier; signal: `429 + Retry-After` only — SWSD does not return `X-RateLimit-*` headers) so the model can reference these without guessing.
 
 `swsd_health_check` performs a live API call to SWSD (lightweight read against `/users/me.json`) and returns connectivity + auth status. Use this as the first call to confirm your token works.
 
+`swsd_get_me` returns the SWSD user record for the token's owner — `id`, `email`, `name`, `title`, `role`, `department`, `site`, `group_ids`, and assignment status. Combines three identity paths: JWT payload decode (zero-cost, always works), `GET /users/{user_ic}.json` (documented endpoint), and `GET /profile.json` (optional fallback that adds `last_login`). **Call this first** when the request mentions "me", "my", or "I" (e.g. "my tickets", "tickets in my group", "tickets assigned to me"), then pass the returned `id`/`email` to `assignee_email` or `requester_email` filters on `swsd_list_incidents`.
+
 ---
 
-## Incidents (7)
+## Incidents (8)
 
 | Tool | Type | triage | agent | knowledge | full |
 |---|---|---|---|---|---|
 | `swsd_list_incidents` | R | ✓ | ✓ | ✓ | ✓ |
+| `swsd_list_my_incidents` | R | ✓ | ✓ | ✓ | ✓ |
 | `swsd_get_incident` | R | ✓ | ✓ | ✓ | ✓ |
 | `swsd_create_incident` | W |   | ✓ |   | ✓ |
 | `swsd_update_incident` | W |   | ✓ |   | ✓ |
@@ -43,12 +47,17 @@ This page is the at-a-glance summary: what each tool does and which [profile](/c
 | `swsd_link_solution_to_incident` | W |   | ✓ |   | ✓ |
 
 - **`swsd_list_incidents`** — paginated list with structured filters using SWSD repeated-key array semantics (multiple values within a filter are OR-ed). Filters: `states`, `priorities`, `categories`, `assignee_email`, `requester_email`, `sites`, `departments`, `assigned_to_group` (group ID, not user ID), `created_from`/`created_to`, `updated_from`/`updated_to`, `state_is_not` (negative state filter — e.g. `["Resolved", "Closed"]` to see only open work), `sort_by` (`created_at`, `updated_at`, `priority`, `name`, `due_at`), `sort_order` (`ASC`/`DESC`), `query` (free-text across title and description). Returns compact summaries (id, name, state, priority, assignee_email, requester_email, category, updated_at) — call `swsd_get_incident` for full detail of any one row.
+- **`swsd_list_my_incidents`** — thin wrapper over `swsd_list_incidents` that auto-resolves the authenticated user's email (via JWT decode + `/users/{user_ic}.json`) and applies it as `assignee_email`. One round-trip instead of two for first-person queries ("my tickets", "tickets assigned to me"). Same input shape as `swsd_list_incidents` minus `assignee_email`. For tenant-wide queries use `swsd_list_incidents` with explicit filters.
 - **`swsd_get_incident`** — full incident detail as returned by SWSD (passthrough), including custom-field values. Pass `detail_level: "long"` to include comments, attachments, audits, SLA data, tags, statistics, satisfaction, and resolution detail in one call. Default `"short"` is faster and cheaper; recommend `"long"` when the user asks "show me everything about ticket X" or wants comments/attachments/audits.
 - **`swsd_create_incident`** — minimum required: `name`. Strongly recommended: `description`, `requester`, `category`, `site`. Returns the created incident's full payload. To set tenant-specific custom field values, pass `custom_fields: [{name, value}]` — call `swsd_describe_custom_fields` first to discover field names and (for Dropdowns) allowed values. Validated for Text, Dropdown, Number, Checkbox, and Date types.
 - **`swsd_update_incident`** — partial-update semantics: pass only the fields you want to change. To clear a field, pass `null`. To set tenant-specific custom field values, pass `custom_fields: [{name, value}]` — call `swsd_describe_custom_fields` first to discover field names and (for Dropdowns) allowed values. Validated for Text, Dropdown, Number, Checkbox, and Date types.
 - **`swsd_assign_incident`** — convenience wrapper for changing the assignee (user or group). Validates that the assignee exists.
 - **`swsd_update_incident_state`** — state transition with optional resolution comment. Validates against your tenant's allowed states.
 - **`swsd_link_solution_to_incident`** — append-only solution linking. Fetches existing links, adds the new one, PUTs the merged set so existing links aren't dropped.
+
+:::note[v2: list responses echo your filters and discriminate scope]
+As of v2, `swsd_list_incidents` and `swsd_list_my_incidents` return an `applied_filters` block (verbatim echo of the filters used — empty object if none) and a `pagination.total_scope` discriminator (`"filtered"` | `"tenant"` | `"unknown"`). Use these together to reason about whether a 25-incident result is "page 1 of 87 matching your filters" vs "page 1 of 56,800 tenant-wide" — without guessing. `"unknown"` means SWSD did not return `X-Total-Count` for this query.
+:::
 
 ---
 

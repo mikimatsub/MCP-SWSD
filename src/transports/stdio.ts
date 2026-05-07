@@ -21,6 +21,7 @@ export async function runStdio(env: Env): Promise<void> {
     profile: env.SWSD_PROFILE,
     client,
     enabledTools,
+    token: env.SWSD_TOKEN,
   });
 
   const transport = new StdioServerTransport();

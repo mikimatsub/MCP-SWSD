@@ -3,7 +3,9 @@ import type { ProfileName } from './env.js';
 const READ_BASE = [
   'swsd_get_server_info',
   'swsd_health_check',
+  'swsd_get_me',
   'swsd_list_incidents',
+  'swsd_list_my_incidents',
   'swsd_get_incident',
   'swsd_list_incident_comments',
   'swsd_list_categories',
@@ -39,7 +41,9 @@ export const PROFILE_TOOLS = {
   knowledge: [
     'swsd_get_server_info',
     'swsd_health_check',
+    'swsd_get_me',
     'swsd_list_incidents',
+    'swsd_list_my_incidents',
     'swsd_get_incident',
     'swsd_list_categories',
     'swsd_list_users',
@@ -53,7 +57,9 @@ export const PROFILE_TOOLS = {
   full: [
     'swsd_get_server_info',
     'swsd_health_check',
+    'swsd_get_me',
     'swsd_list_incidents',
+    'swsd_list_my_incidents',
     'swsd_get_incident',
     'swsd_list_incident_comments',
     'swsd_add_incident_comment',

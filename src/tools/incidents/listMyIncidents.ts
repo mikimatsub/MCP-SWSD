@@ -1,10 +1,13 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
-import { ListIncidentsInput } from '../../schemas/incident.js';
+import { ListMyIncidentsInput } from '../../schemas/listMyIncidents.js';
 import { PaginationWithScopeOutput } from '../../schemas/output.js';
 import { structuredResult } from '../../mcp/output.js';
+import { toolError } from '../../mcp/errors.js';
 import { mapSwsdError } from '../../swsd/errors.js';
 import { toIncidentSummary } from '../../swsd/mappers/incident.js';
+import { decodeJwtPayload } from '../../swsd/jwt.js';
+import { toUserMeRecord } from '../../swsd/mappers/me.js';
 import type { ToolContext } from '../../config/toolRegistry.js';
 
 const IncidentSummaryOutput = z.object({
@@ -23,16 +26,18 @@ const IncidentSummaryOutput = z.object({
     .describe('SWSD UI URL for this incident (from href_account_domain).'),
 });
 
-export function registerListIncidents(server: McpServer, ctx: ToolContext): void {
+export function registerListMyIncidents(server: McpServer, ctx: ToolContext): void {
   server.registerTool(
-    'swsd_list_incidents',
+    'swsd_list_my_incidents',
     {
       description:
-        'List SWSD incidents with structured filters and pagination. Returns ' +
-        'compact summaries (id, name, state, priority, assignee_email, requester_email, ' +
-        'category, updated_at) — call swsd_get_incident for the full detail of any one row. ' +
-        'Filters use SWSD repeated-key array semantics (multiple values within a filter are OR-ed).',
-      inputSchema: ListIncidentsInput.shape,
+        'List incidents assigned to the authenticated user. Internally calls ' +
+        'swsd_get_me to discover the user\'s email, then swsd_list_incidents ' +
+        'with assignee_email=<your email>. Use this for first-person queries ' +
+        '("my tickets", "tickets assigned to me"). Same input shape as ' +
+        'swsd_list_incidents minus assignee_email (which is set automatically). ' +
+        'For tenant-wide queries use swsd_list_incidents with explicit filters.',
+      inputSchema: ListMyIncidentsInput.shape,
       outputSchema: z.object({
         incidents: z.array(IncidentSummaryOutput),
         pagination: PaginationWithScopeOutput,
@@ -41,19 +46,34 @@ export function registerListIncidents(server: McpServer, ctx: ToolContext): void
           .describe(
             'Echo of the filters applied to this query — empty object if none. Use this to reason about whether the result count reflects your filters or the tenant total.',
           ),
+        assignee_email: z
+          .string()
+          .describe('The authenticated user\'s email used as the assignee filter.'),
       }).shape,
       annotations: { readOnlyHint: true, openWorldHint: true, idempotentHint: true },
     },
     async (input) => {
       try {
+        // Step 1: Resolve the authenticated user's email via JWT + /users/{id}.
+        const claims = decodeJwtPayload(ctx.token);
+        if (claims === null || typeof claims.user_ic !== 'number') {
+          return toolError('Could not decode SWSD JWT to identify the authenticated user.');
+        }
+        const usersResult = await ctx.client.get<unknown>(`/users/${String(claims.user_ic)}.json`);
+        const me = toUserMeRecord(usersResult.body);
+        if (me === null || me.email === undefined) {
+          return toolError(`Could not resolve email for user_ic ${String(claims.user_ic)}.`);
+        }
+
+        // Step 2: Build /incidents.json query with assignee_email = me.email + the input filters.
         const params: Record<string, unknown> = {
           page: input.page,
           per_page: input.per_page,
+          assignee_email: me.email,
         };
         if (input.states) params.state = input.states;
         if (input.priorities) params.priority = input.priorities;
         if (input.categories) params.category = input.categories;
-        if (input.assignee_email) params.assignee_email = input.assignee_email;
         if (input.requester_email) params.requester_email = input.requester_email;
         if (input.updated_from) params.updated_at = ['greater_than', input.updated_from];
         if (input.updated_to) params.updated_to = input.updated_to;
@@ -74,11 +94,13 @@ export function registerListIncidents(server: McpServer, ctx: ToolContext): void
           .filter((x): x is NonNullable<typeof x> => x !== null);
 
         // Echo the applied filters back for in-band scope reasoning.
-        const applied_filters: Record<string, unknown> = {};
+        // assignee_email is set internally — surface it so the model sees the implicit filter.
+        const applied_filters: Record<string, unknown> = {
+          assignee_email: me.email,
+        };
         if (input.states) applied_filters.states = input.states;
         if (input.priorities) applied_filters.priorities = input.priorities;
         if (input.categories) applied_filters.categories = input.categories;
-        if (input.assignee_email) applied_filters.assignee_email = input.assignee_email;
         if (input.requester_email) applied_filters.requester_email = input.requester_email;
         if (input.updated_from) applied_filters.updated_from = input.updated_from;
         if (input.updated_to) applied_filters.updated_to = input.updated_to;
@@ -92,30 +114,22 @@ export function registerListIncidents(server: McpServer, ctx: ToolContext): void
         if (input.sort_order) applied_filters.sort_order = input.sort_order;
         if (input.query) applied_filters.query = input.query;
 
-        const hasAnyFilter = Object.keys(applied_filters).length > 0;
+        // assignee_email is always present, so this list is always "filtered" when total is known.
         const total_scope: 'filtered' | 'tenant' | 'unknown' =
-          pagination.total === undefined
-            ? 'unknown'
-            : hasAnyFilter
-              ? 'filtered'
-              : 'tenant';
+          pagination.total === undefined ? 'unknown' : 'filtered';
 
-        const filterDescription = hasAnyFilter
-          ? `matching your filters (${Object.entries(applied_filters)
-              .slice(0, 3)
-              .map(([k, v]) => `${k}=${Array.isArray(v) ? v.join(',') : String(v)}`)
-              .join(', ')}${Object.keys(applied_filters).length > 3 ? ', ...' : ''})`
-          : 'tenant-wide';
         const totalNote =
           pagination.total !== undefined ? ` of ${String(pagination.total)}` : '';
         const moreNote = pagination.has_more ? ', more available' : '';
-        const summary = `Returned ${String(incidents.length)}${totalNote} ${filterDescription} incidents (page ${String(pagination.page)}${moreNote}).`;
-
+        const summary =
+          `Returned ${String(incidents.length)}${totalNote} incidents matching your filters ` +
+          `(assignee_email=${me.email}) (page ${String(pagination.page)}${moreNote}).`;
         return structuredResult(
           {
             incidents,
             pagination: { ...pagination, total_scope },
             applied_filters,
+            assignee_email: me.email,
           },
           summary,
         );

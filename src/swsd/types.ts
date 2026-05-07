@@ -125,3 +125,24 @@ export interface AuditSummary {
   source_type?: string;
   source_id?: number;
 }
+
+export interface UserMeRecord {
+  id: number;
+  email?: string;
+  name?: string;
+  title?: string;
+  /** Role name (e.g. "Administrator", "Requester"). */
+  role?: string;
+  /** Department name. */
+  department?: string;
+  /** Site name. */
+  site?: string;
+  /** Group IDs the user belongs to. Empty array if none. */
+  group_ids: number[];
+  /** Whether the user account is disabled. */
+  disabled?: boolean;
+  /** Whether the user is currently configured to receive incident assignments. */
+  available_for_assignment?: boolean;
+  /** ISO timestamp of the user's last login (only present from /profile.json). */
+  last_login?: string;
+}
