@@ -7,7 +7,7 @@ const INSTRUCTIONS = [
   'Tools wrap the SolarWinds Service Desk (SWSD / Samanage) API.',
   'IDs are integers. List endpoints accept structured filters; do not pass raw query strings.',
   'For pagination, prefer narrowing filters over deep paging.',
-  'When custom-field write tools become available, call swsd_describe_custom_fields first — field names and types are tenant-specific.',
+  'For custom-field writes (custom_fields parameter on incident/solution write tools), call swsd_describe_custom_fields first — field names and types are tenant-specific.',
 ].join(' ');
 
 export function createMcpServer(): McpServer {
