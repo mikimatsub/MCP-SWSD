@@ -98,7 +98,7 @@ Each tool's input schema, description, and output shape is auto-discovered by yo
 
 ## MCP Apps support
 
-swsd-mcp ships interactive UI bundles for four read tools using the [MCP Apps capability](https://modelcontextprotocol.io/specification/2025-11-25) (SEP-1865). When a host that supports MCP Apps calls one of these tools, it can render a rich UI alongside the structured response — single-tool tables, filterable lists, searchable explorers — instead of (or in addition to) plain text.
+swsd-mcp ships interactive UI bundles for four read tools using the [MCP Apps capability](https://modelcontextprotocol.io/specification/2025-11-25) (SEP-1865). When a host that supports MCP Apps calls one of these tools, it can render a rich UI alongside the structured response — single-record detail views, filterable/sortable tables, searchable explorers — instead of (or in addition to) plain text.
 
 | Tool | UI |
 |---|---|
