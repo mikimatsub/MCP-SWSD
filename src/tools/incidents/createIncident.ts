@@ -17,7 +17,8 @@ export function registerCreateIncident(server: McpServer, ctx: ToolContext): voi
         'Create a new SWSD incident. Required: `name`. Strongly recommended: `description`, ' +
         '`requester_email`, `priority`, `category_name`. The created incident\'s ID is returned ' +
         'for follow-up calls (swsd_assign_incident, swsd_add_incident_comment, etc.). ' +
-        'WRITE — does not retry on transient failure; the agent should verify with swsd_get_incident before retrying.',
+        'WRITE — does not retry on transient failure; the agent should verify with swsd_get_incident before retrying.' +
+        ' To set tenant-specific custom field values, pass `custom_fields: [{name, value}]` — call swsd_describe_custom_fields first to discover field names and (for Dropdowns) allowed values. Validated for Text, Dropdown, Number, Checkbox, and Date types.',
       inputSchema: CreateIncidentInput.shape,
       annotations: { readOnlyHint: false, openWorldHint: true, idempotentHint: false },
     },
