@@ -4,20 +4,32 @@ import { resolve } from 'node:path';
 
 const distUi = resolve(process.cwd(), 'dist', 'ui');
 
-describe('UI build artifacts', () => {
-  it('emits a single-file _smoke.html bundle under dist/ui/', () => {
-    const path = resolve(distUi, '_smoke.html');
-    expect(existsSync(path)).toBe(true);
-    const html = readFileSync(path, 'utf8');
-    expect(html).toContain('SWSD UI Smoke');
-    // vite-plugin-singlefile inlines all <script>/<link> assets — no external src should remain.
-    expect(html).not.toMatch(/<script[^>]+src=["']\/[^"']+["']/);
-    expect(html).not.toMatch(/<link[^>]+href=["']\/[^"']+\.css["']/);
-  });
+/**
+ * Sentinel substring expected in each bundled HTML — picked to match the
+ * `<title>` of each UI's index.html. If a bundle is empty / shells out to a
+ * placeholder we want to know.
+ */
+const BUNDLES: Array<{ name: string; sentinel: string }> = [
+  { name: '_smoke', sentinel: 'SWSD UI Smoke' },
+  { name: 'incident-detail', sentinel: 'SWSD Incident' },
+];
 
-  it('produces a bundle under the 200 KB single-tool budget', () => {
-    const path = resolve(distUi, '_smoke.html');
-    const bytes = statSync(path).size;
-    expect(bytes).toBeLessThan(200_000);
-  });
+describe('UI build artifacts', () => {
+  for (const { name, sentinel } of BUNDLES) {
+    it(`emits a single-file ${name}.html bundle under dist/ui/`, () => {
+      const path = resolve(distUi, `${name}.html`);
+      expect(existsSync(path)).toBe(true);
+      const html = readFileSync(path, 'utf8');
+      expect(html).toContain(sentinel);
+      // vite-plugin-singlefile inlines all <script>/<link> assets — no external src should remain.
+      expect(html).not.toMatch(/<script[^>]+src=["']\/[^"']+["']/);
+      expect(html).not.toMatch(/<link[^>]+href=["']\/[^"']+\.css["']/);
+    });
+
+    it(`${name}.html stays under the 200 KB single-tool budget`, () => {
+      const path = resolve(distUi, `${name}.html`);
+      const bytes = statSync(path).size;
+      expect(bytes).toBeLessThan(200_000);
+    });
+  }
 });

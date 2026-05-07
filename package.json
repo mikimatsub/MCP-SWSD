@@ -19,7 +19,7 @@
   ],
   "scripts": {
     "prebuild": "node -e \"if(process.env.CF_PAGES){throw new Error('Cloudflare Pages should build docs-site/, not the MCP server root. Set Root directory to docs-site in the Cloudflare Pages dashboard.');}\"",
-    "build:ui": "vite build",
+    "build:ui": "node scripts/build-ui.mjs",
     "build": "npm run build:ui && tsc",
     "dev": "tsx src/cli.ts",
     "start": "node dist/cli.js",
