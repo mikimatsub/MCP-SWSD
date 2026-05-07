@@ -29,6 +29,16 @@ export function registerListIncidents(server: McpServer, ctx: ToolContext): void
         if (input.assignee_email) params.assignee_email = input.assignee_email;
         if (input.requester_email) params.requester_email = input.requester_email;
         if (input.updated_from) params.updated_at = ['greater_than', input.updated_from];
+        if (input.updated_to) params.updated_to = input.updated_to;
+        if (input.created_from) params.created_from = input.created_from;
+        if (input.created_to) params.created_to = input.created_to;
+        if (input.sites) params.site = input.sites;
+        if (input.departments) params.department = input.departments;
+        if (input.assigned_to_group !== undefined) params.assigned_to = input.assigned_to_group;
+        if (input.state_is_not) params.state_is_not = input.state_is_not;
+        if (input.sort_by) params.sort_by = input.sort_by;
+        if (input.sort_order) params.sort_order = input.sort_order;
+        if (input.query) params.query = input.query;
 
         const { body, pagination } = await ctx.client.get<unknown>('/incidents.json', params);
         const raw = Array.isArray(body) ? body : [];

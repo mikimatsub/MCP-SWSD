@@ -43,6 +43,52 @@ export const ListIncidentsInput = z.object({
     .min(10)
     .optional()
     .describe('Filter to incidents updated on or after this ISO date or datetime (YYYY-MM-DD or RFC 3339).'),
+  updated_to: z
+    .string()
+    .min(10)
+    .optional()
+    .describe('Filter to incidents updated on or before this ISO date or datetime. Pair with updated_from for an explicit range.'),
+  created_from: z
+    .string()
+    .min(10)
+    .optional()
+    .describe('Filter to incidents created on or after this ISO date or datetime (YYYY-MM-DD or RFC 3339).'),
+  created_to: z
+    .string()
+    .min(10)
+    .optional()
+    .describe('Filter to incidents created on or before this ISO date or datetime.'),
+  sites: z
+    .array(z.string().min(1))
+    .optional()
+    .describe('Filter to incidents at any of these site names (use swsd_list_sites to discover).'),
+  departments: z
+    .array(z.string().min(1))
+    .optional()
+    .describe('Filter to incidents in any of these department names.'),
+  assigned_to_group: z
+    .number()
+    .int()
+    .positive()
+    .optional()
+    .describe('Filter to incidents assigned to this group ID. Use swsd_list_groups to find the ID. NOTE: this is GROUP id, not user id.'),
+  state_is_not: z
+    .array(z.string().min(1))
+    .optional()
+    .describe('Negative state filter: exclude incidents in any of these states (e.g. ["Resolved", "Closed"] to see only open work).'),
+  sort_by: z
+    .enum(['created_at', 'updated_at', 'priority', 'name', 'due_at'])
+    .optional()
+    .describe('Sort key. Default is SWSD-side (typically updated_at desc).'),
+  sort_order: z
+    .enum(['ASC', 'DESC'])
+    .optional()
+    .describe('Sort direction. Use uppercase per SWSD convention.'),
+  query: z
+    .string()
+    .min(1)
+    .optional()
+    .describe('Free-text search across incident title and description. Same async-indexing caveat as solution search — just-created tickets may not appear for a few minutes.'),
 });
 
 export const GetIncidentInput = z.object({
