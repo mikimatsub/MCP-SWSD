@@ -1,4 +1,4 @@
-import { onHostInit, applyHostThemeVariables } from '../shared/host.js';
+import { mountApp } from '../shared/host.js';
 import { el, clear } from '../shared/dom.js';
 import {
   pickString,
@@ -41,9 +41,14 @@ const root = document.getElementById('root');
 if (!root) throw new Error('incident-detail UI: missing #root');
 root.appendChild(el('p', { class: 'loading' }, ['Loading incident…']));
 
-onHostInit<Payload>((msg) => {
-  applyHostThemeVariables(msg.styles?.variables);
-  if (msg.data?.incident) render(root, msg.data.incident);
+mountApp<Payload>({
+  name: 'swsd-mcp/incident-detail',
+  version: '2.0.1',
+  onResult: (data) => {
+    if (data?.incident) render(root, data.incident);
+  },
+}).catch((err) => {
+  console.error('incident-detail: failed to connect MCP App', err);
 });
 
 function render(rootEl: HTMLElement, inc: Incident): void {

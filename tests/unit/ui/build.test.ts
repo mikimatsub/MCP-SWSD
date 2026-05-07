@@ -28,10 +28,16 @@ describe('UI build artifacts', () => {
       expect(html).not.toMatch(/<link[^>]+href=["']\/[^"']+\.css["']/);
     });
 
-    it(`${name}.html stays under the 200 KB single-tool budget`, () => {
+    it(`${name}.html stays under the 500 KB single-tool budget`, () => {
+      // Budget rationale: bundles include the full @modelcontextprotocol/ext-apps
+      // App class (which transitively pulls the MCP SDK + zod) for spec-compliant
+      // postMessage JSON-RPC. Empirical bundle size at v2.0.1 is ~340 KB raw
+      // (~80 KB gzipped). The 500 KB ceiling guards against runaway accidental
+      // bloat (e.g., lodash full import) while accommodating normal SDK growth.
+      // Revisit if ext-apps publishes a slimmer App-only entrypoint.
       const path = resolve(distUi, `${name}.html`);
       const bytes = statSync(path).size;
-      expect(bytes).toBeLessThan(200_000);
+      expect(bytes).toBeLessThan(500_000);
     });
   }
 });
