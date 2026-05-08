@@ -17,7 +17,7 @@ export default defineConfig({
       description:
         'MCP server for SolarWinds Service Desk (SWSD / Samanage). Lets AI assistants read and modify tickets, comments, and KB articles.',
       social: [
-        { icon: 'github', label: 'GitHub', href: 'https://github.com/mikimatsub/MCP-SWSD' },
+        { icon: 'github', label: 'GitHub', href: 'https://github.com/mikimatsub/swsd-mcp' },
         { icon: 'npm', label: 'npm', href: 'https://www.npmjs.com/package/swsd-mcp' },
       ],
       sidebar: [
@@ -32,7 +32,7 @@ export default defineConfig({
         { label: 'Contributing', link: '/contributing/' },
       ],
       editLink: {
-        baseUrl: 'https://github.com/mikimatsub/MCP-SWSD/edit/main/docs-site/',
+        baseUrl: 'https://github.com/mikimatsub/swsd-mcp/edit/main/docs-site/',
       },
       lastUpdated: true,
     }),

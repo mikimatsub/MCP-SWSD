@@ -60,7 +60,7 @@ az containerapp create \
   --name swsd-mcp \
   --resource-group swsd-mcp-rg \
   --environment swsd-mcp-env \
-  --image ghcr.io/mikimatsub/mcp-swsd:latest \
+  --image ghcr.io/mikimatsub/swsd-mcp:latest \
   --target-port 3000 \
   --ingress external \
   --env-vars \
@@ -155,7 +155,7 @@ When swsd-mcp publishes a new version, the Container App automatically pulls the
 az containerapp update \
   --name swsd-mcp \
   --resource-group swsd-mcp-rg \
-  --image ghcr.io/mikimatsub/mcp-swsd:latest
+  --image ghcr.io/mikimatsub/swsd-mcp:latest
 ```
 
 Or pin to a specific version:
@@ -164,10 +164,10 @@ Or pin to a specific version:
 az containerapp update \
   --name swsd-mcp \
   --resource-group swsd-mcp-rg \
-  --image ghcr.io/mikimatsub/mcp-swsd:sha-XXXXXXX
+  --image ghcr.io/mikimatsub/swsd-mcp:sha-XXXXXXX
 ```
 
-(Find available tags at https://github.com/mikimatsub/MCP-SWSD/pkgs/container/mcp-swsd)
+(Find available tags at https://github.com/mikimatsub/swsd-mcp/pkgs/container/mcp-swsd)
 
 ## Tearing down
 

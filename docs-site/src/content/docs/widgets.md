@@ -38,7 +38,7 @@ All seven widgets handle `isError: true` tool results: instead of an infinite "L
 
 ## Per-widget detail
 
-> The screenshots below are rendered with synthetic example data ("Acme Corp"). The harness lives at [`screenshots/host-mock.html`](https://github.com/mikimatsub/MCP-SWSD/blob/main/screenshots/host-mock.html) — run `npm run build` then serve the worktree over a local HTTP server to regenerate them. No real SWSD tenant data appears anywhere on this site.
+> The screenshots below are rendered with synthetic example data ("Acme Corp"). The harness lives at [`screenshots/host-mock.html`](https://github.com/mikimatsub/swsd-mcp/blob/main/screenshots/host-mock.html) — run `npm run build` then serve the worktree over a local HTTP server to regenerate them. No real SWSD tenant data appears anywhere on this site.
 
 ### `incident-detail`
 

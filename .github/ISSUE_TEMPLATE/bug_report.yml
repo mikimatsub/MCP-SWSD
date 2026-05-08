@@ -8,7 +8,7 @@ body:
       value: |
         Thanks for taking the time to report a bug. The more concrete the repro, the faster the fix.
 
-        **Security issue?** Please don't file this here. Use [GitHub Security Advisories](https://github.com/mikimatsub/MCP-SWSD/security/advisories/new) instead so we can fix and disclose responsibly.
+        **Security issue?** Please don't file this here. Use [GitHub Security Advisories](https://github.com/mikimatsub/swsd-mcp/security/advisories/new) instead so we can fix and disclose responsibly.
 
   - type: textarea
     id: what-happened

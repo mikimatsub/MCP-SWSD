@@ -7,7 +7,7 @@ Contributions are welcome. This page covers what to expect when filing issues or
 
 ## Reporting bugs
 
-→ **[Open a bug report](https://github.com/mikimatsub/MCP-SWSD/issues/new?template=bug_report.yml)** — uses a structured form
+→ **[Open a bug report](https://github.com/mikimatsub/swsd-mcp/issues/new?template=bug_report.yml)** — uses a structured form
 
 Include:
 
@@ -20,7 +20,7 @@ For **security issues**, see [Security → Vulnerability reporting](/security/#v
 
 ## Suggesting features
 
-→ **[Open a feature request](https://github.com/mikimatsub/MCP-SWSD/issues/new?template=feature_request.yml)**
+→ **[Open a feature request](https://github.com/mikimatsub/swsd-mcp/issues/new?template=feature_request.yml)**
 
 Include:
 
@@ -68,7 +68,7 @@ The repo uses `husky` + `lint-staged` to run `eslint --fix` on staged TS/JS file
 ## Local development
 
 ```bash
-git clone https://github.com/mikimatsub/MCP-SWSD.git
+git clone https://github.com/mikimatsub/swsd-mcp.git
 cd MCP-SWSD
 npm install
 
@@ -96,10 +96,10 @@ SWSD_TRANSPORT=http npm run dev
 
 ## Documentation contributions
 
-The docs site (this site!) lives under [`docs-site/`](https://github.com/mikimatsub/MCP-SWSD/tree/main/docs-site) — see [`docs-site/README.md`](https://github.com/mikimatsub/MCP-SWSD/blob/main/docs-site/README.md) for dev/build commands.
+The docs site (this site!) lives under [`docs-site/`](https://github.com/mikimatsub/swsd-mcp/tree/main/docs-site) — see [`docs-site/README.md`](https://github.com/mikimatsub/swsd-mcp/blob/main/docs-site/README.md) for dev/build commands.
 
 Cloudflare Pages auto-deploys every push to `main`. PRs get preview URLs commented automatically.
 
 ## Code of conduct
 
-We follow [Contributor Covenant 3.0](https://github.com/mikimatsub/MCP-SWSD/blob/main/CODE_OF_CONDUCT.md). Reports go through [GitHub Security Advisories](https://github.com/mikimatsub/MCP-SWSD/security/advisories/new) marked `[Code of Conduct]`.
+We follow [Contributor Covenant 3.0](https://github.com/mikimatsub/swsd-mcp/blob/main/CODE_OF_CONDUCT.md). Reports go through [GitHub Security Advisories](https://github.com/mikimatsub/swsd-mcp/security/advisories/new) marked `[Code of Conduct]`.

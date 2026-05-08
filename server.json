@@ -5,7 +5,7 @@
   "version": "2.1.0",
   "websiteUrl": "https://mcp-swsd.pages.dev",
   "repository": {
-    "url": "https://github.com/mikimatsub/MCP-SWSD",
+    "url": "https://github.com/mikimatsub/swsd-mcp",
     "source": "github"
   },
   "packages": [

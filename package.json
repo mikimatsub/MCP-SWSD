@@ -60,10 +60,10 @@
   "homepage": "https://mcp-swsd.pages.dev",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mikimatsub/MCP-SWSD.git"
+    "url": "git+https://github.com/mikimatsub/swsd-mcp.git"
   },
   "bugs": {
-    "url": "https://github.com/mikimatsub/MCP-SWSD/issues"
+    "url": "https://github.com/mikimatsub/swsd-mcp/issues"
   },
   "publishConfig": {
     "access": "public",

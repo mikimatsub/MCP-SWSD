@@ -437,7 +437,7 @@ writes deferred per documented investigation)
 #### Distribution
 
 * npm: `swsd-mcp` (public, free)
-* Docker: `ghcr.io/mikimatsub/mcp-swsd:latest`
+* Docker: `ghcr.io/mikimatsub/swsd-mcp:latest`
 * MIT license
 
 #### Build & supply chain
@@ -498,10 +498,10 @@ Detailed history available via `git log`.
 * **2026-05-03** — `0.1.0`: initial dual-transport foundation +
   incident reads (4 tools)
 
-[Unreleased]: https://github.com/mikimatsub/MCP-SWSD/compare/v2.1.0...HEAD
-[2.1.0]: https://github.com/mikimatsub/MCP-SWSD/compare/v2.0.2...v2.1.0
-[2.0.2]: https://github.com/mikimatsub/MCP-SWSD/compare/v2.0.1...v2.0.2
-[2.0.1]: https://github.com/mikimatsub/MCP-SWSD/compare/v2.0.0...v2.0.1
-[2.0.0]: https://github.com/mikimatsub/MCP-SWSD/compare/v1.0.1...v2.0.0
-[1.0.1]: https://github.com/mikimatsub/MCP-SWSD/compare/v1.0.0...v1.0.1
-[1.0.0]: https://github.com/mikimatsub/MCP-SWSD/releases/tag/v1.0.0
+[Unreleased]: https://github.com/mikimatsub/swsd-mcp/compare/v2.1.0...HEAD
+[2.1.0]: https://github.com/mikimatsub/swsd-mcp/compare/v2.0.2...v2.1.0
+[2.0.2]: https://github.com/mikimatsub/swsd-mcp/compare/v2.0.1...v2.0.2
+[2.0.1]: https://github.com/mikimatsub/swsd-mcp/compare/v2.0.0...v2.0.1
+[2.0.0]: https://github.com/mikimatsub/swsd-mcp/compare/v1.0.1...v2.0.0
+[1.0.1]: https://github.com/mikimatsub/swsd-mcp/compare/v1.0.0...v1.0.1
+[1.0.0]: https://github.com/mikimatsub/swsd-mcp/releases/tag/v1.0.0
