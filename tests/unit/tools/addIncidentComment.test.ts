@@ -1,118 +1,13 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { registerAddIncidentComment } from '../../../src/tools/comments/addIncidentComment.js';
-import type { ToolContext } from '../../../src/config/toolRegistry.js';
-import type {
-  SwsdClient,
-  SwsdGetResult,
-  SwsdMutationResult,
-} from '../../../src/swsd/client.js';
-
-interface RegisteredToolInternals {
-  description?: string;
-  annotations?: Record<string, unknown>;
-  inputSchema?: unknown;
-  handler: (input: unknown, extra: unknown) => Promise<unknown>;
-}
-
-interface McpServerInternals {
-  _registeredTools: Record<string, RegisteredToolInternals>;
-}
-
-interface CapturedGet {
-  type: 'get';
-  path: string;
-  params: Record<string, unknown>;
-}
-
-interface CapturedPost {
-  type: 'post';
-  path: string;
-  body: unknown;
-}
-
-type CapturedCall = CapturedGet | CapturedPost;
-
-interface FakeClient extends SwsdClient {
-  calls: CapturedCall[];
-  setLookupBody: (b: unknown) => void;
-  setPostResponse: (b: unknown) => void;
-}
-
-function makeFakeClient(): FakeClient {
-  const calls: CapturedCall[] = [];
-  let lookupBody: unknown = [];
-  let postResponse: unknown = {
-    id: 88888,
-    body: 'comment text',
-    is_private: false,
-  };
-
-  const get = async <T>(
-    path: string,
-    params: Record<string, unknown> = {},
-  ): Promise<SwsdGetResult<T>> => {
-    calls.push({ type: 'get', path, params });
-    return {
-      body: lookupBody as T,
-      pagination: {
-        page: 1,
-        per_page: 25,
-        total: undefined,
-        has_more: false,
-        next_page: undefined,
-      },
-      headers: new Headers(),
-    };
-  };
-
-  const post = async <T>(
-    path: string,
-    body: unknown,
-  ): Promise<SwsdMutationResult<T>> => {
-    calls.push({ type: 'post', path, body });
-    return {
-      body: postResponse as T,
-      headers: new Headers(),
-      status: 201,
-    };
-  };
-
-  const notImpl = async <T>(): Promise<T> => {
-    throw new Error('not implemented in fake');
-  };
-
-  return {
-    calls,
-    setLookupBody: (b: unknown) => {
-      lookupBody = b;
-    },
-    setPostResponse: (b: unknown) => {
-      postResponse = b;
-    },
-    get,
-    post,
-    put: notImpl,
-    rawRequest: notImpl,
-  } as unknown as FakeClient;
-}
-
-function makeCtx(client: SwsdClient): ToolContext {
-  return {
-    client,
-    profile: 'agent',
-    env: {} as never,
-    enabledTools: [],
-    token: '',
-  } satisfies ToolContext;
-}
-
-function getRegisteredTool(server: McpServer, name: string): RegisteredToolInternals {
-  const internals = server as unknown as McpServerInternals;
-  const t = internals._registeredTools[name];
-  if (!t) throw new Error(`Tool ${name} not registered`);
-  return t;
-}
+import {
+  makeFakeClient,
+  makeCtx,
+  getRegisteredTool,
+  type FakeClient,
+  type RegisteredToolInternals,
+} from './_helpers/mockClient.js';
 
 describe('swsd_add_incident_comment — id_or_number resolution', () => {
   let server: McpServer;
