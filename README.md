@@ -101,6 +101,10 @@ Each tool's input schema, description, and output shape is auto-discovered by yo
 
 Seven read tools ship interactive UI bundles using the [MCP Apps capability](https://modelcontextprotocol.io/specification/2025-11-25). On capable hosts (Claude Desktop, Claude Web, VS Code Copilot Chat, ChatGPT, Goose, Postman), the tool returns a rendered widget alongside the structured response. On text-only hosts (Claude Code, LM Studio), the same tools return their normal structured payload.
 
+![incident-list widget rendering a sortable table of synthetic Acme Corp tickets](docs-site/public/widgets/incident-list-dark.png)
+
+*Example — `swsd_list_incidents` rendering the `incident-list` widget. Synthetic data; no real tenant info. See the [full gallery](https://mcp-swsd.pages.dev/widgets/) for screenshots of all seven widgets.*
+
 | Tool | Widget | What it renders |
 |---|---|---|
 | `swsd_get_incident` | `incident-detail` | Single-record card (description, due date, SLA, resolution, custom fields) |

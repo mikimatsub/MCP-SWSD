@@ -1,0 +1,13 @@
+{
+  "custom_fields": [
+    { "id": 12001, "name": "Cost center", "type": "Free Text", "module": "Free Text", "scope": "Incident", "required": false, "active": true, "searchable": true, "values": [], "help_text": "Internal cost-allocation tag, used by Finance for monthly chargeback." },
+    { "id": 12002, "name": "Equipment model", "type": "Drop Down Menu", "module": "Drop Down Menu", "scope": "Incident", "required": true, "active": true, "searchable": true, "values": ["MacBook Air 13", "MacBook Pro 14", "MacBook Pro 16", "Dell XPS 13", "ThinkPad X1 Carbon"], "help_text": "Specify the affected device. Required on hardware tickets." },
+    { "id": 12003, "name": "Charge to project", "type": "Free Text", "module": "Free Text", "scope": "Incident", "required": false, "active": true, "searchable": false, "values": [], "help_text": "Optional. Project code if this is a billable activity." },
+    { "id": 12004, "name": "Approver", "type": "User", "module": "User", "scope": "Service_Catalog", "required": true, "active": true, "searchable": false, "values": [], "help_text": "Service-request approver. Defaults to the requester's manager." },
+    { "id": 12005, "name": "Renewal date", "type": "Date", "module": "Date", "scope": "Solution", "required": false, "active": true, "searchable": false, "values": [], "help_text": "When this KB article should be reviewed for accuracy." },
+    { "id": 12006, "name": "Vendor", "type": "Drop Down Menu", "module": "Drop Down Menu", "scope": "Asset", "required": false, "active": true, "searchable": true, "values": ["Apple", "Dell", "Lenovo", "HP", "Other"], "help_text": "Hardware manufacturer. Used by procurement for warranty lookups." },
+    { "id": 12007, "name": "Sensitive data?", "type": "Checkbox", "module": "Checkbox", "scope": "Incident", "required": false, "active": true, "searchable": false, "values": ["Yes", "No"], "help_text": "Flag if the ticket may contain regulated data (PII, PHI, financial)." },
+    { "id": 12008, "name": "Resolution category", "type": "Drop Down Menu", "module": "Drop Down Menu", "scope": "Incident", "required": false, "active": true, "searchable": true, "values": ["Hardware fault", "Software bug", "User error", "Configuration", "Third-party outage", "Other"], "help_text": "Set on resolution; powers the monthly category-breakdown report." }
+  ],
+  "pagination": { "page": 1, "per_page": 100, "total": 8, "has_more": false }
+}

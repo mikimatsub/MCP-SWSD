@@ -1,0 +1,38 @@
+{
+  "incident_id": 60451,
+  "count": 4,
+  "comments": [
+    {
+      "id": 901,
+      "body": "<p>Thanks for the report. I'll need to verify your machine is enrolled in the new MDM. Can you check <strong>System Settings → Privacy &amp; Security → Profiles</strong> and tell me what's listed?</p>",
+      "is_private": false,
+      "created_at": "2026-05-08T08:30:00Z",
+      "author_name": "Alex Kim",
+      "author_email": "alex.kim@acme.example"
+    },
+    {
+      "id": 902,
+      "body": "<p>I see two profiles: <code>Acme MDM v2</code> and <code>Cisco AnyConnect</code>.</p>",
+      "is_private": false,
+      "created_at": "2026-05-08T08:45:00Z",
+      "author_name": "Jane Doe",
+      "author_email": "jane.doe@acme.example"
+    },
+    {
+      "id": 903,
+      "body": "<p><em>Internal note:</em> third VPN-on-new-Mac case this week. Pinging the network team about the MDM cert renewal.</p>",
+      "is_private": true,
+      "created_at": "2026-05-08T09:00:00Z",
+      "author_name": "Alex Kim",
+      "author_email": "alex.kim@acme.example"
+    },
+    {
+      "id": 904,
+      "body": "<p>Found it — the MDM profile is missing the new device certificate. I'm pushing it now; should be on your machine in about 5 minutes. Try the VPN again after.</p><p>Reply here once it works (or if it still fails) and I'll close this out.</p>",
+      "is_private": false,
+      "created_at": "2026-05-08T09:15:00Z",
+      "author_name": "Alex Kim",
+      "author_email": "alex.kim@acme.example"
+    }
+  ]
+}

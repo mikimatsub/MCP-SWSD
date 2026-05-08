@@ -1,0 +1,57 @@
+{
+  "item": {
+    "id": 4023,
+    "name": "New laptop request",
+    "category": { "name": "Hardware" },
+    "subcategory": { "name": "Laptops" },
+    "state": "Approved",
+    "description": "<p>Request a new laptop. Standard issue laptops ship within <strong>5 business days</strong>. Manager approval required for upgrade tiers.</p>",
+    "request_count": 28,
+    "due_days": 5,
+    "show_due_days": true,
+    "variables": [
+      {
+        "id": 7001,
+        "uuid": 7001,
+        "name": "Laptop model",
+        "kind": "drop_down_menu",
+        "field_type": 2,
+        "required": "1",
+        "sorted": false,
+        "options": "MacBook Air 13\nMacBook Pro 14\nMacBook Pro 16\nDell XPS 13\nThinkPad X1 Carbon",
+        "helptext": "Pick the model that fits your role. Engineering and design get the higher tiers."
+      },
+      {
+        "id": 7002,
+        "uuid": 7002,
+        "name": "Need accessories?",
+        "kind": "multi_select",
+        "field_type": 4,
+        "required": "0",
+        "sorted": false,
+        "options": "Wireless mouse\nExternal monitor\nMechanical keyboard\nDocking station\nWebcam\nNoise-cancelling headset",
+        "helptext": "Standard issue includes a power adapter and laptop sleeve."
+      },
+      {
+        "id": 7003,
+        "uuid": 7003,
+        "name": "Reason for request",
+        "kind": "free_text",
+        "field_type": 1,
+        "required": "1",
+        "sorted": false,
+        "helptext": "Briefly explain why this is needed (new hire, replacement, role change, etc.)"
+      },
+      {
+        "id": 7004,
+        "uuid": 7004,
+        "name": "Need by",
+        "kind": "date",
+        "field_type": 5,
+        "required": "0",
+        "sorted": false,
+        "helptext": "Optional. Standard delivery is 5 business days; rush requests need VP approval."
+      }
+    ]
+  }
+}

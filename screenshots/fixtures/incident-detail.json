@@ -1,0 +1,24 @@
+{
+  "incident": {
+    "id": 181400000,
+    "number": 60451,
+    "name": "VPN access failing on new MacBook",
+    "state": "Assigned - In Progress",
+    "priority": "High",
+    "category": { "name": "Network" },
+    "subcategory": { "name": "VPN" },
+    "site": { "name": "Acme HQ — Boston" },
+    "department": { "name": "IT Services" },
+    "assignee": { "email": "alex.kim@acme.example", "name": "Alex Kim" },
+    "requester": { "email": "jane.doe@acme.example", "name": "Jane Doe" },
+    "created_at": "2026-05-07T14:23:00Z",
+    "updated_at": "2026-05-08T09:15:00Z",
+    "due_at": "2026-05-09T17:00:00Z",
+    "description": "<p>Hi IT team — my newly issued MacBook can't connect to the VPN. I'm using the same credentials that worked on my previous laptop. Cisco AnyConnect shows <em>authentication failed</em> even though my password works fine for SSO into other Acme apps.</p><p><strong>Steps I've tried:</strong></p><ul><li>Restarted the Mac</li><li>Reinstalled Cisco AnyConnect</li><li>Confirmed my password works on the SSO portal</li></ul><p>Can you take a look? I'm working from home and blocked on a few internal tools.</p>",
+    "description_no_html": "Hi IT team — my newly issued MacBook can't connect to the VPN…",
+    "is_service_request": false,
+    "sla_violations": [],
+    "associated_sla_names": ["P2 — 2-business-day resolution"],
+    "href_account_domain": "https://acme.samanage.com/incidents/181400000"
+  }
+}
