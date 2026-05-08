@@ -22,6 +22,7 @@ export default defineConfig({
       ],
       sidebar: [
         { label: 'Quick start', link: '/quickstart/' },
+        { label: 'Compatibility', link: '/compatibility/' },
         { label: 'Architecture', link: '/architecture/' },
         { label: 'Configuration', link: '/configuration/' },
         { label: 'Tools reference', link: '/tools/' },

@@ -7,7 +7,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 [![Provenance](https://img.shields.io/badge/Provenance-SLSA-blue.svg)](https://www.npmjs.com/package/swsd-mcp)
 
-**MCP server for SolarWinds Service Desk (SWSD / Samanage).** Lets AI assistants like Claude Desktop, Claude Code, Cursor, Continue, Microsoft Copilot Studio, and any other [Model Context Protocol](https://modelcontextprotocol.io) client read and modify SWSD tickets, comments, knowledge-base articles, and more, using each user's own SWSD API token.
+**MCP server for SolarWinds Service Desk (SWSD / Samanage).** Works with any [Model Context Protocol](https://modelcontextprotocol.io) client to read and modify SWSD tickets, comments, knowledge-base articles, and more, using each user's own SWSD API token. See the [client compatibility matrix](https://mcp-swsd.pages.dev/compatibility/) for the tested list.
 
 📖 **Full docs:** [mcp-swsd.pages.dev](https://mcp-swsd.pages.dev)
 
@@ -21,7 +21,7 @@ The server holds **zero credentials at rest**. Tokens are forwarded per-request,
 
 You need:
 
-- An MCP client (Claude Desktop, Claude Code, Cursor, Continue, Cline, etc.) installed
+- An MCP client installed — any MCP-compatible client works ([compatibility matrix](https://mcp-swsd.pages.dev/compatibility/))
 - A SolarWinds Service Desk **admin token (JWT)** — generate one in the SWSD UI: **Setup → Users & Groups → Users** → click your user → **Actions** → **Generate JSON Web Token** (Service Desk administrator rights required)
 
 ### 1. Add the config
@@ -116,7 +116,7 @@ When the user asks to **request** something — new hardware, software access, a
 | `swsd_get_catalog_item` | Inspect a single item, including its `variables` (the form schema). Each variable carries an `id`, `name`, `kind` (free_text / drop_down_menu / multi_select / date / user), `options` (newline-separated allowed values for dropdowns), and `helptext`. |
 | `swsd_create_service_request` | Submit the request. Posts to `POST /catalog_items/{id}/service_requests.json`, which auto-sets `is_service_request: true` and inherits the catalog item's category/subcategory. Each `request_variables` entry maps a catalog variable's `id` (as `custom_field_id`) to a string `value`. |
 
-The server `instructions` advertise this preference order so capable agents (Claude Desktop, Claude Code, Copilot Studio, etc.) pick the catalog flow automatically when the user's intent matches.
+The server `instructions` advertise this preference order so capable agents pick the catalog flow automatically when the user's intent matches.
 
 ---
 

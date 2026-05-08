@@ -74,18 +74,7 @@ Bound to `swsd_describe_custom_fields`. Searchable explorer with a filter panel 
 
 ## Host compatibility
 
-| Host | MCP Apps support | Notes |
-|---|---|---|
-| Claude Desktop | Yes | Renders widgets in-line in the conversation. |
-| Claude Web (claude.ai) | Yes | Renders widgets in-line. |
-| VS Code Insiders Copilot Chat | Yes | Spec-compliant. The v2.0.1 fix migrating to the SDK's `App` class made these and Claude Desktop work. |
-| ChatGPT (Apps SDK) | Yes | OpenAI's MCP Apps client. |
-| Goose | Yes | Block's MCP client. |
-| Postman | Yes | Renders widgets when a request hits the MCP server. |
-| MCPJam | Yes | Open-source MCP playground. |
-| Claude Code CLI | Text-only | No widget rendering surface. Tools still return structured text. |
-| LM Studio | Text-only | No widget rendering surface. |
-| Microsoft Copilot Studio | Text-only | Connector layer is HTTP-only; widgets aren't rendered there. |
+For the canonical client matrix — both stdio MCP support and which clients render these widgets — see the [Compatibility](/compatibility/) page.
 
 ## See also
 
