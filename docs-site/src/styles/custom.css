@@ -1,0 +1,190 @@
+/*
+ * swsd-mcp custom Starlight theme overrides.
+ *
+ * Inspired by the Anthropic / Claude design language: warmer dark tones
+ * (no pure black), high-contrast body text, generous line-height, subtle
+ * accent colors. The defaults Starlight ships are functional but use
+ * mid-grey body text against near-black bg, which fails WCAG AA contrast
+ * for sustained reading.
+ *
+ * Variables Starlight exposes that we override here:
+ *   --sl-color-bg, --sl-color-bg-nav, --sl-color-bg-sidebar — surfaces
+ *   --sl-color-text                                          — primary body text
+ *   --sl-color-text-accent                                   — links + active state
+ *   --sl-color-gray-{1..7}                                   — neutral palette (used throughout)
+ *   --sl-color-hairline, --sl-color-hairline-shade           — borders + dividers
+ *   --sl-color-bg-inline-code, --sl-color-bg-code            — code surfaces
+ */
+
+/* ────────────────────────────────────────────────────────────────────
+ * Dark mode (default for swsd-mcp users coming from terminal-heavy
+ * workflows). High-contrast warm-toned palette.
+ * ──────────────────────────────────────────────────────────────────── */
+:root[data-theme='dark'] {
+  /* Surfaces — slightly warm dark instead of cold near-black. */
+  --sl-color-bg: #181818;
+  --sl-color-bg-nav: #1f1f1f;
+  --sl-color-bg-sidebar: #1c1c1c;
+
+  /* Primary body text — high-contrast off-white. The default `gray-1`
+     for body text is around hsl(224, 18%, 88%) which gets muddied by
+     blending into the background; explicit #ededed renders cleaner. */
+  --sl-color-text: #ededed;
+
+  /* Headings inherit from the gray scale; boost the high end so headings
+     are pure white and the gradient down to body text is wider. */
+  --sl-color-white: #ffffff;
+  --sl-color-gray-1: #ededed;
+  --sl-color-gray-2: #d4d4d4;
+  --sl-color-gray-3: #a8a8a8;  /* used for secondary text — was too dim */
+  --sl-color-gray-4: #6e6e6e;
+  --sl-color-gray-5: #383838;
+  --sl-color-gray-6: #2a2a2a;
+  --sl-color-gray-7: #1f1f1f;
+
+  /* Links + active-nav — Claude's warm coral/orange accent rather than
+     the default cold blue. Reads better against warm-dark backgrounds. */
+  --sl-color-text-accent: #e7926c;
+  --sl-color-accent-low: #2a1f1c;
+  --sl-color-accent: #d97c5d;
+  --sl-color-accent-high: #fcd9c8;
+
+  /* Dividers — slightly warmer than pure neutral grey. */
+  --sl-color-hairline-light: #2c2c2c;
+  --sl-color-hairline: #3a3a3a;
+  --sl-color-hairline-shade: #2a2a2a;
+
+  /* Code surfaces — warmer, slightly lifted from page bg for separation. */
+  --sl-color-bg-inline-code: #2a2624;
+  --sl-color-bg-code: #1f1d1c;
+}
+
+/* ────────────────────────────────────────────────────────────────────
+ * Light mode — clean cream-tinted background instead of pure white,
+ * matching the warm palette. Body text stays near-black for max contrast.
+ * ──────────────────────────────────────────────────────────────────── */
+:root[data-theme='light'] {
+  /* Surfaces — soft cream rather than stark white. */
+  --sl-color-bg: #fafaf7;
+  --sl-color-bg-nav: #f4f3ee;
+  --sl-color-bg-sidebar: #f7f6f1;
+
+  /* Primary body text — near-black for readability. */
+  --sl-color-text: #1f1f1f;
+
+  /* Greyscale rebalanced for the warmer paper-like background. */
+  --sl-color-black: #0f0f0f;
+  --sl-color-gray-7: #1f1f1f;
+  --sl-color-gray-6: #2c2c2c;
+  --sl-color-gray-5: #4a4a4a;
+  --sl-color-gray-4: #6e6e6e;  /* used for secondary text */
+  --sl-color-gray-3: #a1a09e;
+  --sl-color-gray-2: #d6d4cf;
+  --sl-color-gray-1: #ede9e2;
+
+  /* Links — same warm coral/orange as dark mode for brand cohesion. */
+  --sl-color-text-accent: #b85a3e;
+  --sl-color-accent-low: #fdf0e8;
+  --sl-color-accent: #b85a3e;
+  --sl-color-accent-high: #6b2810;
+
+  /* Dividers + code surfaces in muted warm tones. */
+  --sl-color-hairline-light: #ede9e2;
+  --sl-color-hairline: #d6d4cf;
+  --sl-color-hairline-shade: #ede9e2;
+  --sl-color-bg-inline-code: #f4ecdf;
+  --sl-color-bg-code: #f7f1e6;
+}
+
+/* ────────────────────────────────────────────────────────────────────
+ * Typography — slightly more generous line-height + better number
+ * legibility for tables and inline code.
+ * ──────────────────────────────────────────────────────────────────── */
+:root {
+  /* Default Starlight is 1.5; bump to 1.65 so dense paragraphs breathe. */
+  --sl-line-height: 1.65;
+}
+
+main p,
+main li,
+main dd {
+  /* Override anywhere Starlight defaults a tighter rhythm. */
+  line-height: 1.65;
+}
+
+/* Inline code — tighter baseline + tabular numerals for mixed text. */
+:where(p, li, dt, dd) :not(pre) > code {
+  font-feature-settings: 'tnum';
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+/* Code blocks — generous padding + soft border for separation. */
+.expressive-code .frame,
+pre.astro-code,
+pre[class*='language-'] {
+  border-radius: 8px;
+}
+
+/* ────────────────────────────────────────────────────────────────────
+ * Sidebar + nav polish — slightly larger typography, generous padding.
+ * ──────────────────────────────────────────────────────────────────── */
+.sidebar-pane,
+.sidebar-pane nav {
+  font-size: 0.95rem;
+}
+
+.sidebar-pane a {
+  /* Slightly muted unless active/hovered — easier to scan. */
+  color: var(--sl-color-text);
+  opacity: 0.85;
+  transition: opacity 0.15s ease, background-color 0.15s ease;
+}
+.sidebar-pane a:hover {
+  opacity: 1;
+  color: var(--sl-color-text-accent);
+}
+
+/* Active item — Starlight's default fills the whole row with the accent
+   color, which (combined with our accent text override) makes the link
+   text invisible. Replace with a subtle accent-tinted background + bold
+   accent text + a left border for visual rhythm. */
+.sidebar-pane a[aria-current='page'] {
+  opacity: 1;
+  color: var(--sl-color-text-accent) !important;
+  background: var(--sl-color-accent-low) !important;
+  font-weight: 600;
+  border-left: 3px solid var(--sl-color-accent);
+}
+
+/* ────────────────────────────────────────────────────────────────────
+ * Tables — better contrast on alternating rows + tighter column padding.
+ * ──────────────────────────────────────────────────────────────────── */
+main table {
+  border-collapse: collapse;
+}
+main table th,
+main table td {
+  padding: 0.6em 0.85em;
+  border-bottom: 1px solid var(--sl-color-hairline-light);
+}
+main table th {
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+/* Subtle row banding helps long config tables. Apply only to dark mode
+   where it's noticeable; light mode tables already have good separation. */
+:root[data-theme='dark'] main table tbody tr:nth-child(even) td {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* ────────────────────────────────────────────────────────────────────
+ * Asides (note / tip / caution / danger) — boost contrast of the body
+ * text inside, since Starlight's defaults dim it noticeably.
+ * ──────────────────────────────────────────────────────────────────── */
+.starlight-aside p,
+.starlight-aside li {
+  color: var(--sl-color-text);
+}

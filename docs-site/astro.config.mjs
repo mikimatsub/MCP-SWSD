@@ -35,6 +35,11 @@ export default defineConfig({
         baseUrl: 'https://github.com/mikimatsub/MCP-SWSD/edit/main/docs-site/',
       },
       lastUpdated: true,
+      // Custom theme overrides — boosts body-text contrast (the default
+      // Starlight dark theme uses muted grey on near-black which fails
+      // WCAG AA for sustained reading) and applies a Claude-design-inspired
+      // warm-tone palette (warmer dark, cream light, coral accent).
+      customCss: ['./src/styles/custom.css'],
     }),
     // D2 diagrams via WASM (no D2 binary required at build time — works on
     // Cloudflare Pages without apt access). The experimental flag is required
