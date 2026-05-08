@@ -1,7 +1,7 @@
 # swsd-mcp
 
-[![CI](https://github.com/mikimatsub/MCP-SWSD/actions/workflows/ci.yml/badge.svg)](https://github.com/mikimatsub/MCP-SWSD/actions/workflows/ci.yml)
-[![Security](https://github.com/mikimatsub/MCP-SWSD/actions/workflows/security.yml/badge.svg)](https://github.com/mikimatsub/MCP-SWSD/actions/workflows/security.yml)
+[![CI](https://github.com/mikimatsub/swsd-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/mikimatsub/swsd-mcp/actions/workflows/ci.yml)
+[![Security](https://github.com/mikimatsub/swsd-mcp/actions/workflows/security.yml/badge.svg)](https://github.com/mikimatsub/swsd-mcp/actions/workflows/security.yml)
 [![npm version](https://img.shields.io/npm/v/swsd-mcp.svg)](https://www.npmjs.com/package/swsd-mcp)
 [![MCP Registry](https://img.shields.io/badge/MCP_Registry-io.github.mikimatsub%2Fswsd-blue)](https://registry.modelcontextprotocol.io/v0.1/servers?search=io.github.mikimatsub/swsd)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)

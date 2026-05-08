@@ -58,7 +58,7 @@ PRs are welcome. Before submitting:
 ## Local development
 
 ```bash
-git clone https://github.com/mikimatsub/MCP-SWSD.git
+git clone https://github.com/mikimatsub/swsd-mcp.git
 cd MCP-SWSD
 npm install
 npm run build      # compile TypeScript to dist/

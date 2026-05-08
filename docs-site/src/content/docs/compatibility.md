@@ -31,7 +31,7 @@ A "✅" under **Stdio MCP** means the client speaks the standard MCP protocol an
 
 If your MCP-compatible client isn't in the table above, it almost certainly still works for the tools — the protocol is the contract, not the host. Try the [Quick start](/quickstart/), and if the widgets don't render, that's expected for hosts without MCP Apps support — the same tools return identical structured text.
 
-If you've verified swsd-mcp working in a client not listed here, [open a PR](https://github.com/mikimatsub/MCP-SWSD/pulls) to add it.
+If you've verified swsd-mcp working in a client not listed here, [open a PR](https://github.com/mikimatsub/swsd-mcp/pulls) to add it.
 
 ## See also
 

@@ -14,7 +14,7 @@ This page covers Docker (works anywhere) and a complete Azure Container Apps wal
 
 ## Docker
 
-The published image at `ghcr.io/mikimatsub/mcp-swsd:latest` runs on any container platform.
+The published image at `ghcr.io/mikimatsub/swsd-mcp:latest` runs on any container platform.
 
 ### Quick smoke test
 
@@ -27,7 +27,7 @@ docker run --rm -d \
   -e SWSD_TRANSPORT=http \
   -e SWSD_TRUST_PROXY=1 \
   -e SWSD_BASE_URL=https://api.samanage.com \
-  ghcr.io/mikimatsub/mcp-swsd:latest
+  ghcr.io/mikimatsub/swsd-mcp:latest
 
 # Verify
 curl http://localhost:3000/healthz
@@ -43,7 +43,7 @@ docker run --rm -d `
   -e SWSD_TRANSPORT=http `
   -e SWSD_TRUST_PROXY=1 `
   -e SWSD_BASE_URL=https://api.samanage.com `
-  ghcr.io/mikimatsub/mcp-swsd:latest
+  ghcr.io/mikimatsub/swsd-mcp:latest
 
 # Verify
 curl http://localhost:3000/healthz
@@ -64,7 +64,7 @@ Image tags:
 - `:latest` — the latest main-branch commit
 - `:sha-XXXXXXX` — pinned to a specific commit (recommended for production)
 
-Browse all tags at [GitHub Packages](https://github.com/mikimatsub/MCP-SWSD/pkgs/container/mcp-swsd).
+Browse all tags at [GitHub Packages](https://github.com/mikimatsub/swsd-mcp/pkgs/container/mcp-swsd).
 
 ---
 
@@ -116,7 +116,7 @@ az containerapp create \
   --name swsd-mcp \
   --resource-group swsd-mcp-rg \
   --environment swsd-mcp-env \
-  --image ghcr.io/mikimatsub/mcp-swsd:latest \
+  --image ghcr.io/mikimatsub/swsd-mcp:latest \
   --target-port 3000 \
   --ingress external \
   --env-vars \
@@ -194,7 +194,7 @@ The Container App auto-pulls the new `:latest` image on the next cold start. To 
 az containerapp update \
   --name swsd-mcp \
   --resource-group swsd-mcp-rg \
-  --image ghcr.io/mikimatsub/mcp-swsd:latest
+  --image ghcr.io/mikimatsub/swsd-mcp:latest
 ```
 
 Or pin to a specific version:
@@ -203,7 +203,7 @@ Or pin to a specific version:
 az containerapp update \
   --name swsd-mcp \
   --resource-group swsd-mcp-rg \
-  --image ghcr.io/mikimatsub/mcp-swsd:sha-XXXXXXX
+  --image ghcr.io/mikimatsub/swsd-mcp:sha-XXXXXXX
 ```
 
 ### Tearing down
@@ -242,7 +242,7 @@ Each of these adds operational complexity in exchange for security.
 
 After deploying the HTTP server (above), you import a Swagger 2.0 connector spec into Copilot Studio.
 
-Per-profile Swagger files live in [`copilot-studio/`](https://github.com/mikimatsub/MCP-SWSD/tree/main/copilot-studio) on GitHub:
+Per-profile Swagger files live in [`copilot-studio/`](https://github.com/mikimatsub/swsd-mcp/tree/main/copilot-studio) on GitHub:
 
 - `triage.swagger.yaml` (14 tools)
 - `agent.swagger.yaml` (33 tools, default)

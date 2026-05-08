@@ -211,7 +211,7 @@ The `main` branch is protected:
 - Force pushes disabled
 - Branch deletion disabled
 
-Verify at: `https://github.com/mikimatsub/MCP-SWSD/settings/branches`
+Verify at: `https://github.com/mikimatsub/swsd-mcp/settings/branches`
 
 ### CODEOWNERS
 
@@ -400,7 +400,7 @@ Every claim above includes a path to verification. The general approach:
    published metadata; `npm audit signatures` verifies provenance.
 4. **For CI claims**: navigate to the Actions tab on GitHub, view any
    recent run's logs.
-5. **For container claims**: `docker pull ghcr.io/mikimatsub/mcp-swsd:latest`,
+5. **For container claims**: `docker pull ghcr.io/mikimatsub/swsd-mcp:latest`,
    then `docker inspect` to see configured user, healthcheck, labels.
 
 If any claim in this document fails to verify, please file a GitHub

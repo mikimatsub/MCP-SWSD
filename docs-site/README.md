@@ -29,7 +29,7 @@ The docs site auto-deploys via Cloudflare's GitHub integration. To wire it up th
 
 1. **Cloudflare dashboard → Workers & Pages → Create**
 2. **Pick the "Pages" tab** at the top of the create flow (not "Workers" — see [troubleshooting](#wrong-flow-workers-builds-instead-of-pages) if you only see Workers Builds)
-3. **Connect to Git**, authorize Cloudflare to read this repository, select `mikimatsub/MCP-SWSD`
+3. **Connect to Git**, authorize Cloudflare to read this repository, select `mikimatsub/swsd-mcp`
 4. Configure the build using **Root directory = `docs-site`** (this scopes everything below to the sub-package):
 
    | Setting | Value |

@@ -40,7 +40,7 @@ These only apply when `SWSD_TRANSPORT=http`. They have no effect in stdio mode.
 | `SWSD_API_VERSION` | `v2.1` | Override only if your tenant requires v1.1 (rare) |
 | `SWSD_ENABLE_EXTRAS` | _(empty)_ | Comma-separated extra tool names to enable on top of the profile. Unknown names cause a startup error (loud-fail by design). |
 
-The complete annotated example is in [`.env.example`](https://github.com/mikimatsub/MCP-SWSD/blob/main/.env.example) on GitHub.
+The complete annotated example is in [`.env.example`](https://github.com/mikimatsub/swsd-mcp/blob/main/.env.example) on GitHub.
 
 ## Profiles
 

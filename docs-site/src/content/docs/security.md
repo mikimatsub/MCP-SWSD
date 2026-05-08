@@ -10,11 +10,11 @@ swsd-mcp's security model is built around four principles:
 3. **Verifiable supply chain** — published artifacts tied to specific commits via SLSA provenance attestations
 4. **Transparent governance** — open source, explicit disclosure process, code review, change-management tooling
 
-For deep compliance-grade details (every claim mapped to source-code verification), see [`SECURITY-POSTURE.md`](https://github.com/mikimatsub/MCP-SWSD/blob/main/docs/SECURITY-POSTURE.md). This page is the user-facing summary.
+For deep compliance-grade details (every claim mapped to source-code verification), see [`SECURITY-POSTURE.md`](https://github.com/mikimatsub/swsd-mcp/blob/main/docs/SECURITY-POSTURE.md). This page is the user-facing summary.
 
 ## Vulnerability reporting
 
-→ **[Open a private security advisory](https://github.com/mikimatsub/MCP-SWSD/security/advisories/new)**
+→ **[Open a private security advisory](https://github.com/mikimatsub/swsd-mcp/security/advisories/new)**
 
 Do **not** open a public issue for vulnerabilities. The advisory channel is private and only visible to the maintainer.
 
@@ -26,7 +26,7 @@ Do **not** open a public issue for vulnerabilities. The advisory channel is priv
 | Disclosure model | Coordinated (fix-then-publicize) |
 | Reporter credit | Yes, in release notes (unless anonymity requested) |
 
-Full process in [`SECURITY.md`](https://github.com/mikimatsub/MCP-SWSD/blob/main/SECURITY.md).
+Full process in [`SECURITY.md`](https://github.com/mikimatsub/swsd-mcp/blob/main/SECURITY.md).
 
 ## Architectural properties
 
@@ -63,7 +63,7 @@ All outbound SWSD calls have a configurable timeout (default 30 seconds) via `Ab
 ### Logging discipline
 
 - HTTP request bodies are never logged (they may contain tokens)
-- Error responses include the SWSD response body for actionable debugging, but errors are mapped through a sanitization layer in [`src/swsd/errors.ts`](https://github.com/mikimatsub/MCP-SWSD/blob/main/src/swsd/errors.ts)
+- Error responses include the SWSD response body for actionable debugging, but errors are mapped through a sanitization layer in [`src/swsd/errors.ts`](https://github.com/mikimatsub/swsd-mcp/blob/main/src/swsd/errors.ts)
 - No telemetry, no analytics, no phone-home calls
 - Server startup log line is the only stdout output by default
 
@@ -101,7 +101,7 @@ Every push and PR runs three security workflows in parallel:
 
 A weekly scheduled run catches newly disclosed CVEs against unchanged dependencies — the killer feature, since your code didn't change but the upstream world did.
 
-[![Security](https://github.com/mikimatsub/MCP-SWSD/actions/workflows/security.yml/badge.svg)](https://github.com/mikimatsub/MCP-SWSD/actions/workflows/security.yml)
+[![Security](https://github.com/mikimatsub/swsd-mcp/actions/workflows/security.yml/badge.svg)](https://github.com/mikimatsub/swsd-mcp/actions/workflows/security.yml)
 
 ## Standards alignment
 
@@ -148,6 +148,6 @@ Every claim above includes a path to verification. The general approach:
 1. **Source code claims** — clone the repo, navigate to the cited file, read the implementation. The codebase is small (~3000 lines not counting tests).
 2. **Dependency claims** — `cat package.json package-lock.json` shows exact pinned versions; `cat .github/workflows/*.yml` shows pinned action SHAs.
 3. **Provenance claims** — `npm view swsd-mcp --json | jq .dist.attestations` shows SLSA attestations; `npm audit signatures` verifies.
-4. **CI claims** — workflow runs are public at [Actions tab](https://github.com/mikimatsub/MCP-SWSD/actions); logs are inspectable.
+4. **CI claims** — workflow runs are public at [Actions tab](https://github.com/mikimatsub/swsd-mcp/actions); logs are inspectable.
 
-The full posture doc (longer, more thorough, with code-line citations for every control) lives at [`docs/SECURITY-POSTURE.md`](https://github.com/mikimatsub/MCP-SWSD/blob/main/docs/SECURITY-POSTURE.md).
+The full posture doc (longer, more thorough, with code-line citations for every control) lives at [`docs/SECURITY-POSTURE.md`](https://github.com/mikimatsub/swsd-mcp/blob/main/docs/SECURITY-POSTURE.md).

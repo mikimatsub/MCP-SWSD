@@ -15,7 +15,7 @@ or minor release as appropriate.
 
 **Please do not file public GitHub issues for security vulnerabilities.**
 
-Instead, use **[GitHub Security Advisories](https://github.com/mikimatsub/MCP-SWSD/security/advisories/new)** to report privately. This routes the report directly to the maintainer, keeps it confidential until a fix is ready, and lets us coordinate disclosure.
+Instead, use **[GitHub Security Advisories](https://github.com/mikimatsub/swsd-mcp/security/advisories/new)** to report privately. This routes the report directly to the maintainer, keeps it confidential until a fix is ready, and lets us coordinate disclosure.
 
 ### What to include
 
