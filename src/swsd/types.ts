@@ -12,9 +12,47 @@ export interface IncidentSummary {
   url?: string;
 }
 
+/**
+ * One row in the `sla_violations[]` array on a long-layout incident.
+ * Wire-shape source-of-truth: `.research/v2/swsd-probes/incident_181277860_long.json`.
+ */
+export interface IncidentSlaViolation {
+  /** Human-readable name of the SLA policy that was breached, e.g. "Time to first response". */
+  name?: string;
+  /** SWSD's classification — typically "response" or "resolution". */
+  violation_type?: string;
+}
+
+/**
+ * Long-layout incident detail. Extends the compact summary with the high-value
+ * fields surfaced by `?layout=long` — description (HTML body), due_at,
+ * sla_violations, resolution, etc. The rest of the raw passthrough is still
+ * available via the index signature for forward-compatibility (SWSD adds
+ * fields without bumping API versions).
+ */
 export type IncidentDetail = Record<string, unknown> & {
   id: number;
+  number?: number;
   name?: string;
+  state?: string;
+  priority?: string;
+  /** Raw HTML body of the ticket as authored — sanitize before rendering. */
+  description?: string;
+  /** Plain-text projection of `description` SWSD returns alongside the HTML. */
+  description_no_html?: string;
+  /** ISO 8601 timestamp the incident is due. Compare against `Date.now()` for "Overdue". */
+  due_at?: string;
+  /** ISO 8601 timestamp the incident was created — useful for triage. */
+  created_at?: string;
+  updated_at?: string;
+  /** SLA-policy violations attached to this incident; empty array when none. */
+  sla_violations?: IncidentSlaViolation[];
+  /** Raw HTML body of the resolution note (closure write-up) — sanitize before rendering. */
+  resolution?: string;
+  /** Resolution category, e.g. "Resolved by IT", "User error". */
+  resolution_type?: string;
+  /** SWSD UI URL for this incident (from `href_account_domain`). */
+  url?: string;
 };
 
 export interface TaskSummary {

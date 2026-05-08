@@ -6,6 +6,8 @@
   --fg-muted: light-dark(#666, #aaa);
   --bg: light-dark(#ffffff, #1a1a1a);
   --link: light-dark(#0066cc, #4da3ff);
+  --border-light: light-dark(#eee, #333);
+  --border-medium: light-dark(#ced4da, #4a4d52);
 }
 * {
   box-sizing: border-box;
@@ -22,7 +24,7 @@ header {
   display: flex;
   align-items: baseline;
   gap: 1rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
 }
 header h1 {
   margin: 0;
@@ -55,4 +57,151 @@ dd {
 .loading {
   color: var(--fg-muted);
   font-style: italic;
+}
+
+/*
+ * Badge row — sits between the header and the meta dl. Each chip uses a
+ * compact pill shape; colors are scoped per-badge so the row reads as a
+ * status summary rather than a uniform list.
+ */
+.incident-badges {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+}
+.incident-badges span {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.badge-state {
+  background: light-dark(#e9ecef, #2b2d31);
+  color: var(--fg);
+}
+.badge-priority {
+  background: light-dark(#fd7e14, #d9480f);
+  color: white;
+}
+.badge-overdue,
+.badge-sla {
+  background: light-dark(#fa5252, #e03131);
+  color: white;
+}
+
+/* Overdue date row gets red emphasis on the value side of the dl. */
+dd.overdue {
+  color: light-dark(#c92a2a, #fa5252);
+  font-weight: 600;
+}
+
+/*
+ * Description and resolution sections — sanitized HTML bodies of the ticket.
+ * Both share the .prose tag set. Heading marks the section so the body's
+ * top margin is consistent with .prose internal spacing.
+ */
+.incident-description,
+.incident-resolution {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-light);
+}
+.incident-description h2,
+.incident-resolution h2 {
+  font-size: 0.95rem;
+  margin: 0 0 0.5rem;
+  color: light-dark(#495057, #adb5bd);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/*
+ * Prose styles for sanitized HTML bodies — same allow-listed tag set as
+ * the comment-thread / solution-detail widgets (paragraphs, headings,
+ * lists, code, blockquote, links, images, tables, hr). Kept inline rather
+ * than extracted to a shared sheet so each widget's styles.css stays
+ * self-describing (see the same pattern in comment-thread/styles.css).
+ */
+.prose {
+  max-width: 70ch;
+  line-height: 1.6;
+}
+.prose p {
+  margin: 0 0 1em;
+}
+.prose p:last-child {
+  margin-bottom: 0;
+}
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6 {
+  margin: 1.25em 0 0.5em;
+  line-height: 1.25;
+}
+.prose ul,
+.prose ol {
+  margin: 0 0 1em 1.5em;
+  padding: 0;
+}
+.prose li {
+  margin: 0.25em 0;
+}
+.prose a {
+  color: var(--link);
+  text-decoration: underline;
+}
+.prose a:hover {
+  text-decoration: none;
+}
+.prose code {
+  background: light-dark(#f1f3f5, #2b2d31);
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.92em;
+}
+.prose pre {
+  background: light-dark(#f1f3f5, #2b2d31);
+  padding: 1em;
+  border-radius: 6px;
+  overflow-x: auto;
+}
+.prose pre code {
+  background: transparent;
+  padding: 0;
+}
+.prose blockquote {
+  border-left: 3px solid var(--border-medium);
+  margin: 1em 0;
+  padding: 0 1em;
+  color: var(--fg-muted);
+}
+.prose img {
+  max-width: 100%;
+  height: auto;
+}
+.prose table {
+  border-collapse: collapse;
+  margin: 1em 0;
+}
+.prose th,
+.prose td {
+  border: 1px solid var(--border-medium);
+  padding: 0.5em 0.75em;
+}
+.prose th {
+  background: light-dark(#f1f3f5, #2b2d31);
+}
+.prose hr {
+  border: none;
+  border-top: 1px solid var(--border-light);
+  margin: 1.5em 0;
 }

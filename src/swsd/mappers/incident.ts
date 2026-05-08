@@ -1,4 +1,8 @@
-import type { IncidentSummary, IncidentDetail } from '../types.js';
+import type {
+  IncidentSummary,
+  IncidentDetail,
+  IncidentSlaViolation,
+} from '../types.js';
 import type { CustomFieldWrite } from '../../schemas/customFieldWrite.js';
 
 /**
@@ -25,11 +29,52 @@ export function toIncidentSummary(raw: unknown): IncidentSummary | null {
   };
 }
 
+/**
+ * Project a raw long-layout SWSD incident into the typed `IncidentDetail`
+ * shape. Spread-passthrough keeps every field (forward-compatibility — SWSD
+ * adds fields without bumping API versions), then we explicitly normalize a
+ * few high-value fields the UI relies on so consumers don't need to repeat
+ * the type-checks.
+ *
+ * Wire-shape reference: `.research/v2/swsd-probes/incident_181277860_long.json`.
+ * - `description` / `resolution` arrive as either a string (HTML body) or
+ *   `null` when empty — we collapse `null` to `undefined` so callers can use
+ *   `if (description)` checks without an explicit null guard.
+ * - `sla_violations` arrives as an array of `{name, violation_type}` rows;
+ *   non-array shapes (defensive) collapse to undefined.
+ * - All other fields are untouched.
+ */
 export function toIncidentDetail(raw: unknown): IncidentDetail | null {
   if (!isPlainObject(raw)) return null;
   const id = numberOrNull(raw.id);
   if (id === null) return null;
-  return { ...raw, id };
+
+  const detail: IncidentDetail = { ...raw, id };
+
+  // Normalize string fields that SWSD returns as `null` rather than missing.
+  // Read defensively — `undefined` lets `if (detail.description)` work as a
+  // simple truthiness test in the widget.
+  detail.description = stringOrUndefined(raw.description);
+  detail.description_no_html = stringOrUndefined(raw.description_no_html);
+  detail.due_at = stringOrUndefined(raw.due_at);
+  detail.created_at = stringOrUndefined(raw.created_at);
+  detail.resolution = stringOrUndefined(raw.resolution);
+  detail.resolution_type = stringOrUndefined(raw.resolution_type);
+
+  // sla_violations[] is an array on the wire; map to the typed row shape.
+  // Reads are defensive — non-array values collapse to undefined.
+  if (Array.isArray(raw.sla_violations)) {
+    detail.sla_violations = raw.sla_violations
+      .filter((row): row is Record<string, unknown> => isPlainObject(row))
+      .map(
+        (row): IncidentSlaViolation => ({
+          name: stringOrUndefined(row.name),
+          violation_type: stringOrUndefined(row.violation_type),
+        }),
+      );
+  }
+
+  return detail;
 }
 
 export interface IncidentWriteFields {
