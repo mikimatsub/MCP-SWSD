@@ -9,6 +9,7 @@ import { mapSwsdError } from '../../swsd/errors.js';
 import { toIncidentSummary } from '../../swsd/mappers/incident.js';
 import { decodeJwtPayload, getUserIdFromJwtClaims } from '../../swsd/jwt.js';
 import { toUserMeRecord } from '../../swsd/mappers/me.js';
+import { applyDateAlias } from '../../utils/dateAliases.js';
 import type { ToolContext } from '../../config/toolRegistry.js';
 
 // Reuse the incident-list widget already registered (as a resource) by
@@ -62,8 +63,12 @@ export function registerListMyIncidents(server: McpServer, ctx: ToolContext): vo
       annotations: { readOnlyHint: true, openWorldHint: true, idempotentHint: true },
       _meta: { ui: { resourceUri: UI_RESOURCE_URI } },
     },
-    async (input) => {
+    async (rawInput) => {
       try {
+        // Translate `updated_within` (e.g. "7d", "24h") into a concrete
+        // `updated_from` ISO date before doing anything else. Explicit
+        // `updated_from` always wins; the alias is dropped after translation.
+        const input = applyDateAlias(rawInput);
         // Step 1: Resolve the authenticated user's email via JWT + /users/{id}.
         const claims = decodeJwtPayload(ctx.token);
         if (claims === null) {

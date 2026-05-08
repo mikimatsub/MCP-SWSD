@@ -43,6 +43,13 @@ export const ListIncidentsInput = z.object({
     .min(10)
     .optional()
     .describe('Filter to incidents updated on or after this ISO date or datetime (YYYY-MM-DD or RFC 3339).'),
+  updated_within: z
+    .string()
+    .optional()
+    .describe(
+      'Convenience alias for updated_from. Accepts "Nh" (hours), "Nd" (days), or "Nw" (weeks). ' +
+        'Examples: "24h", "7d", "1w", "30d". Ignored if updated_from is explicitly set.',
+    ),
   updated_to: z
     .string()
     .min(10)

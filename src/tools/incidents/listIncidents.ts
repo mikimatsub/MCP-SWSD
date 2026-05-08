@@ -11,6 +11,7 @@ import { structuredResult } from '../../mcp/output.js';
 import { mapSwsdError } from '../../swsd/errors.js';
 import { toIncidentSummary } from '../../swsd/mappers/incident.js';
 import { loadUiResource } from '../../mcp/uiResources.js';
+import { applyDateAlias } from '../../utils/dateAliases.js';
 import type { ToolContext } from '../../config/toolRegistry.js';
 
 const UI_RESOURCE_URI = 'ui://swsd/incident-list.html';
@@ -54,8 +55,12 @@ export function registerListIncidents(server: McpServer, ctx: ToolContext): void
       annotations: { readOnlyHint: true, openWorldHint: true, idempotentHint: true },
       _meta: { ui: { resourceUri: UI_RESOURCE_URI } },
     },
-    async (input) => {
+    async (rawInput) => {
       try {
+        // Translate `updated_within` (e.g. "7d", "24h") into a concrete
+        // `updated_from` ISO date before assembling params. Explicit
+        // `updated_from` always wins; the alias is dropped after translation.
+        const input = applyDateAlias(rawInput);
         const params: Record<string, unknown> = {
           page: input.page,
           per_page: input.per_page,
