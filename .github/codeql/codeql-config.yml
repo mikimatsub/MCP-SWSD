@@ -1,0 +1,48 @@
+# CodeQL configuration for swsd-mcp.
+#
+# Scope: production source under `src/` only. The exclusions below filter out
+# code that's NOT shipped in the npm package and NOT exposed at runtime — false
+# positives in those paths are noise, not signal.
+#
+# Wired into `.github/workflows/security.yml` via the `config-file:` input on
+# the github/codeql-action/init step.
+#
+# What we exclude and why:
+#
+# - `scripts/` — maintainer-only utilities (e.g., dump-custom-fields.ts,
+#   generate-copilot-swagger.ts) run manually with the maintainer's own
+#   SWSD token against the maintainer's own tenant. Not in package.json's
+#   `files` array so they're never published. Threats that require an
+#   attacker controlling both the SWSD response AND the CLI args don't
+#   apply: the user IS the attacker in that scenario.
+#
+# - `tests/` — test fixtures and assertions can use patterns that look
+#   risky (e.g., synthetic JWTs, mock tokens, fake URLs) but never run in
+#   production. CodeQL's data-flow analysis follows test data into helpers
+#   and emits findings that mirror the production code's actual signal.
+#
+# - `dist/` — generated build output. Source files are already analyzed.
+#
+# - `.research/` — gitignored research probes (smoke tests against live
+#   SWSD). Not shipped, run manually by the maintainer.
+#
+# - `node_modules/` — third-party code. Vulns there are tracked by
+#   OSV-Scanner, not CodeQL.
+
+name: "swsd-mcp CodeQL config"
+
+# Use the security-extended query suite for thorough JS/TS coverage.
+queries:
+  - uses: security-extended
+
+paths:
+  - src
+
+paths-ignore:
+  - scripts
+  - tests
+  - dist
+  - docs-site/dist
+  - .research
+  - node_modules
+  - copilot-studio

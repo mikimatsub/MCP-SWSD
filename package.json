@@ -1,6 +1,6 @@
 {
   "name": "swsd-mcp",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "mcpName": "io.github.mikimatsub/swsd",
   "description": "MCP server for SolarWinds Service Desk (SWSD / Samanage). Dual transport: stdio for local agents, Streamable HTTP for Copilot Studio and hosted deployments. Not affiliated with SolarWinds.",
   "type": "module",
@@ -73,7 +73,8 @@
     "@modelcontextprotocol/ext-apps": "^1.7.1",
     "@modelcontextprotocol/sdk": "^1.29.0",
     "express": "5.2.1",
-    "express-rate-limit": "8.4.1",
+    "express-rate-limit": "^8.5.1",
+    "helmet": "^8.1.0",
     "zod": "4.4.2"
   },
   "devDependencies": {
