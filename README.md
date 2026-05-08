@@ -60,13 +60,10 @@ Replace `your-jwt-here` with your token. EU tenants use `https://apieu.samanage.
 
 Create the file if it doesn't exist. Then restart your client.
 
-**Claude Code shortcut** — skip editing the file by hand:
+**Claude Code shortcut** — skip editing the file by hand. This single line pastes verbatim into any shell (bash, zsh, PowerShell, cmd):
 
 ```bash
-claude mcp add swsd \
-  --env SWSD_TOKEN="your-jwt-here" \
-  --env SWSD_BASE_URL="https://api.samanage.com" \
-  -- npx -y swsd-mcp
+claude mcp add swsd --env SWSD_TOKEN="your-jwt-here" --env SWSD_BASE_URL="https://api.samanage.com" -- npx -y swsd-mcp
 ```
 
 **Microsoft Copilot Studio** — different path (it can't spawn local processes, so it needs an HTTP-transport server). See [`copilot-studio/README.md`](./copilot-studio/README.md), including the [Azure Container Apps deployment recipe](./docs/deployment/azure-container-apps.md) for hosting.
@@ -206,6 +203,8 @@ Set up an HTTP-mode server only if you need one of these:
 
 ### Docker
 
+bash / zsh / Git Bash:
+
 ```bash
 docker run --rm -d \
   --name swsd-mcp \
@@ -213,6 +212,18 @@ docker run --rm -d \
   -e SWSD_TRANSPORT=http \
   -e SWSD_TRUST_PROXY=1 \
   -e SWSD_BASE_URL=https://api.samanage.com \
+  ghcr.io/mikimatsub/mcp-swsd:latest
+```
+
+PowerShell (Windows):
+
+```powershell
+docker run --rm -d `
+  --name swsd-mcp `
+  -p 3000:3000 `
+  -e SWSD_TRANSPORT=http `
+  -e SWSD_TRUST_PROXY=1 `
+  -e SWSD_BASE_URL=https://api.samanage.com `
   ghcr.io/mikimatsub/mcp-swsd:latest
 ```
 

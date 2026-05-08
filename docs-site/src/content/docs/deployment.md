@@ -18,6 +18,8 @@ The published image at `ghcr.io/mikimatsub/mcp-swsd:latest` runs on any containe
 
 ### Quick smoke test
 
+bash / zsh / Git Bash:
+
 ```bash
 docker run --rm -d \
   --name swsd-mcp \
@@ -25,6 +27,22 @@ docker run --rm -d \
   -e SWSD_TRANSPORT=http \
   -e SWSD_TRUST_PROXY=1 \
   -e SWSD_BASE_URL=https://api.samanage.com \
+  ghcr.io/mikimatsub/mcp-swsd:latest
+
+# Verify
+curl http://localhost:3000/healthz
+# Expect: {"ok":true}
+```
+
+PowerShell (Windows):
+
+```powershell
+docker run --rm -d `
+  --name swsd-mcp `
+  -p 3000:3000 `
+  -e SWSD_TRANSPORT=http `
+  -e SWSD_TRUST_PROXY=1 `
+  -e SWSD_BASE_URL=https://api.samanage.com `
   ghcr.io/mikimatsub/mcp-swsd:latest
 
 # Verify

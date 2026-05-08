@@ -72,13 +72,10 @@ Create the file if it doesn't exist. Then **restart your client** so it picks up
 
 ## Claude Code shortcut
 
-Skip editing the file manually:
+Skip editing the file manually. This single line pastes verbatim into any shell (bash, zsh, PowerShell, cmd):
 
 ```bash
-claude mcp add swsd \
-  --env SWSD_TOKEN="your-jwt-here" \
-  --env SWSD_BASE_URL="https://api.samanage.com" \
-  -- npx -y swsd-mcp
+claude mcp add swsd --env SWSD_TOKEN="your-jwt-here" --env SWSD_BASE_URL="https://api.samanage.com" -- npx -y swsd-mcp
 ```
 
 This writes the same config block as above to `~/.claude.json`.

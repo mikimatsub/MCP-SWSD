@@ -18,6 +18,8 @@ Typical cost for a single team's usage: **$0–5/month**.
 - **Azure CLI** installed locally — verify with `az --version`. Install: [docs.microsoft.com/cli/azure/install-azure-cli](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli)
 - A SolarWinds Service Desk **admin token** for verification (each end user will use their own; this is just for the smoke test)
 
+> **Shell note:** examples below use bash line continuation (`\`). On Windows PowerShell, either replace `\` with backtick (`` ` ``), or run the same commands inside Git Bash / WSL — they work verbatim there.
+
 ## Step 1: Login to Azure
 
 ```bash
@@ -81,7 +83,7 @@ Key flags explained:
 | `--ingress external` | Accept traffic from the public internet (required for Copilot Studio) |
 | `--env-vars SWSD_TRANSPORT=http` | Tell swsd-mcp to use HTTP transport, not stdio |
 | `--env-vars SWSD_TRUST_PROXY=1` | Tell Express to trust Container Apps' reverse proxy so `req.ip` shows the real client |
-| `--env-vars SWSD_PROFILE=full` | Register all 29 tools (or pick `agent`, `triage`, `knowledge`) |
+| `--env-vars SWSD_PROFILE=full` | Register all 35 tools (or pick `agent`, `triage`, `knowledge`) |
 | `--env-vars SWSD_RATE_LIMIT_MAX=200` | Slightly higher than default since this is a shared instance |
 | `--min-replicas 0` | Scale to zero when idle (the magic that makes this nearly free) |
 | `--max-replicas 3` | Cap concurrent instances to control cost spikes |
