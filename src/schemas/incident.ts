@@ -178,7 +178,11 @@ export const LinkSolutionToIncidentInput = z.object({
     .number()
     .int()
     .positive()
-    .describe('Solution to attach. Use swsd_search_solutions to find one.'),
+    .describe(
+      'SWSD solution reference. Accepts either the internal id (>=7 digits) ' +
+        'or the human-facing number (<=4 digits). Use swsd_search_solutions to find one. ' +
+        'The handler auto-detects via digit count.',
+    ),
 });
 
 export const AssignIncidentInput = z.object({
