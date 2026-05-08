@@ -7,4 +7,5 @@ export const UI_TOOLS = [
   'incident-list',
   'custom-fields',
   'comment-thread',
+  'audit-timeline',
 ];

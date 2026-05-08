@@ -1,4 +1,9 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import {
+  registerAppTool,
+  registerAppResource,
+  RESOURCE_MIME_TYPE,
+} from '@modelcontextprotocol/ext-apps/server';
 import { z } from 'zod';
 import { GetRecordAuditsInput } from '../../schemas/audit.js';
 import { PaginationOutput } from '../../schemas/output.js';
@@ -6,7 +11,10 @@ import { structuredResult } from '../../mcp/output.js';
 import { mapSwsdError } from '../../swsd/errors.js';
 import { toAuditSummary } from '../../swsd/mappers/audit.js';
 import { resolveIncidentRef, resolveSolutionRef } from '../../utils/idResolver.js';
+import { loadUiResource } from '../../mcp/uiResources.js';
 import type { ToolContext } from '../../config/toolRegistry.js';
+
+const UI_RESOURCE_URI = 'ui://swsd/audit-timeline.html';
 
 const AuditSummaryOutput = z.object({
   uuid: z
@@ -33,7 +41,8 @@ const AuditSummaryOutput = z.object({
 });
 
 export function registerGetRecordAudits(server: McpServer, ctx: ToolContext): void {
-  server.registerTool(
+  registerAppTool(
+    server,
     'swsd_get_record_audits',
     {
       description:
@@ -50,6 +59,7 @@ export function registerGetRecordAudits(server: McpServer, ctx: ToolContext): vo
         pagination: PaginationOutput,
       }).shape,
       annotations: { readOnlyHint: true, openWorldHint: true, idempotentHint: true },
+      _meta: { ui: { resourceUri: UI_RESOURCE_URI } },
     },
     async (input) => {
       try {
@@ -88,5 +98,21 @@ export function registerGetRecordAudits(server: McpServer, ctx: ToolContext): vo
         return mapSwsdError(err);
       }
     },
+  );
+
+  registerAppResource(
+    server,
+    'swsd-audit-timeline-ui',
+    UI_RESOURCE_URI,
+    { description: 'Audit timeline view rendered by Apps-capable hosts.' },
+    () => ({
+      contents: [
+        {
+          uri: UI_RESOURCE_URI,
+          mimeType: RESOURCE_MIME_TYPE,
+          text: loadUiResource('audit-timeline'),
+        },
+      ],
+    }),
   );
 }
