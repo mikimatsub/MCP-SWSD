@@ -1,0 +1,15 @@
+{
+  "solution": {
+    "id": 14823,
+    "number": 1245,
+    "name": "How to reset your VPN device password",
+    "state": "Approved",
+    "category": { "name": "Network" },
+    "description": "<h2>Step 1: Open the VPN portal</h2><p>Navigate to <code>vpn.acme.example/portal</code> and sign in with your SSO credentials.</p><h2>Step 2: Generate a new device password</h2><p>Click the <strong>Generate device password</strong> button on the portal home page. The new password will appear on screen — <strong>copy it immediately</strong>, it won't be shown again.</p><h2>Step 3: Update your client</h2><p>In Cisco AnyConnect:</p><ol><li>Open <strong>Preferences → Authentication</strong></li><li>Paste the new device password</li><li>Click <strong>Save</strong></li><li>Reconnect</li></ol><h2>If it still fails</h2><p>Check System Settings → Privacy &amp; Security → Profiles for an MDM profile named <em>Acme MDM v2</em>. If it's missing, raise an incident referencing this article — the IT team will push the device certificate.</p>",
+    "description_no_html": "Step 1: Open the VPN portal. Navigate to vpn.acme.example/portal…",
+    "view_count": 247,
+    "created_at": "2026-02-14T10:00:00Z",
+    "updated_at": "2026-04-22T15:30:00Z",
+    "creator": { "name": "Sam Patel", "email": "sam.patel@acme.example" }
+  }
+}

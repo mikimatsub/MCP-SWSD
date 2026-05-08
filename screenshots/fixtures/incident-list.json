@@ -1,0 +1,13 @@
+{
+  "incidents": [
+    { "id": 181400000, "number": 60451, "name": "VPN access failing on new MacBook", "state": "Assigned - In Progress", "priority": "High", "assignee_email": "alex.kim@acme.example", "requester_email": "jane.doe@acme.example", "category": "Network", "updated_at": "2026-05-08T09:15:00Z", "url": "https://acme.samanage.com/incidents/181400000" },
+    { "id": 181399998, "number": 60448, "name": "Adobe Acrobat Pro license request", "state": "New - Unassigned", "priority": "Medium", "assignee_email": "", "requester_email": "morgan.lee@acme.example", "category": "Software", "updated_at": "2026-05-08T08:00:00Z", "url": "https://acme.samanage.com/incidents/181399998" },
+    { "id": 181399995, "number": 60441, "name": "Slow internet in conference room 3B", "state": "On Hold - Vendor", "priority": "Low", "assignee_email": "alex.kim@acme.example", "requester_email": "taylor.gomez@acme.example", "category": "Network", "updated_at": "2026-05-07T17:45:00Z", "url": "https://acme.samanage.com/incidents/181399995" },
+    { "id": 181399992, "number": 60438, "name": "Need access to Salesforce sandbox", "state": "Assigned - In Progress", "priority": "Medium", "assignee_email": "alex.kim@acme.example", "requester_email": "jordan.weiss@acme.example", "category": "Access", "updated_at": "2026-05-07T16:20:00Z", "url": "https://acme.samanage.com/incidents/181399992" },
+    { "id": 181399990, "number": 60435, "name": "Printer offline — 3rd floor copier", "state": "Resolved", "priority": "Low", "assignee_email": "sam.patel@acme.example", "requester_email": "casey.rivera@acme.example", "category": "Hardware", "updated_at": "2026-05-07T11:30:00Z", "url": "https://acme.samanage.com/incidents/181399990" },
+    { "id": 181399987, "number": 60429, "name": "New hire laptop setup — start date 2026-05-13", "state": "Assigned - In Progress", "priority": "Medium", "assignee_email": "sam.patel@acme.example", "requester_email": "morgan.lee@acme.example", "category": "Hardware", "updated_at": "2026-05-07T10:05:00Z", "url": "https://acme.samanage.com/incidents/181399987" },
+    { "id": 181399984, "number": 60424, "name": "Email rules not syncing on iPhone", "state": "Awaiting Input", "priority": "Low", "assignee_email": "sam.patel@acme.example", "requester_email": "casey.rivera@acme.example", "category": "Software", "updated_at": "2026-05-06T14:50:00Z", "url": "https://acme.samanage.com/incidents/181399984" }
+  ],
+  "pagination": { "page": 1, "per_page": 25, "total": 42, "has_more": true, "next_page": 2, "total_scope": "filtered" },
+  "applied_filters": { "state_is_not": ["Closed"] }
+}

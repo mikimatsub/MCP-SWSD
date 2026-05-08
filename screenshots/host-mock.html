@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>swsd-mcp widget screenshot harness</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg-light: #f5f3ef;
+    --bg-dark: #1a1a1a;
+    --card-light: #ffffff;
+    --card-dark: #232323;
+    --text-light: #1f1f1f;
+    --text-dark: #ededed;
+    --muted-light: #6b6b6b;
+    --muted-dark: #a1a1a1;
+    --border-light: #e6e3dd;
+    --border-dark: #383838;
+    --shadow-light: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
+    --shadow-dark: 0 2px 8px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.3);
+  }
+  body {
+    margin: 0;
+    padding: 32px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    min-height: 100vh;
+    box-sizing: border-box;
+  }
+  body[data-harness-theme="light"] {
+    background: var(--bg-light);
+    color: var(--text-light);
+  }
+  body[data-harness-theme="dark"] {
+    background: var(--bg-dark);
+    color: var(--text-dark);
+  }
+  .frame-wrap {
+    margin: 0 auto;
+    max-width: 760px;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  body[data-harness-theme="light"] .frame-wrap {
+    background: var(--card-light);
+    border: 1px solid var(--border-light);
+    box-shadow: var(--shadow-light);
+  }
+  body[data-harness-theme="dark"] .frame-wrap {
+    background: var(--card-dark);
+    border: 1px solid var(--border-dark);
+    box-shadow: var(--shadow-dark);
+  }
+  iframe {
+    display: block;
+    width: 100%;
+    height: 720px;
+    border: 0;
+    background: transparent;
+  }
+  .picker {
+    max-width: 760px;
+    margin: 0 auto 24px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    line-height: 1.7;
+  }
+  body[data-harness-theme="light"] .picker {
+    background: rgba(255,255,255,0.6);
+    border: 1px solid var(--border-light);
+  }
+  body[data-harness-theme="dark"] .picker {
+    background: rgba(35,35,35,0.6);
+    border: 1px solid var(--border-dark);
+  }
+  .picker a { color: inherit; text-decoration: underline; margin: 0 4px; }
+  .picker a.active { font-weight: 600; text-decoration: none; }
+  .picker .sep { opacity: 0.4; margin: 0 6px; }
+  .picker.hidden { display: none; }
+  .err {
+    max-width: 760px;
+    margin: 24px auto;
+    padding: 16px;
+    border-radius: 8px;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 13px;
+  }
+  body[data-harness-theme="light"] .err { background: #fdecea; color: #7a1f1f; }
+  body[data-harness-theme="dark"]  .err { background: #3a1f1c; color: #ffb3b3; }
+</style>
+</head>
+<body>
+  <div id="picker" class="picker"></div>
+  <div class="frame-wrap">
+    <iframe id="widget-frame" title="widget"></iframe>
+  </div>
+  <div id="error" class="err" hidden></div>
+
+<script>
+(async function () {
+  const params = new URLSearchParams(location.search);
+  const widget = params.get('widget') || 'incident-detail';
+  const theme  = params.get('theme')  || 'dark';
+  const showPicker = params.get('picker') !== '0';
+  const heightOverride = params.get('h');
+
+  // Apply theme to body so the surrounding chrome matches.
+  document.body.setAttribute('data-harness-theme', theme);
+  document.documentElement.setAttribute('data-harness-theme', theme);
+
+  // Picker chrome — hidden in screenshot mode (?picker=0). Built via DOM
+  // methods (no innerHTML) to keep the harness aligned with the project's
+  // safe-DOM helper convention.
+  const picker = document.getElementById('picker');
+  if (!showPicker) {
+    picker.classList.add('hidden');
+    document.body.style.padding = '0';
+  } else {
+    const widgets = [
+      'incident-detail','solution-detail','incident-list','comment-thread',
+      'audit-timeline','catalog-item-form','custom-fields',
+    ];
+    const themes = ['light','dark'];
+
+    const widgetLabel = document.createElement('span');
+    widgetLabel.textContent = 'Widget: ';
+    picker.appendChild(widgetLabel);
+    widgets.forEach((w, i) => {
+      if (i > 0) {
+        const sep = document.createElement('span');
+        sep.className = 'sep';
+        sep.textContent = '·';
+        picker.appendChild(sep);
+      }
+      const a = document.createElement('a');
+      a.href = '?widget=' + encodeURIComponent(w) + '&theme=' + encodeURIComponent(theme);
+      a.textContent = w;
+      if (w === widget) a.classList.add('active');
+      picker.appendChild(a);
+    });
+
+    const sepBlock = document.createElement('span');
+    sepBlock.className = 'sep';
+    sepBlock.textContent = '|';
+    picker.appendChild(sepBlock);
+
+    const themeLabel = document.createElement('span');
+    themeLabel.textContent = ' Theme: ';
+    picker.appendChild(themeLabel);
+    themes.forEach((t, i) => {
+      if (i > 0) {
+        const sep = document.createElement('span');
+        sep.className = 'sep';
+        sep.textContent = '·';
+        picker.appendChild(sep);
+      }
+      const a = document.createElement('a');
+      a.href = '?widget=' + encodeURIComponent(widget) + '&theme=' + encodeURIComponent(t);
+      a.textContent = t;
+      if (t === theme) a.classList.add('active');
+      picker.appendChild(a);
+    });
+
+    const sepEnd = document.createElement('span');
+    sepEnd.className = 'sep';
+    sepEnd.textContent = '|';
+    picker.appendChild(sepEnd);
+
+    const screenshotLink = document.createElement('a');
+    screenshotLink.href = '?widget=' + encodeURIComponent(widget)
+      + '&theme=' + encodeURIComponent(theme) + '&picker=0';
+    screenshotLink.textContent = 'screenshot mode';
+    picker.appendChild(screenshotLink);
+  }
+
+  // Widget bundle URL — relative to harness location, served from dist/ui/.
+  const frame = document.getElementById('widget-frame');
+  if (heightOverride) frame.style.height = heightOverride + 'px';
+
+  // Fetch the fixture before we set the iframe src so the listener is ready
+  // when the widget initiates the handshake.
+  let fixture;
+  try {
+    const res = await fetch('./fixtures/' + widget + '.json');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    fixture = await res.json();
+  } catch (err) {
+    showError('Failed to load fixture for ' + widget + ': ' + err.message);
+    return;
+  }
+
+  // Mock the MCP Apps host bridge. Per spec the widget sends
+  // `ui/initialize` (request), expects a `McpUiInitializeResult`, then
+  // sends `ui/notifications/initialized` (notification). We respond with
+  // both, then push the tool-result.
+  let initializedSent = false;
+  const initialContext = {
+    theme: theme === 'light' ? 'light' : 'dark',
+    styles: {
+      // Empty variables — let the widget's own default theme apply via
+      // light-dark() / data-theme. The widgets are designed to render
+      // attractively without host-supplied tokens, which is what we want
+      // for clean reference screenshots.
+      variables: {},
+      css: { fonts: '' },
+    },
+    locale: 'en-US',
+  };
+
+  window.addEventListener('message', (event) => {
+    const msg = event.data;
+    if (!msg || typeof msg !== 'object' || msg.jsonrpc !== '2.0') return;
+
+    if (msg.method === 'ui/initialize' && typeof msg.id !== 'undefined') {
+      // Per the McpUiInitializeResultSchema in @modelcontextprotocol/ext-apps,
+      // the reply must include hostInfo, hostCapabilities, hostContext (all
+      // required objects). Theme + locale live INSIDE hostContext, not at
+      // the top level; styles.css.fonts is a string (not an array).
+      const reply = {
+        jsonrpc: '2.0',
+        id: msg.id,
+        result: {
+          protocolVersion: '2026-01-26',
+          hostInfo: {
+            name: 'screenshot-harness',
+            version: '0.0.1',
+            description: 'swsd-mcp widget screenshot harness',
+          },
+          hostCapabilities: {},
+          hostContext: {
+            theme: initialContext.theme,
+            styles: initialContext.styles,
+            locale: initialContext.locale,
+            displayMode: 'inline',
+          },
+        },
+      };
+      event.source.postMessage(reply, '*');
+      return;
+    }
+
+    if (msg.method === 'ui/notifications/initialized' && !initializedSent) {
+      initializedSent = true;
+      setTimeout(() => {
+        const notif = {
+          jsonrpc: '2.0',
+          method: 'ui/notifications/tool-result',
+          params: {
+            structuredContent: fixture,
+            content: [{ type: 'text', text: '[fixture]' }],
+            isError: false,
+          },
+        };
+        event.source.postMessage(notif, '*');
+      }, 50);
+      return;
+    }
+
+    // catalog-item-form calls back via `ui/server-tool/call` on submit.
+    // Reply with a synthetic success so the form's submit-success branch
+    // renders cleanly without making any real SWSD call.
+    if (msg.method === 'ui/server-tool/call' && typeof msg.id !== 'undefined') {
+      event.source.postMessage({
+        jsonrpc: '2.0',
+        id: msg.id,
+        result: {
+          content: [{ type: 'text', text: '[fixture] service request submitted' }],
+          structuredContent: { incident: { id: 181400999, number: 60500, name: 'Acme Demo - Catalog request' } },
+        },
+      }, '*');
+      return;
+    }
+  });
+
+  // Set the iframe src LAST so the message listener is in place before the
+  // widget's connect() handshake fires.
+  frame.src = '../dist/ui/' + widget + '.html';
+
+  function showError(text) {
+    const node = document.getElementById('error');
+    node.textContent = text;
+    node.hidden = false;
+  }
+})();
+</script>
+</body>
+</html>

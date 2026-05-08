@@ -3,11 +3,11 @@ title: Quick start
 description: Install and configure swsd-mcp in any MCP client in under five minutes.
 ---
 
-This guide gets swsd-mcp running locally in your MCP client (Claude Desktop, Claude Code, Cursor, Continue, Cline) using `npx`. For [Microsoft Copilot Studio](/deployment/#microsoft-copilot-studio), see the Deployment guide — Copilot Studio needs an HTTP-transport server, which is a different setup.
+This guide gets swsd-mcp running locally via `npx`. For Microsoft Copilot Studio, see [Deployment → Copilot Studio](/deployment/#microsoft-copilot-studio) — it uses HTTP transport, which is a different setup.
 
 ## What you need
 
-- An MCP client installed (Claude Desktop, Claude Code, Cursor, Continue, Cline, ChatGPT, VS Code GitHub Copilot, or any other [Model Context Protocol](https://modelcontextprotocol.io) client)
+- An MCP client installed — any MCP-compatible client works ([client compatibility matrix](/compatibility/))
 - Node.js 24.15.0 or newer (for `npx`; current LTS line, matches `package.json` engines)
 - A SolarWinds Service Desk **admin token** — see below
 
@@ -72,13 +72,10 @@ Create the file if it doesn't exist. Then **restart your client** so it picks up
 
 ## Claude Code shortcut
 
-Skip editing the file manually:
+Skip editing the file manually. This single line pastes verbatim into any shell (bash, zsh, PowerShell, cmd):
 
 ```bash
-claude mcp add swsd \
-  --env SWSD_TOKEN="your-jwt-here" \
-  --env SWSD_BASE_URL="https://api.samanage.com" \
-  -- npx -y swsd-mcp
+claude mcp add swsd --env SWSD_TOKEN="your-jwt-here" --env SWSD_BASE_URL="https://api.samanage.com" -- npx -y swsd-mcp
 ```
 
 This writes the same config block as above to `~/.claude.json`.

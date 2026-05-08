@@ -3,7 +3,7 @@ title: swsd-mcp
 description: MCP server for SolarWinds Service Desk (SWSD / Samanage). Lets AI assistants read and modify tickets, comments, and KB articles.
 template: splash
 hero:
-  tagline: Plug SolarWinds Service Desk into Claude, Cursor, Copilot Studio, and any other Model Context Protocol client. Zero credentials at rest.
+  tagline: Plug SolarWinds Service Desk into any Model Context Protocol client. Zero credentials at rest.
   actions:
     - text: Quick start
       link: /quickstart/
@@ -18,8 +18,8 @@ hero:
 import { Card, CardGrid } from '@astrojs/starlight/components';
 
 <CardGrid stagger>
-  <Card title="Multi-client" icon="puzzle">
-    Drop-in support for Claude Desktop, Claude Code, Cursor, Continue, Cline, ChatGPT, VS Code GitHub Copilot, Microsoft Copilot Studio, Goose, and any other Model Context Protocol client.
+  <Card title="Any MCP client" icon="puzzle">
+    Standard Model Context Protocol — works wherever MCP works. [See the compatibility matrix →](/compatibility/)
   </Card>
   <Card title="Zero credentials at rest" icon="seti:lock">
     Each user's SWSD token is forwarded per-request, never persisted, never logged.
@@ -40,3 +40,15 @@ import { Card, CardGrid } from '@astrojs/starlight/components';
     Find `swsd-mcp` in MCP host install pickers via [registry.modelcontextprotocol.io](https://registry.modelcontextprotocol.io/v0.1/servers?search=io.github.mikimatsub/swsd).
   </Card>
 </CardGrid>
+
+## See it in action
+
+The seven MCP Apps widgets render rich UI alongside structured tool output. Below: a few captured with synthetic example data ("Acme Corp"). The full gallery + per-widget detail lives on the [Widgets reference](/widgets/).
+
+![incident-list widget showing a sortable table of Acme Corp tickets](/widgets/incident-list-dark.png)
+
+![comment-thread widget showing a threaded conversation between Alex Kim and Jane Doe](/widgets/comment-thread-dark.png)
+
+![audit-timeline widget showing a vertical timeline of ticket state changes](/widgets/audit-timeline-dark.png)
+
+![catalog-item-form widget rendering a "New laptop request" form with dropdowns and helptext](/widgets/catalog-item-form-dark.png)

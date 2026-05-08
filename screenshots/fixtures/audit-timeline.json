@@ -1,0 +1,13 @@
+{
+  "object_type": "incidents",
+  "id": 60451,
+  "audits": [
+    { "uuid": "aud-2026-05-08-001", "action": "Update", "user": "Alex Kim", "created_at": "2026-05-08T09:15:00Z", "message": "Comment added" },
+    { "uuid": "aud-2026-05-08-002", "action": "Update", "user": "Alex Kim", "created_at": "2026-05-08T09:00:00Z", "message": "Internal comment added" },
+    { "uuid": "aud-2026-05-08-003", "action": "Update", "user": "Jane Doe", "created_at": "2026-05-08T08:45:00Z", "message": "Comment added" },
+    { "uuid": "aud-2026-05-08-004", "action": "Update", "user": "Alex Kim", "created_at": "2026-05-08T08:30:00Z", "message": "Priority changed from Medium to High" },
+    { "uuid": "aud-2026-05-08-005", "action": "Update", "user": "Alex Kim", "created_at": "2026-05-08T08:30:00Z", "message": "Assignee changed from Unassigned to Alex Kim" },
+    { "uuid": "aud-2026-05-08-006", "action": "Update", "user": "Alex Kim", "created_at": "2026-05-08T08:30:00Z", "message": "State changed from New - Unassigned to Assigned - In Progress" },
+    { "uuid": "aud-2026-05-07-001", "action": "Create", "user": "Jane Doe", "created_at": "2026-05-07T14:23:00Z", "message": "Incident created" }
+  ]
+}

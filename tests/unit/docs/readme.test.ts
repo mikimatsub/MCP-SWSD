@@ -1,14 +1,26 @@
 /**
- * Documentation contract tests for README.md.
+ * Documentation contract tests for README.md and the docs-site configuration
+ * page.
  *
- * Asserts that the human-maintained facts in the README match the
- * single source of truth in src/. These tests exist because the
- * tool-count drift bug (PR #11) showed that README claims about
- * counts/lists/defaults silently rot when the underlying code changes.
+ * Asserts that the human-maintained facts match the single source of truth
+ * in src/. These tests exist because the tool-count drift bug (PR #11) showed
+ * that documented claims about counts/lists/defaults silently rot when the
+ * underlying code changes.
  *
- * If a test in this file fails, you have two options:
- *   1. The README is stale — update the README.
- *   2. The source genuinely changed — update the README to match.
+ * **Scope split (changed in the v2.1 docs overhaul):**
+ *
+ * The README intentionally documents only the three essential env vars
+ * (SWSD_TOKEN, SWSD_BASE_URL, SWSD_PROFILE) — everything else lives in
+ * `docs-site/src/content/docs/configuration.md`, which is the canonical
+ * full env-var reference. The Configuration-tables tests below enforce:
+ *   - The README's three essential rows match EnvSchema defaults.
+ *   - Every other EnvSchema key (minus SKIP) is documented in the docs-site
+ *     configuration.md with a default that matches EnvSchema.
+ * This keeps the no-drift guarantee while letting the README stay focused.
+ *
+ * If a test here fails, you have two options:
+ *   1. The doc is stale — update it.
+ *   2. The source genuinely changed — update the doc to match.
  * In either case, never edit the test to make it pass.
  */
 import { describe, it, expect } from 'vitest';
@@ -18,6 +30,13 @@ import { PROFILE_TOOLS } from '../../../src/config/profiles.js';
 import { EnvSchema, KNOWN_PROFILES } from '../../../src/config/env.js';
 
 const README = readFileSync(resolve('README.md'), 'utf-8');
+const CONFIG_DOC = readFileSync(
+  resolve('docs-site/src/content/docs/configuration.md'),
+  'utf-8',
+);
+
+/** Vars that the README's slim "essentials" table is responsible for. */
+const README_ESSENTIALS = new Set(['SWSD_BASE_URL', 'SWSD_PROFILE']);
 
 describe('README documentation contract', () => {
   describe('Profiles table', () => {
@@ -81,25 +100,65 @@ describe('README documentation contract', () => {
     const defaults = EnvSchema.parse({}) as Record<string, unknown>;
 
     /**
-     * Cases where we deliberately do NOT cross-check the README:
+     * Cases where we deliberately do NOT cross-check documented defaults:
      * - SWSD_TOKEN: no schema default; "Required" semantic varies by transport
      * - SWSD_ENABLE_EXTRAS / SWSD_ALLOWED_ORIGINS: optional CSV transforms;
-     *   schema parses to [] but README correctly shows em-dash for "unset"
+     *   schema parses to [] but the docs correctly show em-dash for "unset"
      */
     const SKIP = new Set(['SWSD_TOKEN', 'SWSD_ENABLE_EXTRAS', 'SWSD_ALLOWED_ORIGINS']);
 
-    for (const key of Object.keys(EnvSchema.shape)) {
-      if (SKIP.has(key)) continue;
-      const expected = defaults[key];
-      if (expected === undefined) continue;
-      it(`README default for ${key} matches EnvSchema default (${String(expected)})`, () => {
-        // Match: | `KEY` | `default` | ... |  OR  | `KEY` | default | ... |
-        // Allows backtick-wrapped or bare default token.
-        const row = README.match(new RegExp(`\\|\\s*\`${key}\`\\s*\\|\\s*\`?([^|\`]+?)\`?\\s*\\|`));
-        expect(row, `Missing Configuration-table row for "${key}"`).not.toBeNull();
-        const documented = row![1]!.trim();
-        expect(documented).toBe(String(expected));
-      });
+    /**
+     * Match a Configuration-table row in markdown:
+     *   | `KEY` | `default` | notes |   ← preferred backtick-wrapped form
+     *   | `KEY` | default   | notes |   ← bare-token form
+     *   | `KEY` | _(empty)_ | notes |   ← italic placeholder
+     */
+    function findRowDefault(text: string, key: string): string | null {
+      const m = text.match(new RegExp(`\\|\\s*\`${key}\`\\s*\\|\\s*\`?([^|\`]+?)\`?\\s*\\|`));
+      return m ? m[1]!.trim() : null;
     }
+
+    describe('README essentials', () => {
+      // The README only documents the three essential vars; the rest live in
+      // the docs-site configuration page (asserted in the next describe).
+      for (const key of README_ESSENTIALS) {
+        if (SKIP.has(key)) continue;
+        const expected = defaults[key];
+        if (expected === undefined) continue;
+        it(`README default for ${key} matches EnvSchema default (${String(expected)})`, () => {
+          const documented = findRowDefault(README, key);
+          expect(documented, `Missing Configuration-table row for "${key}" in README.md`).not.toBeNull();
+          expect(documented).toBe(String(expected));
+        });
+      }
+    });
+
+    describe('docs-site full reference', () => {
+      // Every EnvSchema key (minus SKIP) must be documented in
+      // docs-site/src/content/docs/configuration.md with a default matching
+      // EnvSchema. This is the no-drift guarantee for the canonical reference.
+      for (const key of Object.keys(EnvSchema.shape)) {
+        if (SKIP.has(key)) continue;
+        const expected = defaults[key];
+        if (expected === undefined) continue;
+        it(`docs-site default for ${key} matches EnvSchema default (${String(expected)})`, () => {
+          const documented = findRowDefault(CONFIG_DOC, key);
+          expect(
+            documented,
+            `Missing Configuration-table row for "${key}" in docs-site/src/content/docs/configuration.md`,
+          ).not.toBeNull();
+          expect(documented).toBe(String(expected));
+        });
+      }
+    });
+
+    it('README links to the canonical docs-site configuration page', () => {
+      // Defensive: if someone later removes the link out, the contract that
+      // README intentionally trims to essentials breaks silently.
+      expect(
+        README.match(/mcp-swsd\.pages\.dev\/configuration/i),
+        'README should link to https://mcp-swsd.pages.dev/configuration/ for the full env-var reference',
+      ).not.toBeNull();
+    });
   });
 });
