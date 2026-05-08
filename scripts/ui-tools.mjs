@@ -6,4 +6,5 @@ export const UI_TOOLS = [
   'solution-detail',
   'incident-list',
   'custom-fields',
+  'comment-thread',
 ];

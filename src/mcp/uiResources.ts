@@ -36,6 +36,7 @@ const ALLOWED_UI_NAMES = new Set<string>([
   'solution-detail',
   'incident-list',
   'custom-fields',
+  'comment-thread',
 ]);
 
 const cache = new Map<string, string>();
