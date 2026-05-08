@@ -20,12 +20,20 @@
     --shadow-light: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
     --shadow-dark: 0 2px 8px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.3);
   }
+  html, body {
+    /* Don't let html stretch to viewport — for the screenshot pipeline we
+       want documentElement.scrollHeight == body.scrollHeight so Playwright
+       fullPage captures only the actual content, not blank padding. */
+    height: auto;
+  }
   body {
     margin: 0;
     padding: 32px;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-    min-height: 100vh;
     box-sizing: border-box;
+    /* Suppress the page-level scrollbar in screenshot mode — when picker is
+       hidden, there's no reason for a scrollbar to appear in the image. */
+    overflow: hidden;
   }
   body[data-harness-theme="light"] {
     background: var(--bg-light);
@@ -57,7 +65,12 @@
     height: 720px;
     border: 0;
     background: transparent;
+    /* Suppress the iframe's own scrollbar in screenshot mode. With auto-sizing
+       the iframe should always fit its content, but sub-pixel overflow can
+       trigger a 1-2px scrollbar that ruins the screenshot edge. */
+    scrollbar-width: none;
   }
+  iframe::-webkit-scrollbar { display: none; }
   .picker {
     max-width: 760px;
     margin: 0 auto 24px;
@@ -176,7 +189,59 @@
 
   // Widget bundle URL — relative to harness location, served from dist/ui/.
   const frame = document.getElementById('widget-frame');
-  if (heightOverride) frame.style.height = heightOverride + 'px';
+
+  // Auto-size the iframe to its content (screenshot mode only — keeps the
+  // iframe at a fixed default in dev mode so the picker chrome is usable).
+  //
+  // Strategy: shrink-then-measure. The widget bundles ship CSS like
+  // `body { min-height: 100% }` AND have child elements that flex-stretch
+  // to fill the body, which makes both `body.scrollHeight` and
+  // `child.getBoundingClientRect().bottom` track the iframe height instead
+  // of the natural content size. Naïve auto-resize loops grow the iframe
+  // by the buffer on every tick (runaway).
+  //
+  // Workaround: temporarily shrink the iframe to 1px, force a reflow, then
+  // read `body.scrollHeight` — with body min-height computed against a 1px
+  // container, scrollHeight reports the actual natural content height
+  // (the contents overflow visibly). Add a small buffer and set iframe to
+  // that. The next autoSize tick re-shrinks-and-measures, gets the same
+  // value, no-ops on the early-exit guard. Stable fixed point.
+  //
+  // Same-origin assumption: harness and widget bundles are both served
+  // from 127.0.0.1 over the same port, so cross-document access is fine.
+  const isScreenshotMode = !showPicker;
+  if (heightOverride) {
+    frame.style.height = heightOverride + 'px';
+  } else if (isScreenshotMode) {
+    const autoSize = () => {
+      const doc = frame.contentDocument;
+      if (!doc || !doc.body) return;
+      // Save current height; shrink to break min-height feedback.
+      const prev = frame.style.height;
+      frame.style.height = '1px';
+      void frame.offsetHeight; // force reflow
+      const natural = doc.body.scrollHeight;
+      // 24px buffer absorbs body padding-bottom + sub-pixel rounding.
+      const target = natural + 24;
+      // Early exit if we'd just rewrite the same value (prevents thrash).
+      const targetPx = target + 'px';
+      if (prev === targetPx) {
+        frame.style.height = prev;
+        return;
+      }
+      frame.style.height = targetPx;
+    };
+    frame.addEventListener('load', () => {
+      autoSize();
+      // Re-run after the widget's async render lands (postMessage handshake
+      // completes ~50-200ms after iframe load on most hosts). Three ticks
+      // at 250ms / 500ms / 1500ms cover slow renders without continuous
+      // polling that could fire mid-render and produce wrong results.
+      setTimeout(autoSize, 250);
+      setTimeout(autoSize, 500);
+      setTimeout(autoSize, 1500);
+    });
+  }
 
   // Fetch the fixture before we set the iframe src so the listener is ready
   // when the widget initiates the handshake.
