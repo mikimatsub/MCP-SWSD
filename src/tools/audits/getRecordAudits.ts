@@ -5,6 +5,7 @@ import { PaginationOutput } from '../../schemas/output.js';
 import { structuredResult } from '../../mcp/output.js';
 import { mapSwsdError } from '../../swsd/errors.js';
 import { toAuditSummary } from '../../swsd/mappers/audit.js';
+import { resolveIncidentRef, resolveSolutionRef } from '../../utils/idResolver.js';
 import type { ToolContext } from '../../config/toolRegistry.js';
 
 const AuditSummaryOutput = z.object({
@@ -52,11 +53,26 @@ export function registerGetRecordAudits(server: McpServer, ctx: ToolContext): vo
     },
     async (input) => {
       try {
+        // Per object_type, resolve number→id when the entity has a list API.
+        // incidents and solutions both expose `?query=N` lookups via their
+        // dedicated resolvers. Other object_types (problems, changes,
+        // releases, hardwares, other_assets) have no equivalent — until v2.2
+        // ships their list APIs they remain id-only and we pass `input.id`
+        // through unchanged. The resolver short-circuits id-sized inputs
+        // internally, so this branch costs zero I/O when the caller already
+        // passes the internal id.
+        let resolvedId = input.id;
+        if (input.object_type === 'incidents') {
+          resolvedId = (await resolveIncidentRef(input.id, ctx.client)).id;
+        } else if (input.object_type === 'solutions') {
+          resolvedId = (await resolveSolutionRef(input.id, ctx.client)).id;
+        }
+
         const params: Record<string, unknown> = {
           page: input.page,
           per_page: input.per_page,
         };
-        const path = `/${input.object_type}/${String(input.id)}/audits.json`;
+        const path = `/${input.object_type}/${String(resolvedId)}/audits.json`;
         const { body, pagination } = await ctx.client.get<unknown>(path, params);
         const raw = Array.isArray(body) ? body : [];
         const audits = raw
@@ -66,7 +82,7 @@ export function registerGetRecordAudits(server: McpServer, ctx: ToolContext): vo
         const totalNote =
           pagination.total !== undefined ? ` of ${String(pagination.total)}` : '';
         const moreNote = pagination.has_more ? ', more available' : '';
-        const summary = `Returned ${String(audits.length)} audits${totalNote} for ${input.object_type}/${String(input.id)} (page ${String(pagination.page)}${moreNote}).`;
+        const summary = `Returned ${String(audits.length)} audits${totalNote} for ${input.object_type}/${String(resolvedId)} (page ${String(pagination.page)}${moreNote}).`;
         return structuredResult({ audits, pagination }, summary);
       } catch (err) {
         return mapSwsdError(err);
