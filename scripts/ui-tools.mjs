@@ -8,4 +8,5 @@ export const UI_TOOLS = [
   'custom-fields',
   'comment-thread',
   'audit-timeline',
+  'catalog-item-form',
 ];

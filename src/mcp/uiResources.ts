@@ -38,6 +38,7 @@ const ALLOWED_UI_NAMES = new Set<string>([
   'custom-fields',
   'comment-thread',
   'audit-timeline',
+  'catalog-item-form',
 ]);
 
 const cache = new Map<string, string>();
