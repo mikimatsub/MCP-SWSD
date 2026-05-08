@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1.7
+# syntax=docker/dockerfile:1.7@sha256:a57df69d0ea827fb7266491f2813635de6f17269be881f696fbfdf2d83dda33e
 
 # Base image pinned by digest for supply-chain safety. To update: pull the
 # latest node:24-alpine, copy its sha256 digest from `docker inspect`, and
