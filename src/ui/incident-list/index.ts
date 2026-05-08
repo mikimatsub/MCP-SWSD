@@ -1,5 +1,6 @@
 import { mountApp } from '../shared/host.js';
 import { el, clear } from '../shared/dom.js';
+import { renderError } from '../shared/error.js';
 import {
   pickString,
   pickNumber,
@@ -62,13 +63,14 @@ let all: Incident[] = [];
 let sortKey: SortKey = 'updated_at';
 let sortDesc = true;
 
+const rootEl = document.getElementById('root');
 const titleEl = document.getElementById('title');
 const searchEl = document.getElementById('search') as HTMLInputElement | null;
 const rowsEl = document.getElementById('rows');
 const emptyEl = document.getElementById('empty') as HTMLParagraphElement | null;
 
-if (!titleEl || !searchEl || !rowsEl || !emptyEl) {
-  throw new Error('incident-list UI: missing one of #title, #search, #rows, #empty');
+if (!rootEl || !titleEl || !searchEl || !rowsEl || !emptyEl) {
+  throw new Error('incident-list UI: missing one of #root, #title, #search, #rows, #empty');
 }
 
 mountApp<Payload>({
@@ -80,6 +82,9 @@ mountApp<Payload>({
     }
     updateTitle(all.length, data?.pagination);
     render();
+  },
+  onError: ({ message }) => {
+    renderError(rootEl, message);
   },
 }).catch((err) => {
   console.error('incident-list: failed to connect MCP App', err);

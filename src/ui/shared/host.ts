@@ -31,27 +31,47 @@ import type {
 } from '@modelcontextprotocol/ext-apps';
 
 /**
+ * Options accepted by {@link mountApp}.
+ *
+ * `T` is the expected `structuredContent` shape on the success path. On the
+ * error path the `structuredContent` (if any) is forwarded as `unknown` so
+ * widgets that want a richer error UI than a plain text message can opt in
+ * to deserializing it themselves.
+ */
+export interface MountAppOptions<T> {
+  name: string;
+  version: string;
+  /** Called with `params.structuredContent` on a successful tool-result. */
+  onResult: (structuredContent: T) => void;
+  /**
+   * Optional. Called when the host delivers a tool-result with `isError: true`.
+   * `message` is the first text-content part of the result, or a generic
+   * fallback when the host omits text. `structuredContent` is forwarded
+   * verbatim (typically `undefined` on errors, but some servers populate it
+   * with a typed error envelope).
+   *
+   * If unset and an error arrives, `mountApp` logs to `console.warn` so the
+   * loading-spinner-forever bug is at least surfaced in dev tools.
+   */
+  onError?: (error: { message: string; structuredContent?: unknown }) => void;
+}
+
+/**
  * Mount an MCP App that consumes a single tool-result and renders it.
  *
  * Creates the `App`, wires listeners for `toolresult` and `hostcontextchanged`
  * (so theme + style tokens flow into the document root), then calls
  * `connect()` which performs the spec's `ui/initialize` handshake.
  *
- * @param opts.name     App slug for host logs (e.g. "swsd-mcp/incident-detail").
- * @param opts.version  App version (typically the npm package version).
- * @param opts.onResult Called with `params.structuredContent` whenever the
- *                      host pushes `ui/notifications/tool-result`. Type
- *                      parameter `T` is the expected `structuredContent`
- *                      shape (e.g. `{incident: {...}}`).
+ * Routes the `'toolresult'` notification to either `onResult` (success path,
+ * when `params.structuredContent` is defined) or `onError` (when
+ * `params.isError === true`). Without the error branch, widgets would hang
+ * on their loading state forever any time a tool throws.
  *
  * @returns the connected `App` instance (so callers can attach further
  *          listeners or call `app.callServerTool(...)` if they want).
  */
-export async function mountApp<T>(opts: {
-  name: string;
-  version: string;
-  onResult: (structuredContent: T) => void;
-}): Promise<App> {
+export async function mountApp<T>(opts: MountAppOptions<T>): Promise<App> {
   const app = new App({ name: opts.name, version: opts.version });
 
   // Register BEFORE connect() so the spec-mandated initial tool-result
@@ -60,6 +80,22 @@ export async function mountApp<T>(opts: {
   app.addEventListener(
     'toolresult',
     (params: McpUiToolResultNotification['params']) => {
+      // Error path takes precedence — a result with `isError: true` may
+      // still carry a `structuredContent` envelope, but widgets must render
+      // an error state, not the success view.
+      if (params.isError) {
+        const message =
+          extractTextMessage(params.content) ??
+          'The tool reported an error but did not provide a message.';
+        if (opts.onError) {
+          opts.onError({ message, structuredContent: params.structuredContent });
+        } else {
+          // Surface the error in dev tools so the symptom isn't silent
+          // (the original bug — widgets stuck on "Loading…" forever).
+          console.warn('[mountApp] tool-result error (no onError handler):', message);
+        }
+        return;
+      }
       const sc = params.structuredContent;
       if (sc !== undefined) {
         opts.onResult(sc as T);
@@ -116,4 +152,28 @@ function applyHostContextStyling(
   if (ctx.styles?.css?.fonts) {
     applyHostFonts(ctx.styles.css.fonts);
   }
+}
+
+/**
+ * Extracts the first non-empty text-content part from a tool-result `content`
+ * array. The MCP `CallToolResult.content` shape supports text/image/audio/
+ * resource_link/resource parts; for the error UX we only care about the
+ * human-readable text. Returns `undefined` when `content` is missing,
+ * non-array, empty, or contains only non-text parts.
+ */
+function extractTextMessage(content: unknown): string | undefined {
+  if (!Array.isArray(content)) return undefined;
+  for (const part of content) {
+    if (
+      part &&
+      typeof part === 'object' &&
+      'type' in part &&
+      (part as { type: unknown }).type === 'text' &&
+      'text' in part
+    ) {
+      const text = (part as { text: unknown }).text;
+      if (typeof text === 'string' && text.length > 0) return text;
+    }
+  }
+  return undefined;
 }

@@ -1,5 +1,6 @@
 import { mountApp } from '../shared/host.js';
 import { el, clear } from '../shared/dom.js';
+import { renderError } from '../shared/error.js';
 import {
   pickString,
   pickNumber,
@@ -47,6 +48,9 @@ mountApp<Payload>({
   version: '2.0.1',
   onResult: (data) => {
     if (data?.solution) render(root, data.solution);
+  },
+  onError: ({ message }) => {
+    renderError(root, message);
   },
 }).catch((err) => {
   console.error('solution-detail: failed to connect MCP App', err);

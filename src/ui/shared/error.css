@@ -1,0 +1,33 @@
+/*
+ * Shared error-state styling for all widgets.
+ *
+ * Imported via `@import` from each widget's `styles.css` (Vite resolves the
+ * `@import` and `vite-plugin-singlefile` inlines the merged CSS into the
+ * bundled HTML, so no extra network fetch at runtime).
+ *
+ * Uses `light-dark()` so the surface follows the document's `color-scheme`
+ * (set by every widget's `:root`). The red is muted enough to read against
+ * either background while still cuing "something went wrong".
+ */
+.error-state {
+  padding: 1.25rem;
+  margin: 0;
+  border: 1px solid light-dark(#c92a2a, #ff6b6b);
+  border-radius: 8px;
+  background: light-dark(#fff5f5, #2c1212);
+  color: light-dark(#852020, #f8c1c1);
+  max-width: 32rem;
+}
+.error-state h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+}
+.error-state .error-message {
+  margin: 0;
+  word-break: break-word;
+}
+.error-state .error-hint {
+  margin: 0.75rem 0 0;
+  font-size: 0.85rem;
+  opacity: 0.75;
+}
