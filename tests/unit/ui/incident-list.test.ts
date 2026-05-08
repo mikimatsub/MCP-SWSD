@@ -1,9 +1,13 @@
 import { describe, it, expect } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import {
   matchesQuery,
   cmp,
   pickSortValue,
   filterAndSort,
+  sortIndicator,
+  ariaSortValue,
   SORT_KEYS,
   type Incident,
   type SortKey,
@@ -220,6 +224,80 @@ describe('filterAndSort', () => {
     const keys: SortKey[] = ['number', 'name', 'state', 'priority', 'assignee_email', 'updated_at'];
     for (const k of keys) {
       expect(() => filterAndSort([inc({ name: 'X' })], '', k, false)).not.toThrow();
+    }
+  });
+});
+
+describe('sortIndicator', () => {
+  it('returns ▲ for the active column on ascending sort', () => {
+    // U+25B2 BLACK UP-POINTING TRIANGLE — visible to sighted users on the
+    // currently-sorted column header so they don't have to click through to
+    // discover sort state.
+    expect(sortIndicator(true, false)).toBe('▲');
+  });
+
+  it('returns ▼ for the active column on descending sort', () => {
+    expect(sortIndicator(true, true)).toBe('▼');
+  });
+
+  it('returns an empty string for inactive columns regardless of direction', () => {
+    // Inactive columns must not render a glyph — otherwise every header
+    // would show an arrow and the user couldn't distinguish the active one.
+    expect(sortIndicator(false, false)).toBe('');
+    expect(sortIndicator(false, true)).toBe('');
+  });
+});
+
+describe('ariaSortValue', () => {
+  it('returns "ascending" for the active column on asc', () => {
+    expect(ariaSortValue(true, false)).toBe('ascending');
+  });
+
+  it('returns "descending" for the active column on desc', () => {
+    expect(ariaSortValue(true, true)).toBe('descending');
+  });
+
+  it('returns "none" for inactive columns regardless of direction (regression)', () => {
+    // Setting "none" rather than omitting the attribute makes it explicit to
+    // assistive tech that the column IS sortable but not currently sorted —
+    // a cleaner contract than letting the attribute disappear when inactive.
+    expect(ariaSortValue(false, false)).toBe('none');
+    expect(ariaSortValue(false, true)).toBe('none');
+  });
+});
+
+describe('incident-list static HTML', () => {
+  // Reads the source HTML rather than the bundled output: the wrapper is
+  // declared statically (not built dynamically by index.ts), so this test
+  // pins it at the source-of-truth file. The build test in build.test.ts
+  // separately confirms the bundle still emits.
+  const html = readFileSync(
+    resolve(process.cwd(), 'src', 'ui', 'incident-list', 'index.html'),
+    'utf8',
+  );
+
+  it('wraps the table in a .table-scroll div for narrow-viewport overflow', () => {
+    // Order matters: the opening <div class="table-scroll"> must come before
+    // the <table> tag, and a closing </div> must come after </table>.
+    const openDiv = html.indexOf('<div class="table-scroll">');
+    const openTable = html.indexOf('<table');
+    const closeTable = html.indexOf('</table>');
+    expect(openDiv).toBeGreaterThan(-1);
+    expect(openTable).toBeGreaterThan(openDiv);
+    // The next </div> after </table> must close the .table-scroll wrapper.
+    const closeDivAfterTable = html.indexOf('</div>', closeTable);
+    expect(closeDivAfterTable).toBeGreaterThan(closeTable);
+  });
+
+  it('seeds every sortable th with aria-sort="none" for assistive tech', () => {
+    // The static HTML primes each <th data-sort=...> with aria-sort="none";
+    // index.ts then upgrades the active column to "ascending" / "descending"
+    // on render. Pinning the seed here means a screen-reader user always
+    // hears that the columns are sortable, even before the first render.
+    const sortableHeaders = html.match(/<th[^>]*data-sort=[^>]*>/g) ?? [];
+    expect(sortableHeaders).toHaveLength(6);
+    for (const th of sortableHeaders) {
+      expect(th).toContain('aria-sort="none"');
     }
   });
 });

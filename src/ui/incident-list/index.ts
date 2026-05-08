@@ -11,6 +11,8 @@ import {
 import {
   SORT_KEYS,
   filterAndSort,
+  sortIndicator,
+  ariaSortValue,
   type Incident,
   type SortKey,
 } from './logic.js';
@@ -73,6 +75,17 @@ if (!rootEl || !titleEl || !searchEl || !rowsEl || !emptyEl) {
   throw new Error('incident-list UI: missing one of #root, #title, #search, #rows, #empty');
 }
 
+/**
+ * Snapshot each sortable header's original label text BEFORE the first render
+ * mutates it. The indicator is re-rendered on every sort toggle, so we keep
+ * the labels in this map rather than parsing them back out of the DOM (which
+ * would re-include the previous indicator glyph).
+ */
+const headerLabels = new Map<HTMLTableCellElement, string>();
+document.querySelectorAll<HTMLTableCellElement>('th[data-sort]').forEach((th) => {
+  headerLabels.set(th, (th.textContent ?? '').trim());
+});
+
 mountApp<Payload>({
   name: 'swsd-mcp/incident-list',
   version: '2.0.1',
@@ -121,6 +134,7 @@ function updateTitle(shown: number, pagination: Pagination | undefined): void {
 
 function render(): void {
   if (!searchEl || !rowsEl || !emptyEl) return;
+  renderHeaders();
   const filtered = filterAndSort(all, searchEl.value, sortKey, sortDesc);
 
   clear(rowsEl);
@@ -128,6 +142,34 @@ function render(): void {
     rowsEl.appendChild(renderRow(i));
   }
   emptyEl.hidden = filtered.length > 0;
+}
+
+/**
+ * Updates each sortable column header to reflect the current sort state.
+ *
+ * Sets `aria-sort` to `'ascending' | 'descending' | 'none'` for assistive
+ * tech, and renders a visible ▲/▼ glyph (in a fixed-width `.sort-indicator`
+ * span) on the active column. Inactive columns get an empty indicator span
+ * so the layout doesn't shift when toggling sort.
+ *
+ * Header labels are read from `headerLabels` (snapshotted at module init);
+ * we never re-parse them from the DOM, otherwise an existing indicator glyph
+ * would be folded into the label on the next render.
+ */
+function renderHeaders(): void {
+  for (const [th, label] of headerLabels) {
+    const raw = th.getAttribute('data-sort');
+    if (!raw || !SORT_KEYS.has(raw as SortKey)) continue;
+    const active = (raw as SortKey) === sortKey;
+    th.setAttribute('aria-sort', ariaSortValue(active, sortDesc));
+    clear(th);
+    th.appendChild(document.createTextNode(label));
+    th.appendChild(
+      el('span', { class: 'sort-indicator', 'aria-hidden': 'true' }, [
+        sortIndicator(active, sortDesc),
+      ]),
+    );
+  }
 }
 
 function renderRow(inc: Incident): HTMLTableRowElement {

@@ -47,6 +47,11 @@ input[type="search"]:focus {
   outline: 2px solid var(--link);
   outline-offset: -1px;
 }
+.table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
 table {
   width: 100%;
   border-collapse: collapse;
@@ -68,6 +73,18 @@ th {
 }
 th:hover {
   background: var(--hover);
+}
+th:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: -2px;
+}
+.sort-indicator {
+  display: inline-block;
+  margin-left: 0.35rem;
+  font-size: 0.7em;
+  opacity: 0.65;
+  min-width: 0.7em;
+  text-align: left;
 }
 td {
   word-break: break-word;
