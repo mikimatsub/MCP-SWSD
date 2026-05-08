@@ -1,5 +1,6 @@
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { toolError } from '../mcp/errors.js';
+import { InputError } from '../utils/idResolver.js';
 
 export class SwsdHttpError extends Error {
   constructor(
@@ -29,6 +30,12 @@ export function mapSwsdError(err: unknown): CallToolResult {
       `Network error contacting SWSD: ${err.cause instanceof Error ? err.cause.message : 'unknown'}.`,
       'Check SWSD_BASE_URL, your network connection, and tenant region (US vs EU).',
     );
+  }
+  if (err instanceof InputError) {
+    // InputError messages are already user-friendly (e.g. "No incident found
+    // with number 99999 in this tenant. ..."). No "Unexpected error:" prefix —
+    // the resolver throws this for legitimate user-input failures, not bugs.
+    return toolError(err.message);
   }
   if (err instanceof Error) return toolError(`Unexpected error: ${err.message}`);
   return toolError(`Unexpected error: ${String(err)}`);

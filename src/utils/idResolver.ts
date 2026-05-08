@@ -24,9 +24,12 @@
  *
  * The ONE shape that works is `?query=N` (free-text search). It returns rows
  * whose number matches AND rows whose name/description happens to contain N
- * as a substring. We absorb this with `per_page=10` and filter the response
+ * as a substring. We absorb this with `per_page=25` and filter the response
  * client-side for `row.number === input`. Across 20 test cases (10 incidents
- * + 10 solutions), every probe returned exactly 1 exact match.
+ * + 10 solutions), every probe returned exactly 1 row with number === input —
+ * but in 8/20 cases extra substring-collision rows came back too, sometimes
+ * ahead of the exact match. The client-side filter is therefore load-bearing,
+ * not defensive.
  *
  * See `.research/v2.1-probes/numbers-filter-v2.json` and -v3.json for the
  * verifying probe data.
@@ -46,18 +49,20 @@ export const ID_DIGIT_THRESHOLD = 7;
 /**
  * Page size for the lookup request. The SWSD `query` filter is free-text and
  * may return rows whose description contains the number as a substring in
- * addition to the row whose `number` equals it. 10 absorbs ~9 collisions
- * before we'd risk paging past the exact match.
+ * addition to the row whose `number` equals it. 25 (matches DEFAULT_PER_PAGE
+ * in `src/swsd/client.ts`) absorbs ~24 substring collisions before we'd risk
+ * paging past the exact match — comfortable headroom over the 8/20 collision
+ * rate observed in the v3 probe.
  */
-const RESOLVE_PAGE_SIZE = 10;
+const RESOLVE_PAGE_SIZE = 25;
 
 /**
  * Thrown when the resolver receives invalid input or cannot find a matching
  * row for a number lookup. Distinct from `SwsdHttpError`/`SwsdNetworkError`
  * (in `src/swsd/errors.ts`) so callers can differentiate user-input failures
- * from API failures. Currently `mapSwsdError` falls back to a generic message
- * for `InputError`; that's fine for v2.1 — a future cleanup could add a
- * dedicated branch.
+ * from API failures. `mapSwsdError` recognizes this class and surfaces the
+ * message verbatim (no "Unexpected error:" prefix), since the message is
+ * already user-friendly.
  */
 export class InputError extends Error {
   constructor(message: string) {
