@@ -11,15 +11,17 @@ SWSD tenant data.
 screenshots/
 ├── README.md          (this file)
 ├── host-mock.html     (single-page harness — mocks the MCP Apps host bridge)
-├── fixtures/          (synthetic structuredContent per widget — fictional Acme Corp data)
-│   ├── incident-detail.json
-│   ├── solution-detail.json
-│   ├── incident-list.json
-│   ├── comment-thread.json
-│   ├── audit-timeline.json
-│   ├── catalog-item-form.json
-│   └── custom-fields.json
-└── output/            (gitignored; PNGs end up here when you regenerate)
+└── fixtures/          (synthetic structuredContent per widget — fictional Acme Corp data)
+    ├── incident-detail.json
+    ├── solution-detail.json
+    ├── incident-list.json
+    ├── comment-thread.json
+    ├── audit-timeline.json
+    ├── catalog-item-form.json
+    └── custom-fields.json
+
+docs-site/public/widgets/
+├── *.png              (the captured screenshots — committed; served by Astro at /widgets/*.png)
 ```
 
 The fixtures use a fictional company called **Acme Corp**:
