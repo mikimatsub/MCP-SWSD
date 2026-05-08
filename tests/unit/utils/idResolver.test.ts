@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   resolveIncidentRef,
   resolveSolutionRef,
+  resolveProblemRef,
   InputError,
   ID_DIGIT_THRESHOLD,
 } from '../../../src/utils/idResolver.js';
@@ -252,6 +253,73 @@ describe('resolveSolutionRef', () => {
     it('rejects NaN', async () => {
       const client = makeFakeClient();
       await expect(resolveSolutionRef(NaN, client)).rejects.toBeInstanceOf(InputError);
+      expect(client.calls).toHaveLength(0);
+    });
+  });
+});
+
+describe('resolveProblemRef', () => {
+  describe('when input is treated as an id (>=7 digits)', () => {
+    it('returns the id directly without making any HTTP call', async () => {
+      const client = makeFakeClient();
+      const result = await resolveProblemRef(180457930, client);
+      expect(result).toEqual({ id: 180457930 });
+      expect(client.calls).toHaveLength(0);
+    });
+
+    it('treats 1_000_000 (smallest 7-digit) as id', async () => {
+      const client = makeFakeClient();
+      const result = await resolveProblemRef(1_000_000, client);
+      expect(result).toEqual({ id: 1_000_000 });
+      expect(client.calls).toHaveLength(0);
+    });
+  });
+
+  describe('when input is treated as a human-facing number (<=6 digits)', () => {
+    it('issues GET /problems.json with query=N and per_page>=10', async () => {
+      const client = makeFakeClient();
+      client.setBody([{ id: 195000001, number: 4421, name: 'Recurring database lag' }]);
+      const result = await resolveProblemRef(4421, client);
+      expect(result).toEqual({ id: 195000001 });
+      expect(client.calls).toHaveLength(1);
+      const call = client.calls[0];
+      expect(call?.path).toBe('/problems.json');
+      expect(call?.params).toMatchObject({ query: 4421 });
+      expect((call?.params.per_page as number) ?? 0).toBeGreaterThanOrEqual(10);
+    });
+
+    it('extracts the row whose number === input even when substring-collisions are present', async () => {
+      const client = makeFakeClient();
+      client.setBody([
+        { id: 195000099, number: 999, name: 'mentions 4421 in body' },
+        { id: 195000001, number: 4421, name: 'real target' },
+      ]);
+      const result = await resolveProblemRef(4421, client);
+      expect(result).toEqual({ id: 195000001 });
+    });
+
+    it('throws InputError when no matching problem number is found', async () => {
+      const client = makeFakeClient();
+      client.setBody([]);
+      await expect(resolveProblemRef(4421, client)).rejects.toBeInstanceOf(InputError);
+      await expect(resolveProblemRef(4421, client)).rejects.toMatchObject({
+        message: expect.stringContaining('4421'),
+      });
+    });
+  });
+
+  describe('input validation', () => {
+    it('rejects negative numbers', async () => {
+      const client = makeFakeClient();
+      await expect(resolveProblemRef(-1, client)).rejects.toBeInstanceOf(InputError);
+      expect(client.calls).toHaveLength(0);
+    });
+
+    it('rejects zero, NaN, and non-integers without I/O', async () => {
+      const client = makeFakeClient();
+      await expect(resolveProblemRef(0, client)).rejects.toBeInstanceOf(InputError);
+      await expect(resolveProblemRef(NaN, client)).rejects.toBeInstanceOf(InputError);
+      await expect(resolveProblemRef(1.5, client)).rejects.toBeInstanceOf(InputError);
       expect(client.calls).toHaveLength(0);
     });
   });

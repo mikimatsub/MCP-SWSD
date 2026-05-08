@@ -111,6 +111,29 @@ export type SolutionDetail = Record<string, unknown> & {
   name?: string;
 };
 
+export interface ProblemSummary {
+  id: number;
+  number?: number;
+  name: string;
+  state?: string;
+  priority?: string;
+  category?: string;
+  subcategory?: string;
+  description?: string;
+  description_no_html?: string;
+  requester?: { id?: number; name?: string; email?: string };
+  assignee?: { id?: number; name?: string; email?: string };
+  created_at?: string;
+  updated_at?: string;
+  /** SWSD UI URL for this problem (from `href_account_domain`). */
+  url?: string;
+}
+
+export type ProblemDetail = Record<string, unknown> & {
+  id: number;
+  name?: string;
+};
+
 export interface CustomFieldSummary {
   id: number;
   name: string;

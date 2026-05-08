@@ -91,7 +91,7 @@ function isRowWithIdAndNumber(row: unknown): row is RowWithIdAndNumber {
  * Validate that `input` is a positive integer suitable for either id-passthrough
  * or number-lookup. Throws `InputError` otherwise.
  */
-function assertPositiveInteger(input: number, kind: 'incident' | 'solution'): void {
+function assertPositiveInteger(input: number, kind: 'incident' | 'solution' | 'problem'): void {
   if (typeof input !== 'number' || !Number.isFinite(input)) {
     throw new InputError(
       `${kind} id_or_number must be a finite positive integer; got ${String(input)}.`,
@@ -126,9 +126,9 @@ function isIdSized(input: number): boolean {
 
 async function lookupByNumber(
   client: SwsdClient,
-  path: '/incidents.json' | '/solutions.json',
+  path: '/incidents.json' | '/solutions.json' | '/problems.json',
   input: number,
-  kind: 'incident' | 'solution',
+  kind: 'incident' | 'solution' | 'problem',
 ): Promise<{ id: number }> {
   const { body } = await client.get<unknown>(path, {
     query: input,
@@ -195,4 +195,32 @@ export async function resolveSolutionRef(
     return { id: input };
   }
   return lookupByNumber(client, '/solutions.json', input, 'solution');
+}
+
+/**
+ * Resolve a problem reference to its `{ id }`. Accepts either the 7+-digit
+ * `id` (returned without I/O) or a smaller `number` (looked up via
+ * `/problems.json?query=N`).
+ *
+ * Mirrors `resolveSolutionRef` exactly — the SWSD `/problems.json` endpoint
+ * is assumed to share the same `?query=N` + client-side `row.number === input`
+ * filter behavior documented for incidents and solutions (verified
+ * 2026-05-07). The wire shape is presumed consistent based on the audit's
+ * Section C gap #4 and `verified_swsd_api_quirks.md`; the client-side filter
+ * tolerates substring-collision rows the way the other resolvers do.
+ *
+ * @throws InputError when input is not a positive integer or no problem
+ *   matches the given number.
+ * @throws SwsdHttpError / SwsdNetworkError when the underlying client call
+ *   fails (forwarded from `client.get`).
+ */
+export async function resolveProblemRef(
+  input: number,
+  client: SwsdClient,
+): Promise<{ id: number }> {
+  assertPositiveInteger(input, 'problem');
+  if (isIdSized(input)) {
+    return { id: input };
+  }
+  return lookupByNumber(client, '/problems.json', input, 'problem');
 }
