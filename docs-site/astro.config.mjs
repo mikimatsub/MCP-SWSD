@@ -25,6 +25,7 @@ export default defineConfig({
         { label: 'Architecture', link: '/architecture/' },
         { label: 'Configuration', link: '/configuration/' },
         { label: 'Tools reference', link: '/tools/' },
+        { label: 'Widgets reference', link: '/widgets/' },
         { label: 'Deployment', link: '/deployment/' },
         { label: 'Security', link: '/security/' },
         { label: 'Contributing', link: '/contributing/' },

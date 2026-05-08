@@ -4,6 +4,7 @@ import { structuredResult } from '../../mcp/output.js';
 import { toolError } from '../../mcp/errors.js';
 import { mapSwsdError } from '../../swsd/errors.js';
 import { toCommentSummary } from '../../swsd/mappers/comment.js';
+import { resolveIncidentRef } from '../../utils/idResolver.js';
 import type { ToolContext } from '../../config/toolRegistry.js';
 
 export function registerAddIncidentComment(server: McpServer, ctx: ToolContext): void {
@@ -19,9 +20,10 @@ export function registerAddIncidentComment(server: McpServer, ctx: ToolContext):
     },
     async ({ incident_id, body, is_private }) => {
       try {
+        const { id: resolvedIncidentId } = await resolveIncidentRef(incident_id, ctx.client);
         const payload = { comment: { body, is_private } };
         const { body: respBody } = await ctx.client.post<unknown>(
-          `/incidents/${String(incident_id)}/comments.json`,
+          `/incidents/${String(resolvedIncidentId)}/comments.json`,
           payload,
         );
         const comment = toCommentSummary(respBody);
@@ -31,7 +33,7 @@ export function registerAddIncidentComment(server: McpServer, ctx: ToolContext):
         const visibility = comment.is_private ? 'private' : 'public';
         return structuredResult(
           { comment },
-          `Added ${visibility} comment ${String(comment.id)} on incident ${String(incident_id)}.`,
+          `Added ${visibility} comment ${String(comment.id)} on incident ${String(resolvedIncidentId)}.`,
         );
       } catch (err) {
         return mapSwsdError(err);

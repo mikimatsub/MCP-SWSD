@@ -1,11 +1,19 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import {
+  registerAppTool,
+  registerAppResource,
+  RESOURCE_MIME_TYPE,
+} from '@modelcontextprotocol/ext-apps/server';
 import { z } from 'zod';
 import { GetCatalogItemInput } from '../../schemas/catalogItem.js';
 import { structuredResult } from '../../mcp/output.js';
 import { toolError } from '../../mcp/errors.js';
 import { mapSwsdError } from '../../swsd/errors.js';
 import { toCatalogItemDetail } from '../../swsd/mappers/catalogItem.js';
+import { loadUiResource } from '../../mcp/uiResources.js';
 import type { ToolContext } from '../../config/toolRegistry.js';
+
+const UI_RESOURCE_URI = 'ui://swsd/catalog-item-form.html';
 
 const CatalogItemVariableOutput = z.object({
   id: z.number().int(),
@@ -21,7 +29,8 @@ export function registerGetCatalogItem(
   server: McpServer,
   ctx: ToolContext,
 ): void {
-  server.registerTool(
+  registerAppTool(
+    server,
     'swsd_get_catalog_item',
     {
       description:
@@ -49,6 +58,7 @@ export function registerGetCatalogItem(
         openWorldHint: true,
         idempotentHint: true,
       },
+      _meta: { ui: { resourceUri: UI_RESOURCE_URI } },
     },
     async (input) => {
       try {
@@ -72,5 +82,21 @@ export function registerGetCatalogItem(
         return mapSwsdError(err);
       }
     },
+  );
+
+  registerAppResource(
+    server,
+    'swsd-catalog-item-form-ui',
+    UI_RESOURCE_URI,
+    { description: 'Catalog item form rendered by Apps-capable hosts.' },
+    () => ({
+      contents: [
+        {
+          uri: UI_RESOURCE_URI,
+          mimeType: RESOURCE_MIME_TYPE,
+          text: loadUiResource('catalog-item-form'),
+        },
+      ],
+    }),
   );
 }

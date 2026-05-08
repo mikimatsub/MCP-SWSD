@@ -20,6 +20,14 @@ import { registerListIncidentComments } from '../tools/comments/listIncidentComm
 import { registerAddIncidentComment } from '../tools/comments/addIncidentComment.js';
 import { registerUpdateComment } from '../tools/comments/updateComment.js';
 
+import { registerListIncidentTasks } from '../tools/tasks/listIncidentTasks.js';
+import { registerCreateIncidentTask } from '../tools/tasks/createIncidentTask.js';
+import { registerUpdateTaskState } from '../tools/tasks/updateTaskState.js';
+
+import { registerListProblems } from '../tools/problems/listProblems.js';
+import { registerGetProblem } from '../tools/problems/getProblem.js';
+import { registerCreateProblem } from '../tools/problems/createProblem.js';
+
 import { registerListCategories } from '../tools/lookups/listCategories.js';
 import { registerListSites } from '../tools/lookups/listSites.js';
 import { registerListDepartments } from '../tools/lookups/listDepartments.js';
@@ -67,6 +75,14 @@ const REGISTRARS: Record<string, Registrar> = {
   swsd_list_incident_comments: registerListIncidentComments,
   swsd_add_incident_comment: registerAddIncidentComment,
   swsd_update_comment: registerUpdateComment,
+
+  swsd_list_incident_tasks: registerListIncidentTasks,
+  swsd_create_incident_task: registerCreateIncidentTask,
+  swsd_update_task_state: registerUpdateTaskState,
+
+  swsd_list_problems: registerListProblems,
+  swsd_get_problem: registerGetProblem,
+  swsd_create_problem: registerCreateProblem,
 
   swsd_list_categories: registerListCategories,
   swsd_list_sites: registerListSites,

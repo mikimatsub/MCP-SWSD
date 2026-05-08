@@ -11,6 +11,7 @@ import { toolError } from '../../mcp/errors.js';
 import { mapSwsdError } from '../../swsd/errors.js';
 import { toSolutionDetail } from '../../swsd/mappers/solution.js';
 import { loadUiResource } from '../../mcp/uiResources.js';
+import { resolveSolutionRef } from '../../utils/idResolver.js';
 import type { ToolContext } from '../../config/toolRegistry.js';
 
 const UI_RESOURCE_URI = 'ui://swsd/solution-detail.html';
@@ -36,15 +37,16 @@ export function registerGetSolution(server: McpServer, ctx: ToolContext): void {
     },
     async (input) => {
       try {
+        const { id: resolvedId } = await resolveSolutionRef(input.id, ctx.client);
         const params = input.detail_level === 'long' ? { layout: 'long' } : {};
         const { body } = await ctx.client.get<unknown>(
-          `/solutions/${String(input.id)}.json`,
+          `/solutions/${String(resolvedId)}.json`,
           params,
         );
         const solution = toSolutionDetail(body);
         if (!solution) {
           return toolError(
-            `Could not parse solution ${String(input.id)} response from SWSD.`,
+            `Could not parse solution ${String(resolvedId)} response from SWSD.`,
             'The response was not a JSON object with a numeric id field. Verify the solution exists with swsd_search_solutions.',
           );
         }

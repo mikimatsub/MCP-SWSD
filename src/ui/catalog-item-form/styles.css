@@ -1,0 +1,146 @@
+@import "../shared/error.css";
+
+/*
+ * Catalog-item-form widget — renders a SWSD catalog item's variables as a
+ * dynamic submission form. Submit calls swsd_create_service_request via
+ * App.callServerTool, collapsing the 4-round-trip catalog flow to 2.
+ *
+ * Design tokens mirror the other widgets (comment-thread / audit-timeline):
+ * `light-dark()` lets the document `color-scheme` flip light↔dark in one
+ * place. Tokens are kept inline as `light-dark(...)` literals to match the
+ * rest of the codebase's CSS style.
+ */
+
+:root {
+  color-scheme: light dark;
+  --fg: light-dark(#1a1a1a, #f5f5f5);
+  --fg-muted: light-dark(#666, #aaa);
+  --bg: light-dark(#ffffff, #1a1a1a);
+  --link: light-dark(#0066cc, #4da3ff);
+  --border-light: light-dark(#e9ecef, #2b2d31);
+  --border-medium: light-dark(#ced4da, #4a4d52);
+  --error-bg: light-dark(#ffe3e3, #4a1f1f);
+  --error-fg: light-dark(#c92a2a, #ffa8a8);
+  --success-bg: light-dark(#d3f9d8, #1f4222);
+  --success-fg: light-dark(#2b8a3e, #b2f2bb);
+}
+
+* {
+  box-sizing: border-box;
+}
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: var(--fg);
+  background: var(--bg);
+  margin: 0;
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+.loading {
+  padding: 1.5rem;
+  color: var(--fg-muted);
+  font-style: italic;
+}
+
+.catalog-form {
+  padding: 1.5rem;
+  max-width: 36rem;
+}
+.catalog-form header h1 {
+  font-size: 1.1rem;
+  margin: 0 0 0.5rem;
+  font-weight: 600;
+}
+.catalog-description {
+  margin-bottom: 1rem;
+  color: var(--fg-muted);
+}
+.catalog-description p:first-child {
+  margin-top: 0;
+}
+.catalog-description p:last-child {
+  margin-bottom: 0;
+}
+
+.field {
+  margin-bottom: 1rem;
+}
+.field label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.field .required {
+  color: #c92a2a;
+  margin-left: 0.2rem;
+}
+.field input,
+.field select {
+  width: 100%;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--border-medium);
+  border-radius: 4px;
+  font: inherit;
+  background: light-dark(white, #1e2024);
+  color: light-dark(black, #ced4da);
+}
+.field input:focus,
+.field select:focus {
+  outline: 2px solid var(--link);
+  outline-offset: 1px;
+}
+.field select[multiple] {
+  min-height: 6rem;
+}
+.help-text {
+  font-size: 0.85rem;
+  color: var(--fg-muted);
+  margin-top: 0.25rem;
+}
+.help-text p:first-child {
+  margin-top: 0;
+}
+.help-text p:last-child {
+  margin-bottom: 0;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-top: 1.5rem;
+}
+.form-actions .primary {
+  background: var(--link);
+  color: white;
+  border: 0;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.form-actions .primary:hover {
+  background: light-dark(#1864ab, #1971c2);
+}
+.form-actions .primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.form-status {
+  font-size: 0.9rem;
+}
+.form-status.error {
+  color: var(--error-fg);
+}
+.form-status.success {
+  color: var(--success-fg);
+}
+
+.empty-variables {
+  padding: 1rem 0;
+  color: var(--fg-muted);
+  font-style: italic;
+}

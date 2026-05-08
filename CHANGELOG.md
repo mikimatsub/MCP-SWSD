@@ -7,6 +7,124 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.0] - 2026-05-08
+
+The v2.1 release — strictly additive over v2.0.2. Closes the
+"too-many-round-trips" UX gap surfaced in v2.0 user smoke testing
+(every tool keyed on `id` only — agents had to call `swsd_list_*`
+first to translate a human-facing `number` into an internal `id`)
+and broadens the rich-UI surface from 4 widgets to 7. Adds two
+entirely new tool families (Tasks, Problems) and a date-natural-language
+alias on the two highest-traffic list tools.
+
+### Added
+
+- **Tools accept either id or human-facing number** on every id-keyed
+  tool: `swsd_get_incident`, `swsd_update_incident`, `swsd_assign_incident`,
+  `swsd_update_incident_state`, `swsd_link_solution_to_incident`,
+  `swsd_list_incident_comments`, `swsd_add_incident_comment`,
+  `swsd_update_comment`, `swsd_get_solution`, `swsd_update_solution`,
+  `swsd_get_record_audits`. Eliminates the 4-round-trip "show me 60310"
+  friction reported in v2.0.2 user smoke testing — agents can now pass
+  the number visible in the SWSD UI directly. New shared utility
+  `src/utils/idResolver.ts` disambiguates by digit count (≥7 digits =
+  internal id, ≤6 digits = human-facing number) with a single targeted
+  list lookup when ambiguous.
+- **Date-natural-language alias** `updated_within: "7d" | "24h" | "1w" | "30d"`
+  on `swsd_list_incidents` and `swsd_list_my_incidents`. Resolves to the
+  same `updated_from` filter SWSD already accepts; lets agents say
+  "incidents updated in the last 7 days" without computing ISO dates.
+- **Tasks tools (3 new):** `swsd_list_incident_tasks`,
+  `swsd_create_incident_task`, `swsd_update_task_state` for SWSD
+  incident sub-task management. Inline-only (tasks are scoped to a parent
+  incident, not first-class records).
+- **Problems tools (3 new):** `swsd_list_problems`, `swsd_get_problem`,
+  `swsd_create_problem` for ITIL problem-record management. Previously
+  entirely unexposed — agents could not promote recurring incidents to a
+  problem record without dropping back to the SWSD UI.
+- **3 new widgets:**
+  - **comment-thread** for `swsd_list_incident_comments` — vertical
+    conversation with author chips, timestamps, public/private badges,
+    and sanitized HTML bodies.
+  - **audit-timeline** for `swsd_get_record_audits` — vertical timeline
+    grouped by day with action chips and field-level diffs.
+  - **catalog-item-form** for `swsd_get_catalog_item` — first widget to
+    call back into the server via `app.callServerTool`. Renders catalog
+    item variables as a form; submits via `swsd_create_service_request`.
+    Collapses the 4-round-trip service-request workflow to 2.
+- **`swsd_list_my_incidents` now renders the incident-list widget** (was
+  previously text-only despite returning the same shape as
+  `swsd_list_incidents`).
+- **incident-detail widget enriched** with description (sanitized HTML),
+  due date (with Overdue badge), SLA violations count, resolution body,
+  and created date — fields the `?layout=long` API already returned but
+  the widget never surfaced.
+
+### Fixed
+
+- **`swsd_list_my_incidents` and `swsd_list_incidents` now actually filter by user.**
+  SWSD's `/incidents.json` endpoint **silently ignores** the `assignee_email` and
+  `requester_email` query parameters — verified live 2026-05-08 against an admin
+  token (a fake email returns the entire 56,829-row tenant; a real user's email
+  returns the same 56,829). Latent since v2.0.0 (PR #26 introduced
+  `swsd_list_my_incidents` assuming the filter worked); previously masked because
+  the `applied_filters` echo claimed success while the data didn't match. Both
+  tools now apply the party filter **client-side** after the response lands —
+  case-insensitive exact-match on `assignee.email` / `requester.email`. The
+  server-side filters that DO narrow (state, priority, category, dates, sites,
+  departments, `assigned_to=<group_id>`, query) are unchanged. Output adds a
+  `scan` block with `candidates_scanned` / `matches_in_page` / `client_filter_applied`
+  so consumers can reason about what was actually narrowed where. For users with
+  `available_for_assignment=false` (administrators), `swsd_list_my_incidents`
+  surfaces an explicit caveat in the summary pointing at `assigned_to=<group_id>`
+  as the working alternative. Independent OSS prior-art crosscheck: the Python
+  competitor `cptncoconut/samanage-mcp` arrived at the same client-side-filter
+  conclusion (their `_client_filter` helper docstring: *"Apply filters that the
+  Samanage API does not reliably honour server-side"*).
+- **incident-list widget overflow on narrow viewports.** The 6-column
+  table is now wrapped in an `overflow-x: auto` container; scrolls
+  instead of clipping at <560px wide.
+- **incident-list missing sort indicator.** Sortable headers now display
+  ▲/▼ + `aria-sort` on the active column.
+- **solution-detail widget excerpt-only rendering.** Solutions now render
+  the full sanitized HTML body — the whole point of opening a KB article.
+- **All 7 widgets handle `isError: true`.** Tool errors now show a clear
+  error state instead of an infinite "Loading…" spinner.
+- **`InputError` no longer surfaces with "Unexpected error:" prefix.**
+  `mapSwsdError` now recognizes the class and forwards the user-friendly
+  message verbatim.
+- **Dead CSS rule removed** from `incident-list/styles.css`
+  (`th:focus-visible` outline that never fired because `<th>` elements
+  have no `tabindex` and no keyboard handler).
+
+### Changed
+
+- `swsd_get_record_audits`: when `object_type` is `incidents` or
+  `solutions`, the `id` field accepts either form (internal id ≥7 digits
+  or human-facing number ≤6 digits). Other object types (`problems`,
+  `changes`, `releases`, `hardwares`, `other_assets`) remain id-only
+  until those entities gain list APIs to disambiguate against.
+
+### Dependencies
+
+- **Added:** `dompurify@^3.4.2` (no peer-deps, npm audit clean) for HTML
+  sanitization in solution-detail, incident-detail, comment-thread, and
+  catalog-item-form widgets.
+- **Added (devDep):** `jsdom@^29.1.1` for DOMPurify-using sanitizer
+  tests.
+
+### Internal
+
+- New shared utilities: `src/utils/idResolver.ts` (id-vs-number
+  resolver) and `src/utils/dateAliases.ts` (`updated_within` parser).
+- New shared UI helpers: `src/ui/shared/sanitizeHtml.ts` (DOMPurify
+  wrapper), `src/ui/shared/error.ts` (`renderError`), and the
+  consolidated `tests/unit/tools/_helpers/mockClient.ts` (eliminated
+  ~571 lines of test-fixture duplication across 8 tool tests).
+- Tool count after v2.1: `triage` 14, `agent` 33 (default), `knowledge`
+  15, `full` 35 across 10 categories (added Tasks and Problems
+  categories). Per-profile Swagger specs regenerated.
+
 ## [2.0.2] - 2026-05-07
 
 Defense-in-depth security release. Addresses 4 findings from the new
@@ -380,7 +498,8 @@ Detailed history available via `git log`.
 * **2026-05-03** — `0.1.0`: initial dual-transport foundation +
   incident reads (4 tools)
 
-[Unreleased]: https://github.com/mikimatsub/MCP-SWSD/compare/v2.0.2...HEAD
+[Unreleased]: https://github.com/mikimatsub/MCP-SWSD/compare/v2.1.0...HEAD
+[2.1.0]: https://github.com/mikimatsub/MCP-SWSD/compare/v2.0.2...v2.1.0
 [2.0.2]: https://github.com/mikimatsub/MCP-SWSD/compare/v2.0.1...v2.0.2
 [2.0.1]: https://github.com/mikimatsub/MCP-SWSD/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/mikimatsub/MCP-SWSD/compare/v1.0.1...v2.0.0

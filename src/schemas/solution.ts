@@ -32,7 +32,9 @@ export const GetSolutionInput = z.object({
     .number()
     .int()
     .positive()
-    .describe('SWSD solution ID (numeric).'),
+    .describe(
+      'SWSD solution reference. Accepts either the internal id (>=7 digits) or the human-facing number (<=4 digits). The handler auto-detects via digit count.',
+    ),
   detail_level: z
     .enum(['short', 'long'])
     .default('short')
@@ -68,7 +70,9 @@ export const UpdateSolutionInput = z.object({
     .number()
     .int()
     .positive()
-    .describe('SWSD solution ID to update.'),
+    .describe(
+      'SWSD solution reference. Accepts either the internal id (>=7 digits) or the human-facing number (<=4 digits). The handler auto-detects via digit count.',
+    ),
   name: z.string().min(1).max(255).optional().describe('New title.'),
   description: z.string().optional().describe('New body (replaces existing).'),
   state: z.string().optional().describe('New visibility state.'),

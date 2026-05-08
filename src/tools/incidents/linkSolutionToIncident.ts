@@ -7,6 +7,7 @@ import {
   buildIncidentWritePayload,
   toIncidentDetail,
 } from '../../swsd/mappers/incident.js';
+import { resolveIncidentRef, resolveSolutionRef } from '../../utils/idResolver.js';
 import type { ToolContext } from '../../config/toolRegistry.js';
 
 function isPlainObject(v: unknown): v is Record<string, unknown> {
@@ -53,24 +54,39 @@ export function registerLinkSolutionToIncident(
     },
     async ({ incident_id, solution_id }) => {
       try {
-        const fetchRes = await ctx.client.get<unknown>(`/incidents/${String(incident_id)}.json`);
+        // Resolve both refs in parallel — they're independent lookups so
+        // serializing them would needlessly add round-trip latency. Each may
+        // throw InputError (no row found) or pass through the id with no I/O.
+        const [
+          { id: resolvedIncidentId },
+          { id: resolvedSolutionId },
+        ] = await Promise.all([
+          resolveIncidentRef(incident_id, ctx.client),
+          resolveSolutionRef(solution_id, ctx.client),
+        ]);
+
+        const fetchRes = await ctx.client.get<unknown>(
+          `/incidents/${String(resolvedIncidentId)}.json`,
+        );
         const detail = toIncidentDetail(fetchRes.body);
         if (!detail) {
-          return toolError(`Could not parse incident ${String(incident_id)} for read-before-link.`);
-        }
-
-        const existingIds = extractExistingSolutionIds(detail);
-        if (existingIds.includes(solution_id)) {
-          return structuredResult(
-            { incident: detail, already_linked: true },
-            `Solution ${String(solution_id)} is already linked to incident ${String(incident_id)} — no change.`,
+          return toolError(
+            `Could not parse incident ${String(resolvedIncidentId)} for read-before-link.`,
           );
         }
 
-        const merged = [...existingIds, solution_id];
+        const existingIds = extractExistingSolutionIds(detail);
+        if (existingIds.includes(resolvedSolutionId)) {
+          return structuredResult(
+            { incident: detail, already_linked: true },
+            `Solution ${String(resolvedSolutionId)} is already linked to incident ${String(resolvedIncidentId)} — no change.`,
+          );
+        }
+
+        const merged = [...existingIds, resolvedSolutionId];
         const payload = buildIncidentWritePayload({ solution_ids: merged });
         const { body } = await ctx.client.put<unknown>(
-          `/incidents/${String(incident_id)}.json`,
+          `/incidents/${String(resolvedIncidentId)}.json`,
           payload,
         );
         const updated = toIncidentDetail(body);
@@ -79,7 +95,7 @@ export function registerLinkSolutionToIncident(
         }
         return structuredResult(
           { incident: updated },
-          `Linked solution ${String(solution_id)} to incident ${String(incident_id)} ` +
+          `Linked solution ${String(resolvedSolutionId)} to incident ${String(resolvedIncidentId)} ` +
             `(now ${String(merged.length)} total linked solution${merged.length === 1 ? '' : 's'}).`,
         );
       } catch (err) {

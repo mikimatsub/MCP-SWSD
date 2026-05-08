@@ -18,6 +18,11 @@ export const PROFILE_TOOLS = {
   triage: [
     ...READ_BASE,
     'swsd_add_incident_comment',
+    // Sub-task visibility helps triagers see open work without escalating
+    'swsd_list_incident_tasks',
+    // Read-only problem visibility — surface root-cause records without
+    // granting promote/create rights to first-line support.
+    'swsd_list_problems',
   ],
   agent: [
     ...READ_BASE,
@@ -41,6 +46,15 @@ export const PROFILE_TOOLS = {
     'swsd_describe_custom_fields',
     // Audit log lookup — "who changed this ticket and when?"
     'swsd_get_record_audits',
+    // Sub-task workflow — list/create/mark-complete inline-only sub-tasks
+    'swsd_list_incident_tasks',
+    'swsd_create_incident_task',
+    'swsd_update_task_state',
+    // Problem records — list/get/create lets agents promote recurring
+    // incidents to a problem record for root-cause investigation.
+    'swsd_list_problems',
+    'swsd_get_problem',
+    'swsd_create_problem',
   ],
   knowledge: [
     'swsd_get_server_info',
@@ -90,5 +104,11 @@ export const PROFILE_TOOLS = {
     'swsd_update_solution',
     'swsd_describe_custom_fields',
     'swsd_get_record_audits',
+    'swsd_list_incident_tasks',
+    'swsd_create_incident_task',
+    'swsd_update_task_state',
+    'swsd_list_problems',
+    'swsd_get_problem',
+    'swsd_create_problem',
   ],
 } as const satisfies Record<ProfileName, readonly string[]>;

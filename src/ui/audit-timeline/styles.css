@@ -1,0 +1,186 @@
+@import "../shared/error.css";
+
+/*
+ * Audit-timeline widget — vertical timeline of record audit entries.
+ *
+ * Entries are grouped by day (date headers like "May 7, 2026") and rendered
+ * with an action icon, action chip (created / updated / deleted badges), the
+ * field that changed, an optional old → new value, the user who performed
+ * the action, and a timestamp.
+ *
+ * Design tokens mirror the other widgets (comment-thread / incident-detail):
+ * `light-dark()` lets the document `color-scheme` flip light↔dark in one
+ * place. Tokens are kept inline as `light-dark(...)` literals (no CSS custom
+ * properties for them) to match the rest of the codebase's CSS style.
+ */
+
+:root {
+  color-scheme: light dark;
+  --fg: light-dark(#1a1a1a, #f5f5f5);
+  --fg-muted: light-dark(#666, #aaa);
+  --bg: light-dark(#ffffff, #1a1a1a);
+  --link: light-dark(#0066cc, #4da3ff);
+  --border-light: light-dark(#e9ecef, #2b2d31);
+}
+
+* {
+  box-sizing: border-box;
+}
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: var(--fg);
+  background: var(--bg);
+  margin: 0;
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+.loading {
+  padding: 1.5rem;
+  color: var(--fg-muted);
+  font-style: italic;
+}
+
+.timeline-header {
+  padding: 1rem 1.5rem 0.75rem;
+  border-bottom: 1px solid var(--border-light);
+}
+.timeline-header h1 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.timeline {
+  padding: 1rem 1.5rem;
+}
+
+.day-group {
+  margin-bottom: 1rem;
+}
+.day-group h2 {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--fg-muted);
+  margin: 0 0 0.5rem;
+  padding-left: 2rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.audit-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.audit-entry {
+  display: grid;
+  grid-template-columns: 1.5rem 1fr;
+  gap: 0.5rem;
+  padding: 0.5rem 0 0.5rem 0.5rem;
+  border-left: 2px solid var(--border-light);
+  margin-left: 0.75rem;
+  position: relative;
+}
+.audit-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  background: light-dark(#dee2e6, #495057);
+  color: var(--fg);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  margin-left: -1.5rem;
+  flex-shrink: 0;
+}
+.audit-icon-created {
+  background: light-dark(#d3f9d8, #1f4222);
+  color: light-dark(#2b8a3e, #b2f2bb);
+}
+.audit-icon-updated {
+  background: light-dark(#fff3bf, #4a3f0e);
+  color: light-dark(#806600, #ffe066);
+}
+.audit-icon-deleted {
+  background: light-dark(#ffc9c9, #4d1f1f);
+  color: light-dark(#862e2e, #ffa8a8);
+}
+
+.audit-body {
+  padding: 0.1rem 0;
+  min-width: 0;
+}
+.audit-body header {
+  display: flex;
+  gap: 0.5rem;
+  align-items: baseline;
+  margin-bottom: 0.25rem;
+  flex-wrap: wrap;
+}
+.badge {
+  background: light-dark(#e9ecef, #2b2d31);
+  color: light-dark(#495057, #adb5bd);
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.badge-created {
+  background: #d3f9d8;
+  color: #2b8a3e;
+}
+.badge-updated {
+  background: #ffe066;
+  color: #806600;
+}
+.badge-deleted {
+  background: #ffc9c9;
+  color: #862e2e;
+}
+
+.audit-field {
+  font-weight: 600;
+}
+.audit-user {
+  color: var(--fg-muted);
+  font-size: 0.85rem;
+}
+.audit-time {
+  font-size: 0.8rem;
+  color: var(--fg-muted);
+  margin-left: auto;
+}
+
+.audit-message {
+  margin: 0;
+  word-break: break-word;
+  color: var(--fg-muted);
+  font-size: 0.9rem;
+}
+
+.audit-diff {
+  margin: 0.25rem 0 0;
+  font-size: 0.9rem;
+  word-break: break-word;
+}
+.audit-diff code {
+  background: light-dark(#f1f3f5, #2b2d31);
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.92em;
+}
+.audit-diff-arrow {
+  margin: 0 0.4em;
+  color: var(--fg-muted);
+}
+
+.empty-state {
+  padding: 2rem;
+  text-align: center;
+  color: var(--fg-muted);
+}

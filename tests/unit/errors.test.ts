@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { SwsdHttpError, SwsdNetworkError, mapSwsdError } from '../../src/swsd/errors.js';
+import { InputError } from '../../src/utils/idResolver.js';
 
 function getText(result: ReturnType<typeof mapSwsdError>): string {
   const first = result.content[0];
@@ -108,5 +109,19 @@ describe('mapSwsdError', () => {
   it('maps non-Error exceptions', () => {
     const r = mapSwsdError('string thrown');
     expect(getText(r)).toMatch(/Unexpected error/);
+  });
+
+  it('maps InputError to the message verbatim, without the "Unexpected error:" prefix', () => {
+    // InputError is thrown by the idResolver utility for user-input failures
+    // (e.g. "no incident found with number 99999"). Those messages are already
+    // user-friendly, so mapSwsdError must surface them verbatim — otherwise
+    // agents will treat "unknown number" lookups as internal bugs.
+    const r = mapSwsdError(
+      new InputError('No incident found with number 99999 in this tenant.'),
+    );
+    expect(r.isError).toBe(true);
+    const text = getText(r);
+    expect(text).toContain('No incident found with number 99999');
+    expect(text).not.toMatch(/Unexpected error/);
   });
 });

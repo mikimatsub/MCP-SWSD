@@ -5,7 +5,9 @@ export const ListIncidentCommentsInput = z.object({
     .number()
     .int()
     .positive()
-    .describe('SWSD incident ID whose comments to list.'),
+    .describe(
+      'SWSD incident reference. Accepts either the internal id (>=7 digits, e.g. 180457930) or the human-facing number (<=6 digits, e.g. 60310). The handler auto-detects via digit count.',
+    ),
   page: z
     .number()
     .int()
@@ -27,7 +29,9 @@ export const AddIncidentCommentInput = z.object({
     .number()
     .int()
     .positive()
-    .describe('SWSD incident ID to comment on.'),
+    .describe(
+      'SWSD incident reference. Accepts either the internal id (>=7 digits, e.g. 180457930) or the human-facing number (<=6 digits, e.g. 60310). The handler auto-detects via digit count.',
+    ),
   body: z
     .string()
     .min(1)
@@ -44,7 +48,9 @@ export const UpdateCommentInput = z.object({
     .number()
     .int()
     .positive()
-    .describe('Incident the comment belongs to.'),
+    .describe(
+      'SWSD incident reference. Accepts either the internal id (>=7 digits, e.g. 180457930) or the human-facing number (<=6 digits, e.g. 60310). The handler auto-detects via digit count.',
+    ),
   comment_id: z
     .number()
     .int()

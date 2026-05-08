@@ -7,6 +7,7 @@ import {
   buildSolutionWritePayload,
   toSolutionDetail,
 } from '../../swsd/mappers/solution.js';
+import { resolveSolutionRef } from '../../utils/idResolver.js';
 import type { ToolContext } from '../../config/toolRegistry.js';
 
 export function registerUpdateSolution(server: McpServer, ctx: ToolContext): void {
@@ -32,7 +33,11 @@ export function registerUpdateSolution(server: McpServer, ctx: ToolContext): voi
             'Pass any of: name, description, state, category_name, custom_fields.',
           );
         }
-        const { body } = await ctx.client.put<unknown>(`/solutions/${String(id)}.json`, payload);
+        const { id: resolvedId } = await resolveSolutionRef(id, ctx.client);
+        const { body } = await ctx.client.put<unknown>(
+          `/solutions/${String(resolvedId)}.json`,
+          payload,
+        );
         const solution = toSolutionDetail(body);
         if (!solution) {
           return toolError('Could not parse updated-solution response from SWSD.');
@@ -40,7 +45,7 @@ export function registerUpdateSolution(server: McpServer, ctx: ToolContext): voi
         const changed = Object.keys(payload.solution);
         return structuredResult(
           { solution, changed_fields: changed },
-          `Updated solution ${String(id)} (${changed.join(', ')}).`,
+          `Updated solution ${String(resolvedId)} (${changed.join(', ')}).`,
         );
       } catch (err) {
         return mapSwsdError(err);

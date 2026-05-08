@@ -79,15 +79,23 @@ In Claude (or any MCP client), ask:
 
 The agent should call `swsd_health_check` and report success. If it does, you're set up.
 
+Try a few more:
+
+- _"Show me incident 60310"_ — id-keyed tools accept either the internal id (≥7 digits) or the human-facing number visible in the SWSD UI (≤6 digits).
+- _"List incidents updated in the last 7 days"_ — `updated_within: "7d"` (also `"24h"`, `"1w"`, `"30d"`).
+- _"What tickets are assigned to me?"_ — `swsd_list_my_incidents` calls `swsd_get_me` internally, so you don't have to spell out an email.
+
 ---
 
-## Tools (29 across 8 categories)
+## Tools (35 across 10 categories)
 
 | Category | Tools |
 |---|---|
 | **Utility** | `swsd_get_server_info`, `swsd_health_check`, `swsd_get_me` |
 | **Incidents** | `swsd_list_incidents`, `swsd_list_my_incidents`, `swsd_get_incident`, `swsd_create_incident`, `swsd_update_incident`, `swsd_assign_incident`, `swsd_update_incident_state`, `swsd_link_solution_to_incident` |
 | **Comments** | `swsd_list_incident_comments`, `swsd_add_incident_comment`, `swsd_update_comment` |
+| **Tasks** | `swsd_list_incident_tasks`, `swsd_create_incident_task`, `swsd_update_task_state` |
+| **Problems** | `swsd_list_problems`, `swsd_get_problem`, `swsd_create_problem` |
 | **Solutions / KB** | `swsd_search_solutions`, `swsd_get_solution`, `swsd_create_solution`, `swsd_update_solution` |
 | **Service Catalog** | `swsd_list_catalog_items`, `swsd_get_catalog_item`, `swsd_create_service_request` |
 | **Lookups** | `swsd_list_categories`, `swsd_list_sites`, `swsd_list_departments`, `swsd_list_users`, `swsd_list_groups`, `swsd_list_roles` |
@@ -114,16 +122,19 @@ The server `instructions` advertise this preference order so capable agents (Cla
 
 ## MCP Apps support
 
-swsd-mcp ships interactive UI bundles for four read tools using the [MCP Apps capability](https://modelcontextprotocol.io/specification/2025-11-25) (SEP-1865). When a host that supports MCP Apps calls one of these tools, it can render a rich UI alongside the structured response — single-record detail views, filterable/sortable tables, searchable explorers — instead of (or in addition to) plain text.
+swsd-mcp ships interactive UI bundles for seven read tools using the [MCP Apps capability](https://modelcontextprotocol.io/specification/2025-11-25) (SEP-1865). When a host that supports MCP Apps calls one of these tools, it can render a rich UI alongside the structured response — single-record detail views, filterable/sortable tables, comment threads, audit timelines, searchable explorers, and submit-ready forms — instead of (or in addition to) plain text.
 
-| Tool | UI |
-|---|---|
-| `swsd_get_incident` | Single-record detail view |
-| `swsd_get_solution` | Single-record detail view |
-| `swsd_list_incidents` | Filterable, sortable table |
-| `swsd_describe_custom_fields` | Searchable explorer with scope/module filters |
+| Tool | Widget | UI |
+|---|---|---|
+| `swsd_get_incident` | `incident-detail` | Single-record detail view (description, due date, SLA, resolution, custom fields) |
+| `swsd_get_solution` | `solution-detail` | Single-record detail view with sanitized HTML body |
+| `swsd_list_incidents`, `swsd_list_my_incidents` | `incident-list` | Filterable, sortable table with overflow scroll |
+| `swsd_list_incident_comments` | `comment-thread` | Vertical conversation with author chips, timestamps, public/private badges, sanitized HTML bodies |
+| `swsd_get_record_audits` | `audit-timeline` | Vertical timeline grouped by day with action chips and field-level diffs |
+| `swsd_get_catalog_item` | `catalog-item-form` | Renders catalog variables as a form; submits via `swsd_create_service_request` (calls back into the server through `app.callServerTool`) |
+| `swsd_describe_custom_fields` | `custom-fields` | Searchable explorer with scope/module filters |
 
-The UI bundles are inlined HTML resources (`text/html;profile=mcp-app`) that read the tool's `structuredContent` from the MCP Apps host bridge — no external network access, no third-party scripts. Hosts without MCP Apps support are unaffected: the same tools continue to return their normal text + structured output, and the `_meta.ui.resourceUri` advertisement is silently ignored.
+The UI bundles are inlined HTML resources (`text/html;profile=mcp-app`) that read the tool's `structuredContent` from the MCP Apps host bridge — no external network access, no third-party scripts. HTML content (solution bodies, incident descriptions, comment bodies, catalog helptext) is sanitized client-side via DOMPurify before insertion. Hosts without MCP Apps support are unaffected: the same tools continue to return their normal text + structured output, and the `_meta.ui.resourceUri` advertisement is silently ignored.
 
 ---
 
@@ -174,10 +185,10 @@ Profiles control which tools are registered at startup. Cannot be changed mid-se
 
 | Profile | Intent | Tool count |
 |---|---|---|
-| `triage` | Read-heavy first-line support workflow + commenting | 12 |
-| `agent` | Full ticket-handler workflow + KB lookups + custom-field introspection (default) | 27 |
+| `triage` | Read-heavy first-line support workflow + commenting | 14 |
+| `agent` | Full ticket-handler workflow + KB lookups + custom-field introspection (default) | 33 |
 | `knowledge` | KB-author workflow + incident reads + custom-field introspection | 15 |
-| `full` | Every tool | 29 |
+| `full` | Every tool | 35 |
 
 Use `SWSD_ENABLE_EXTRAS=swsd_foo,swsd_bar` to add specific tools on top of a profile.
 

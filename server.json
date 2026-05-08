@@ -2,7 +2,7 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.mikimatsub/swsd",
   "description": "MCP server for SolarWinds Service Desk: tickets, knowledge base, and the service catalog.",
-  "version": "2.0.2",
+  "version": "2.1.0",
   "websiteUrl": "https://mcp-swsd.pages.dev",
   "repository": {
     "url": "https://github.com/mikimatsub/MCP-SWSD",
@@ -12,7 +12,7 @@
     {
       "registryType": "npm",
       "identifier": "swsd-mcp",
-      "version": "2.0.2",
+      "version": "2.1.0",
       "transport": {
         "type": "stdio"
       },
@@ -33,7 +33,7 @@
         },
         {
           "name": "SWSD_PROFILE",
-          "description": "Tool registration profile: 'triage' (12 read-heavy tools), 'agent' (27 default), 'knowledge' (15 KB-author), 'full' (29 every tool).",
+          "description": "Tool registration profile: 'triage' (14 read-heavy tools), 'agent' (33 default), 'knowledge' (15 KB-author), 'full' (35 every tool).",
           "isRequired": false,
           "format": "string",
           "default": "agent",

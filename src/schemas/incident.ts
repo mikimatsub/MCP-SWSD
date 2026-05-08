@@ -43,6 +43,13 @@ export const ListIncidentsInput = z.object({
     .min(10)
     .optional()
     .describe('Filter to incidents updated on or after this ISO date or datetime (YYYY-MM-DD or RFC 3339).'),
+  updated_within: z
+    .string()
+    .optional()
+    .describe(
+      'Convenience alias for updated_from. Accepts "Nh" (hours), "Nd" (days), or "Nw" (weeks). ' +
+        'Examples: "24h", "7d", "1w", "30d". Ignored if updated_from is explicitly set.',
+    ),
   updated_to: z
     .string()
     .min(10)
@@ -96,7 +103,9 @@ export const GetIncidentInput = z.object({
     .number()
     .int()
     .positive()
-    .describe('SWSD incident ID (numeric).'),
+    .describe(
+      'SWSD incident reference. Accepts either the internal id (>=7 digits, e.g. 180457930) or the human-facing number (<=6 digits, e.g. 60310). The handler auto-detects via digit count.',
+    ),
   detail_level: z
     .enum(['short', 'long'])
     .default('short')
@@ -152,7 +161,9 @@ export const UpdateIncidentInput = z.object({
     .number()
     .int()
     .positive()
-    .describe('SWSD incident ID to update.'),
+    .describe(
+      'SWSD incident reference. Accepts either the internal id (>=7 digits, e.g. 180457930) or the human-facing number (<=6 digits, e.g. 60310). The handler auto-detects via digit count.',
+    ),
   name: z.string().min(1).max(200).optional().describe('New short title.'),
   description: z.string().optional().describe('New description (replaces existing).'),
   priority: z.string().optional().describe('New priority name.'),
@@ -167,12 +178,18 @@ export const LinkSolutionToIncidentInput = z.object({
     .number()
     .int()
     .positive()
-    .describe('Incident to attach the solution to.'),
+    .describe(
+      'SWSD incident reference. Accepts either the internal id (>=7 digits, e.g. 180457930) or the human-facing number (<=6 digits, e.g. 60310). The handler auto-detects via digit count.',
+    ),
   solution_id: z
     .number()
     .int()
     .positive()
-    .describe('Solution to attach. Use swsd_search_solutions to find one.'),
+    .describe(
+      'SWSD solution reference. Accepts either the internal id (>=7 digits) ' +
+        'or the human-facing number (<=4 digits). Use swsd_search_solutions to find one. ' +
+        'The handler auto-detects via digit count.',
+    ),
 });
 
 export const AssignIncidentInput = z.object({
@@ -180,7 +197,9 @@ export const AssignIncidentInput = z.object({
     .number()
     .int()
     .positive()
-    .describe('SWSD incident ID to assign.'),
+    .describe(
+      'SWSD incident reference. Accepts either the internal id (>=7 digits, e.g. 180457930) or the human-facing number (<=6 digits, e.g. 60310). The handler auto-detects via digit count.',
+    ),
   assignee_email: z
     .string()
     .email()
@@ -192,7 +211,9 @@ export const UpdateIncidentStateInput = z.object({
     .number()
     .int()
     .positive()
-    .describe('SWSD incident ID to transition.'),
+    .describe(
+      'SWSD incident reference. Accepts either the internal id (>=7 digits, e.g. 180457930) or the human-facing number (<=6 digits, e.g. 60310). The handler auto-detects via digit count.',
+    ),
   state: z
     .string()
     .min(1)

@@ -7,6 +7,7 @@ import {
   buildIncidentWritePayload,
   toIncidentDetail,
 } from '../../swsd/mappers/incident.js';
+import { resolveIncidentRef } from '../../utils/idResolver.js';
 import type { ToolContext } from '../../config/toolRegistry.js';
 
 export function registerUpdateIncidentState(server: McpServer, ctx: ToolContext): void {
@@ -24,15 +25,19 @@ export function registerUpdateIncidentState(server: McpServer, ctx: ToolContext)
     },
     async ({ id, state }) => {
       try {
+        const { id: resolvedId } = await resolveIncidentRef(id, ctx.client);
         const payload = buildIncidentWritePayload({ state });
-        const { body } = await ctx.client.put<unknown>(`/incidents/${String(id)}.json`, payload);
+        const { body } = await ctx.client.put<unknown>(
+          `/incidents/${String(resolvedId)}.json`,
+          payload,
+        );
         const incident = toIncidentDetail(body);
         if (!incident) {
           return toolError('Could not parse state-transition response from SWSD.');
         }
         return structuredResult(
           { incident },
-          `Incident ${String(id)} state → ${state}.`,
+          `Incident ${String(resolvedId)} state → ${state}.`,
         );
       } catch (err) {
         return mapSwsdError(err);

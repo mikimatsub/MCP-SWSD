@@ -19,7 +19,9 @@ export const GetRecordAuditsInput = z.object({
     .number()
     .int()
     .positive()
-    .describe('Numeric ID of the parent record.'),
+    .describe(
+      'Record id. When object_type is "incidents" or "solutions", accepts either the internal id (>=7 digits) or the human-facing number (<=6 digits / <=4 digits respectively). Other object types require the internal id.',
+    ),
   page: z
     .number()
     .int()

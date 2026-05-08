@@ -1,5 +1,6 @@
 import { mountApp } from '../shared/host.js';
 import { el, clear } from '../shared/dom.js';
+import { renderError } from '../shared/error.js';
 import {
   filterFields,
   extractFilterOptions,
@@ -45,6 +46,7 @@ interface Payload {
 
 let all: CustomField[] = [];
 
+const rootEl = document.getElementById('root');
 const titleEl = document.getElementById('title');
 const searchEl = document.getElementById('search') as HTMLInputElement | null;
 const scopeFilterEl = document.getElementById('scope-filter') as HTMLSelectElement | null;
@@ -54,6 +56,7 @@ const rowsEl = document.getElementById('rows');
 const emptyEl = document.getElementById('empty') as HTMLParagraphElement | null;
 
 if (
+  !rootEl ||
   !titleEl ||
   !searchEl ||
   !scopeFilterEl ||
@@ -63,7 +66,7 @@ if (
   !emptyEl
 ) {
   throw new Error(
-    'custom-fields UI: missing one of #title, #search, #scope-filter, #module-filter, #active-only, #rows, #empty',
+    'custom-fields UI: missing one of #root, #title, #search, #scope-filter, #module-filter, #active-only, #rows, #empty',
   );
 }
 
@@ -78,6 +81,9 @@ mountApp<Payload>({
     populateFilter(scopeFilterEl, extractFilterOptions(all, 'scope'));
     populateFilter(moduleFilterEl, extractFilterOptions(all, 'module'));
     render();
+  },
+  onError: ({ message }) => {
+    renderError(rootEl, message);
   },
 }).catch((err) => {
   console.error('custom-fields: failed to connect MCP App', err);

@@ -1,5 +1,7 @@
 import { mountApp } from '../shared/host.js';
 import { el, clear } from '../shared/dom.js';
+import { renderError } from '../shared/error.js';
+import { sanitizeHtml } from '../shared/sanitizeHtml.js';
 import {
   pickString,
   pickNumber,
@@ -21,7 +23,8 @@ import {
  *   category.name | category             → "Category"
  *   requester.email | requester_email    → "Author"
  *   updated_at                           → "Updated" (formatted as locale string)
- *   description_no_html | excerpt        → trailing paragraph (.excerpt)
+ *   description (HTML)                   → sanitized .solution-body.prose
+ *   description_no_html | excerpt        → fallback excerpt when HTML body absent
  *
  * No "Open in SWSD" link: solutions expose an API-relative `href`
  * (e.g. `/solutions/1234.json`), not a UI URL — see
@@ -47,6 +50,9 @@ mountApp<Payload>({
   version: '2.0.1',
   onResult: (data) => {
     if (data?.solution) render(root, data.solution);
+  },
+  onError: ({ message }) => {
+    renderError(root, message);
   },
 }).catch((err) => {
   console.error('solution-detail: failed to connect MCP App', err);
@@ -81,8 +87,21 @@ function render(rootEl: HTMLElement, sol: Solution): void {
   rootEl.appendChild(el('header', undefined, [el('h1', undefined, [name])]));
   rootEl.appendChild(dl);
 
-  const excerpt = pickString(sol, 'excerpt') ?? pickString(sol, 'description_no_html');
-  if (excerpt) {
-    rootEl.appendChild(el('p', { class: 'excerpt' }, [excerpt]));
+  // Prefer the full HTML body — that's the whole point of opening a KB
+  // article. Fall back to the 240-char excerpt only when the body is
+  // missing/empty.
+  const description = pickString(sol, 'description');
+  if (description) {
+    const bodyEl = el('div', { class: 'solution-body prose' });
+    // Trusted: sanitized via DOMPurify with a strict allow-list (sanitizeHtml.ts).
+    // Allow-list rejects <script>/<style>/<iframe>, inline event handlers,
+    // and dangerous URL schemes — `innerHTML` is safe by construction here.
+    bodyEl.innerHTML = sanitizeHtml(description);
+    rootEl.appendChild(bodyEl);
+  } else {
+    const excerpt = pickString(sol, 'excerpt') ?? pickString(sol, 'description_no_html');
+    if (excerpt) {
+      rootEl.appendChild(el('p', { class: 'excerpt' }, [excerpt]));
+    }
   }
 }

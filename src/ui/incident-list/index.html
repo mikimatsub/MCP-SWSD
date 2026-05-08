@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
-    <main>
+    <main id="root">
       <header>
         <h1 id="title">Incidents</h1>
         <input
@@ -17,19 +17,21 @@
           autocomplete="off"
         />
       </header>
-      <table id="table">
-        <thead>
-          <tr>
-            <th data-sort="number" scope="col">#</th>
-            <th data-sort="name" scope="col">Name</th>
-            <th data-sort="state" scope="col">State</th>
-            <th data-sort="priority" scope="col">Priority</th>
-            <th data-sort="assignee_email" scope="col">Assignee</th>
-            <th data-sort="updated_at" scope="col">Updated</th>
-          </tr>
-        </thead>
-        <tbody id="rows"></tbody>
-      </table>
+      <div class="table-scroll">
+        <table id="table">
+          <thead>
+            <tr>
+              <th data-sort="number" scope="col" aria-sort="none">#</th>
+              <th data-sort="name" scope="col" aria-sort="none">Name</th>
+              <th data-sort="state" scope="col" aria-sort="none">State</th>
+              <th data-sort="priority" scope="col" aria-sort="none">Priority</th>
+              <th data-sort="assignee_email" scope="col" aria-sort="none">Assignee</th>
+              <th data-sort="updated_at" scope="col" aria-sort="none">Updated</th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
       <p id="empty" class="empty" hidden>No incidents match the current filter.</p>
     </main>
     <script type="module" src="./index.ts"></script>

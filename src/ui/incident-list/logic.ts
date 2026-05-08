@@ -101,3 +101,36 @@ export function filterAndSort(
   filtered.sort((a, b) => cmp(pickSortValue(a, sortKey), pickSortValue(b, sortKey), sortDesc));
   return filtered;
 }
+
+/**
+ * Returns the sort-direction glyph for a column header.
+ *
+ *   - `'▲'` (U+25B2 BLACK UP-POINTING TRIANGLE) for the active column on asc
+ *   - `'▼'` (U+25BC BLACK DOWN-POINTING TRIANGLE) for the active column on desc
+ *   - `''` (empty string) for inactive columns
+ *
+ * The renderer reserves a fixed-width slot for the glyph regardless of state
+ * (see `.sort-indicator` in styles.css), so toggling the sort doesn't shift
+ * the header layout.
+ */
+export function sortIndicator(active: boolean, desc: boolean): '▲' | '▼' | '' {
+  if (!active) return '';
+  return desc ? '▼' : '▲';
+}
+
+/**
+ * Returns the WAI-ARIA `aria-sort` attribute value for a column header.
+ *
+ *   - `'ascending'` for the active column on asc
+ *   - `'descending'` for the active column on desc
+ *   - `'none'` for inactive columns
+ *
+ * Per the WAI-ARIA spec these are the only valid values for a sortable
+ * column. Setting `'none'` (rather than omitting the attribute) makes it
+ * unambiguous to assistive tech that the column IS sortable but currently
+ * unsorted.
+ */
+export function ariaSortValue(active: boolean, desc: boolean): 'ascending' | 'descending' | 'none' {
+  if (!active) return 'none';
+  return desc ? 'descending' : 'ascending';
+}
