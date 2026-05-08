@@ -62,6 +62,25 @@ alias on the two highest-traffic list tools.
 
 ### Fixed
 
+- **`swsd_list_my_incidents` and `swsd_list_incidents` now actually filter by user.**
+  SWSD's `/incidents.json` endpoint **silently ignores** the `assignee_email` and
+  `requester_email` query parameters — verified live 2026-05-08 against an admin
+  token (a fake email returns the entire 56,829-row tenant; a real user's email
+  returns the same 56,829). Latent since v2.0.0 (PR #26 introduced
+  `swsd_list_my_incidents` assuming the filter worked); previously masked because
+  the `applied_filters` echo claimed success while the data didn't match. Both
+  tools now apply the party filter **client-side** after the response lands —
+  case-insensitive exact-match on `assignee.email` / `requester.email`. The
+  server-side filters that DO narrow (state, priority, category, dates, sites,
+  departments, `assigned_to=<group_id>`, query) are unchanged. Output adds a
+  `scan` block with `candidates_scanned` / `matches_in_page` / `client_filter_applied`
+  so consumers can reason about what was actually narrowed where. For users with
+  `available_for_assignment=false` (administrators), `swsd_list_my_incidents`
+  surfaces an explicit caveat in the summary pointing at `assigned_to=<group_id>`
+  as the working alternative. Independent OSS prior-art crosscheck: the Python
+  competitor `cptncoconut/samanage-mcp` arrived at the same client-side-filter
+  conclusion (their `_client_filter` helper docstring: *"Apply filters that the
+  Samanage API does not reliably honour server-side"*).
 - **incident-list widget overflow on narrow viewports.** The 6-column
   table is now wrapped in an `overflow-x: auto` container; scrolls
   instead of clipping at <560px wide.
