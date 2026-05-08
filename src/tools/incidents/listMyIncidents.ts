@@ -42,11 +42,14 @@ export function registerListMyIncidents(server: McpServer, ctx: ToolContext): vo
     {
       description:
         'List incidents assigned to the authenticated user. Internally calls ' +
-        'swsd_get_me to discover the user\'s email, then swsd_list_incidents ' +
-        'with assignee_email=<your email>. Use this for first-person queries ' +
-        '("my tickets", "tickets assigned to me"). Same input shape as ' +
-        'swsd_list_incidents minus assignee_email (which is set automatically). ' +
-        'For tenant-wide queries use swsd_list_incidents with explicit filters.',
+        'swsd_get_me to discover the user\'s email, then calls /incidents.json ' +
+        'with the OTHER server-side filters applied (state, priority, etc.) and ' +
+        'narrows the response client-side by assignee.email — because SWSD\'s ' +
+        '/incidents.json endpoint silently ignores assignee_email / requester_email ' +
+        'filters (verified 2026-05-08 against the live API: a fake email returns ' +
+        'the entire tenant). The client-side filter is the only correct way to ' +
+        'scope to a specific user. For broader queries use swsd_list_incidents ' +
+        'with assigned_to=<group_id> (group filtering does work server-side).',
       inputSchema: ListMyIncidentsInput.shape,
       outputSchema: z.object({
         incidents: z.array(IncidentSummaryOutput),
@@ -54,11 +57,28 @@ export function registerListMyIncidents(server: McpServer, ctx: ToolContext): vo
         applied_filters: z
           .record(z.string(), z.unknown())
           .describe(
-            'Echo of the filters applied to this query — empty object if none. Use this to reason about whether the result count reflects your filters or the tenant total.',
+            'Echo of the filters applied to this query — empty object if none. ' +
+              'Use this to reason about whether the result count reflects your filters or the tenant total. ' +
+              'NOTE: assignee_email is applied client-side (post-fetch) because SWSD ignores it server-side.',
           ),
         assignee_email: z
           .string()
-          .describe('The authenticated user\'s email used as the assignee filter.'),
+          .describe('The authenticated user\'s email used as the assignee filter (applied client-side).'),
+        scan: z
+          .object({
+            candidates_scanned: z
+              .number()
+              .int()
+              .describe('Server-side rows scanned on this page before client filtering.'),
+            matches_in_page: z
+              .number()
+              .int()
+              .describe('Rows that survived the client-side assignee filter.'),
+            unscanned_candidates_remain: z
+              .boolean()
+              .describe('True if more candidate pages exist server-side. Increase per_page or paginate to scan more.'),
+          })
+          .describe('Honest accounting of the client-side filter: what was scanned vs matched.'),
       }).shape,
       annotations: { readOnlyHint: true, openWorldHint: true, idempotentHint: true },
       _meta: { ui: { resourceUri: UI_RESOURCE_URI } },
@@ -69,6 +89,7 @@ export function registerListMyIncidents(server: McpServer, ctx: ToolContext): vo
         // `updated_from` ISO date before doing anything else. Explicit
         // `updated_from` always wins; the alias is dropped after translation.
         const input = applyDateAlias(rawInput);
+
         // Step 1: Resolve the authenticated user's email via JWT + /users/{id}.
         const claims = decodeJwtPayload(ctx.token);
         if (claims === null) {
@@ -84,11 +105,15 @@ export function registerListMyIncidents(server: McpServer, ctx: ToolContext): vo
           return toolError(`Could not resolve email for user id ${String(userId)}.`);
         }
 
-        // Step 2: Build /incidents.json query with assignee_email = me.email + the input filters.
+        // Step 2: Build /incidents.json query.
+        // CRITICAL: do NOT send assignee_email — SWSD silently ignores it on
+        // /incidents.json (verified live 2026-05-08: fake email returns the
+        // full tenant). We narrow client-side after the response lands.
+        // All OTHER filters (state, dates, category, etc.) DO work server-side
+        // and are applied as before.
         const params: Record<string, unknown> = {
           page: input.page,
           per_page: input.per_page,
-          assignee_email: me.email,
         };
         if (input.states) params.state = input.states;
         if (input.priorities) params.priority = input.priorities;
@@ -108,12 +133,22 @@ export function registerListMyIncidents(server: McpServer, ctx: ToolContext): vo
 
         const { body, pagination } = await ctx.client.get<unknown>('/incidents.json', params);
         const raw = Array.isArray(body) ? body : [];
-        const incidents = raw
+        const candidates = raw
           .map(toIncidentSummary)
           .filter((x): x is NonNullable<typeof x> => x !== null);
 
-        // Echo the applied filters back for in-band scope reasoning.
-        // assignee_email is set internally — surface it so the model sees the implicit filter.
+        // Step 3: Client-side filter on assignee.email — the actual scoping.
+        // Case-insensitive exact-match on the email; defensive against
+        // mixed-case email storage variations across SWSD records.
+        const meEmailLower = me.email.toLowerCase();
+        const incidents = candidates.filter(
+          (c) => c.assignee_email !== undefined && c.assignee_email.toLowerCase() === meEmailLower,
+        );
+
+        // Step 4: Echo the applied filters back. assignee_email is included
+        // because the agent SHOULD reason about it as "applied" — even though
+        // it was applied client-side, the user-facing semantics are the same:
+        // the result is scoped to that email.
         const applied_filters: Record<string, unknown> = {
           assignee_email: me.email,
         };
@@ -133,22 +168,45 @@ export function registerListMyIncidents(server: McpServer, ctx: ToolContext): vo
         if (input.sort_order) applied_filters.sort_order = input.sort_order;
         if (input.query) applied_filters.query = input.query;
 
-        // assignee_email is always present, so this list is always "filtered" when total is known.
+        // Step 5: Honest summary text. Includes:
+        // - matches in this page,
+        // - candidates scanned (server-side total before client filter),
+        // - whether more candidate pages remain (caller can paginate),
+        // - caveat when the user can't be assigned tickets at all
+        //   (n.yarling-style admin: available_for_assignment=false).
+        const cantBeAssigned = me.available_for_assignment === false;
+        const totalNote =
+          pagination.total !== undefined ? ` of ${String(pagination.total)} server-side` : '';
+        const moreNote = pagination.has_more ? ', more candidate pages available' : '';
+        // Caveat is informational, not corrective: a user with
+        // available_for_assignment=false can still have legacy assignments
+        // (their availability was set false AFTER tickets were assigned).
+        // Surface the flag so the agent can explain "you have N existing
+        // assignments but won't be auto-assigned new ones", and suggest the
+        // group-scope fallback for users who hit 0 matches.
+        const caveat = cantBeAssigned
+          ? ' (NOTE: this user has available_for_assignment=false — they cannot be assigned NEW tickets, though existing assignments may still appear above. If looking for tickets in their broader scope, also try swsd_list_incidents with assigned_to=<group_id>.)'
+          : '';
+        const summary =
+          `Found ${String(incidents.length)} ticket${incidents.length === 1 ? '' : 's'} ` +
+          `assigned to you (${me.email}) ` +
+          `from ${String(candidates.length)} candidate${candidates.length === 1 ? '' : 's'} ` +
+          `scanned on page ${String(pagination.page)}${totalNote}${moreNote}.${caveat}`;
+
         const total_scope: 'filtered' | 'tenant' | 'unknown' =
           pagination.total === undefined ? 'unknown' : 'filtered';
 
-        const totalNote =
-          pagination.total !== undefined ? ` of ${String(pagination.total)}` : '';
-        const moreNote = pagination.has_more ? ', more available' : '';
-        const summary =
-          `Returned ${String(incidents.length)}${totalNote} incidents matching your filters ` +
-          `(assignee_email=${me.email}) (page ${String(pagination.page)}${moreNote}).`;
         return structuredResult(
           {
             incidents,
             pagination: { ...pagination, total_scope },
             applied_filters,
             assignee_email: me.email,
+            scan: {
+              candidates_scanned: candidates.length,
+              matches_in_page: incidents.length,
+              unscanned_candidates_remain: pagination.has_more,
+            },
           },
           summary,
         );
