@@ -17,6 +17,25 @@ export type IncidentDetail = Record<string, unknown> & {
   name?: string;
 };
 
+export interface TaskSummary {
+  id: number;
+  name: string;
+  /** Raw HTML description as stored by SWSD. May be empty. */
+  description?: string;
+  /** Plain-text projection when SWSD returns one alongside `description`. */
+  description_no_html?: string;
+  /** State name as returned by SWSD. Common values: "New", "In Progress", "Completed". */
+  state: string;
+  /** Convenience boolean — true when state === "Completed". */
+  completed: boolean;
+  /** Position / ordering within the incident's task list. */
+  position?: number;
+  assignee?: { id?: number; name?: string; email?: string };
+  due_at?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
 export interface CommentSummary {
   id: number;
   body: string;
