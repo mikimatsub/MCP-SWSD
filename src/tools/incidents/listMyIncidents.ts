@@ -1,4 +1,5 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { registerAppTool } from '@modelcontextprotocol/ext-apps/server';
 import { z } from 'zod';
 import { ListMyIncidentsInput } from '../../schemas/listMyIncidents.js';
 import { PaginationWithScopeOutput } from '../../schemas/output.js';
@@ -9,6 +10,13 @@ import { toIncidentSummary } from '../../swsd/mappers/incident.js';
 import { decodeJwtPayload, getUserIdFromJwtClaims } from '../../swsd/jwt.js';
 import { toUserMeRecord } from '../../swsd/mappers/me.js';
 import type { ToolContext } from '../../config/toolRegistry.js';
+
+// Reuse the incident-list widget already registered (as a resource) by
+// registerListIncidents. Pointing this tool's _meta.ui.resourceUri at the
+// SAME URI lets Apps-capable hosts render the same widget for "my tickets"
+// queries — without a duplicate registerAppResource call (which would
+// startup-conflict on the resource name).
+const UI_RESOURCE_URI = 'ui://swsd/incident-list.html';
 
 const IncidentSummaryOutput = z.object({
   id: z.number().int(),
@@ -27,7 +35,8 @@ const IncidentSummaryOutput = z.object({
 });
 
 export function registerListMyIncidents(server: McpServer, ctx: ToolContext): void {
-  server.registerTool(
+  registerAppTool(
+    server,
     'swsd_list_my_incidents',
     {
       description:
@@ -51,6 +60,7 @@ export function registerListMyIncidents(server: McpServer, ctx: ToolContext): vo
           .describe('The authenticated user\'s email used as the assignee filter.'),
       }).shape,
       annotations: { readOnlyHint: true, openWorldHint: true, idempotentHint: true },
+      _meta: { ui: { resourceUri: UI_RESOURCE_URI } },
     },
     async (input) => {
       try {
