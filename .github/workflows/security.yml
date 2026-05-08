@@ -63,8 +63,11 @@ jobs:
         uses: github/codeql-action/init@7851e55dc3be31ec4bcc3ef98453de2cb306e698  # codeql-bundle-v2.25.3
         with:
           languages: javascript-typescript
-          # security-extended adds high-confidence security queries on top of the default pack.
-          queries: security-extended
+          # Config file scopes analysis to src/ only and excludes scripts/, tests/,
+          # dist/, .research/, node_modules/, copilot-studio/ — see the file for
+          # rationale. The `queries: security-extended` setting moves into the
+          # config file so it stays co-located with the path filters.
+          config-file: ./.github/codeql/codeql-config.yml
 
       - name: Run CodeQL analysis
         uses: github/codeql-action/analyze@7851e55dc3be31ec4bcc3ef98453de2cb306e698  # codeql-bundle-v2.25.3

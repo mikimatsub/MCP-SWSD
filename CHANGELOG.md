@@ -7,6 +7,85 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.2] - 2026-05-07
+
+Defense-in-depth security release. Addresses 4 findings from the new
+Aikido Security integration plus 2 CodeQL alerts. No public API
+changes; no behavior changes for legitimate inputs.
+
+### Security
+
+- **HTTP security headers via Helmet** (Aikido finding). The Express
+  HTTP transport now mounts `helmet()` first in the middleware chain,
+  so every response (including `/healthz`, errors, and 404s) carries:
+  HSTS (`Strict-Transport-Security: max-age=31536000; includeSubDomains`
+  — 1 year, Helmet 8.1.0's default), CSP
+  (`Content-Security-Policy: default-src 'self'; ...`), `X-Frame-Options:
+  SAMEORIGIN` (Helmet 8 default; restricts iframe embedding to same-origin,
+  fine for our JSON-only API endpoints since no legitimate client iframes
+  our responses), `X-Content-Type-Options: nosniff`, `Referrer-Policy:
+  no-referrer`, Cross-Origin-Opener-Policy + Cross-Origin-Resource-Policy
+  (both `same-origin`), and several legacy hardening headers. Defaults
+  are correct for our JSON-only endpoints (no HTML, no scripts, no
+  inline styles); no customization needed.
+- **IPv6-aware rate-limit keying** (transitive, surfaced by the
+  `express-rate-limit` 8.5.x bump). The `keyGenerator` now passes
+  `req.ip` through `ipKeyGenerator` from `express-rate-limit` before
+  hashing it with the token. For IPv4 this is a no-op. For **IPv6**,
+  this collapses each /56 prefix (the library default) to a single
+  rate-limit quota — without it, clients in the same /56 would have
+  received separate quotas and effectively bypassed the limit. The
+  behavior change is invisible to IPv4-only deployments. The 8.5.x
+  library throws `ERR_ERL_KEY_GEN_IPV6` at startup if a custom
+  `keyGenerator` skips this step, so the fix was non-optional once
+  the dep was bumped.
+- **`auth.ts` ReDoS hardening** (CodeQL `js/polynomial-redos`). The
+  HTTP transport's `extractToken()` previously matched the
+  `Authorization` header with `/^Bearer\s+(.+)$/i`. The `\s+` and
+  `(.+)` overlap (`.` matches whitespace) creates polynomial
+  backtracking on adversarial input like `Bearer ` followed by tens of
+  thousands of spaces, which could tie up a worker thread. Replaced
+  with a linear-time `startsWith` + `slice` + `trim` parse. Behavior
+  is identical for legitimate inputs (case-insensitive Bearer prefix,
+  trims whitespace, preserves JWT internal characters); ReDoS payloads
+  now finish in microseconds instead of minutes. New
+  `tests/unit/transports/auth.test.ts` (14 cases) pins the fix and
+  includes a 100k-space adversarial regression test that completes in
+  &lt; 100ms.
+- **`loadUiResource` path-traversal defense** (Aikido finding,
+  CodeQL-equivalent file-inclusion). `src/mcp/uiResources.ts` now
+  validates the `name` parameter against a closed allowlist of the
+  four UI bundle slugs (`incident-detail`, `solution-detail`,
+  `incident-list`, `custom-fields`) before any path resolution or
+  filesystem call. Today every caller is hardcoded, but the function
+  is exported and could be misused; the allowlist removes the
+  path-traversal concern entirely. Tests in
+  `tests/unit/mcp/uiResources.test.ts` exercise rejection of
+  `../../etc/passwd`, `..\\..\\Windows\\System32\\...`,
+  `/etc/passwd`, embedded traversals, empty strings, and case
+  variants.
+- **`ip-address` XSS patched via dependency bump** (GHSA-v2v4-37r5-5v8g,
+  Aikido finding). Bumped `express-rate-limit` from `8.4.1` to
+  `^8.5.1`, which transitively pulls `ip-address@10.2.0` (the patched
+  version, up from the vulnerable `10.1.0`). Removed the matching
+  `osv-scanner.toml` `IgnoredVulns` entry — the suppression is no
+  longer needed since the vulnerability is patched at the source.
+
+### Internal
+
+- New `.github/codeql/codeql-config.yml` scopes CodeQL analysis to
+  `src/` only, excluding `scripts/` (maintainer-only utilities not
+  shipped in the npm tarball), `tests/` (synthetic fixtures), `dist/`
+  (generated output), `.research/` (gitignored probes),
+  `node_modules/`, and `copilot-studio/`. Closes the
+  `js/http-to-file-access` finding on `scripts/dump-custom-fields.ts`
+  for the right structural reason: maintainer scripts where the user
+  controls both the SWSD response and the output path are
+  out-of-scope for production-code analysis.
+- Net dependencies: added `helmet@^8.1.0` (one prod dep, ~30 KB
+  unpacked); bumped `express-rate-limit` patch version. No new
+  transitive vulnerabilities introduced (`npm audit` clean).
+
 ## [2.0.1] - 2026-05-07
 
 ### Fixed
@@ -301,7 +380,8 @@ Detailed history available via `git log`.
 * **2026-05-03** — `0.1.0`: initial dual-transport foundation +
   incident reads (4 tools)
 
-[Unreleased]: https://github.com/mikimatsub/MCP-SWSD/compare/v2.0.1...HEAD
+[Unreleased]: https://github.com/mikimatsub/MCP-SWSD/compare/v2.0.2...HEAD
+[2.0.2]: https://github.com/mikimatsub/MCP-SWSD/compare/v2.0.1...v2.0.2
 [2.0.1]: https://github.com/mikimatsub/MCP-SWSD/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/mikimatsub/MCP-SWSD/compare/v1.0.1...v2.0.0
 [1.0.1]: https://github.com/mikimatsub/MCP-SWSD/compare/v1.0.0...v1.0.1
