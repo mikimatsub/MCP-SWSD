@@ -11,6 +11,7 @@ import { toolError } from '../../mcp/errors.js';
 import { mapSwsdError } from '../../swsd/errors.js';
 import { toIncidentDetail } from '../../swsd/mappers/incident.js';
 import { loadUiResource } from '../../mcp/uiResources.js';
+import { resolveIncidentRef } from '../../utils/idResolver.js';
 import type { ToolContext } from '../../config/toolRegistry.js';
 
 const UI_RESOURCE_URI = 'ui://swsd/incident-detail.html';
@@ -34,15 +35,16 @@ export function registerGetIncident(server: McpServer, ctx: ToolContext): void {
     },
     async (input) => {
       try {
+        const { id: resolvedId } = await resolveIncidentRef(input.id, ctx.client);
         const params = input.detail_level === 'long' ? { layout: 'long' } : {};
         const { body } = await ctx.client.get<unknown>(
-          `/incidents/${String(input.id)}.json`,
+          `/incidents/${String(resolvedId)}.json`,
           params,
         );
         const incident = toIncidentDetail(body);
         if (!incident) {
           return toolError(
-            `Could not parse incident ${String(input.id)} response from SWSD.`,
+            `Could not parse incident ${String(resolvedId)} response from SWSD.`,
             'The response was not a JSON object with a numeric id field. Verify the incident exists with swsd_list_incidents.',
           );
         }

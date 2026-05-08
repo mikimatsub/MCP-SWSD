@@ -96,7 +96,9 @@ export const GetIncidentInput = z.object({
     .number()
     .int()
     .positive()
-    .describe('SWSD incident ID (numeric).'),
+    .describe(
+      'SWSD incident reference. Accepts either the internal id (>=7 digits, e.g. 180457930) or the human-facing number (<=6 digits, e.g. 60310). The handler auto-detects via digit count.',
+    ),
   detail_level: z
     .enum(['short', 'long'])
     .default('short')
@@ -152,7 +154,9 @@ export const UpdateIncidentInput = z.object({
     .number()
     .int()
     .positive()
-    .describe('SWSD incident ID to update.'),
+    .describe(
+      'SWSD incident reference. Accepts either the internal id (>=7 digits, e.g. 180457930) or the human-facing number (<=6 digits, e.g. 60310). The handler auto-detects via digit count.',
+    ),
   name: z.string().min(1).max(200).optional().describe('New short title.'),
   description: z.string().optional().describe('New description (replaces existing).'),
   priority: z.string().optional().describe('New priority name.'),
@@ -167,7 +171,9 @@ export const LinkSolutionToIncidentInput = z.object({
     .number()
     .int()
     .positive()
-    .describe('Incident to attach the solution to.'),
+    .describe(
+      'SWSD incident reference. Accepts either the internal id (>=7 digits, e.g. 180457930) or the human-facing number (<=6 digits, e.g. 60310). The handler auto-detects via digit count.',
+    ),
   solution_id: z
     .number()
     .int()
@@ -180,7 +186,9 @@ export const AssignIncidentInput = z.object({
     .number()
     .int()
     .positive()
-    .describe('SWSD incident ID to assign.'),
+    .describe(
+      'SWSD incident reference. Accepts either the internal id (>=7 digits, e.g. 180457930) or the human-facing number (<=6 digits, e.g. 60310). The handler auto-detects via digit count.',
+    ),
   assignee_email: z
     .string()
     .email()
@@ -192,7 +200,9 @@ export const UpdateIncidentStateInput = z.object({
     .number()
     .int()
     .positive()
-    .describe('SWSD incident ID to transition.'),
+    .describe(
+      'SWSD incident reference. Accepts either the internal id (>=7 digits, e.g. 180457930) or the human-facing number (<=6 digits, e.g. 60310). The handler auto-detects via digit count.',
+    ),
   state: z
     .string()
     .min(1)

@@ -4,6 +4,7 @@ import { structuredResult } from '../../mcp/output.js';
 import { toolError } from '../../mcp/errors.js';
 import { mapSwsdError } from '../../swsd/errors.js';
 import { toCommentSummary } from '../../swsd/mappers/comment.js';
+import { resolveIncidentRef } from '../../utils/idResolver.js';
 import type { ToolContext } from '../../config/toolRegistry.js';
 
 export function registerUpdateComment(server: McpServer, ctx: ToolContext): void {
@@ -20,9 +21,10 @@ export function registerUpdateComment(server: McpServer, ctx: ToolContext): void
     },
     async ({ incident_id, comment_id, body }) => {
       try {
+        const { id: resolvedIncidentId } = await resolveIncidentRef(incident_id, ctx.client);
         const payload = { comment: { body } };
         const { body: respBody } = await ctx.client.put<unknown>(
-          `/incidents/${String(incident_id)}/comments/${String(comment_id)}.json`,
+          `/incidents/${String(resolvedIncidentId)}/comments/${String(comment_id)}.json`,
           payload,
         );
         const comment = toCommentSummary(respBody);
@@ -31,7 +33,7 @@ export function registerUpdateComment(server: McpServer, ctx: ToolContext): void
         }
         return structuredResult(
           { comment },
-          `Updated comment ${String(comment_id)} on incident ${String(incident_id)}.`,
+          `Updated comment ${String(comment_id)} on incident ${String(resolvedIncidentId)}.`,
         );
       } catch (err) {
         return mapSwsdError(err);

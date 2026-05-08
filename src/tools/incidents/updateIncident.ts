@@ -7,6 +7,7 @@ import {
   buildIncidentWritePayload,
   toIncidentDetail,
 } from '../../swsd/mappers/incident.js';
+import { resolveIncidentRef } from '../../utils/idResolver.js';
 import type { ToolContext } from '../../config/toolRegistry.js';
 
 export function registerUpdateIncident(server: McpServer, ctx: ToolContext): void {
@@ -32,7 +33,11 @@ export function registerUpdateIncident(server: McpServer, ctx: ToolContext): voi
             'Pass any of: name, description, priority, category_name, site_name, department_name, custom_fields.',
           );
         }
-        const { body } = await ctx.client.put<unknown>(`/incidents/${String(id)}.json`, payload);
+        const { id: resolvedId } = await resolveIncidentRef(id, ctx.client);
+        const { body } = await ctx.client.put<unknown>(
+          `/incidents/${String(resolvedId)}.json`,
+          payload,
+        );
         const incident = toIncidentDetail(body);
         if (!incident) {
           return toolError('Could not parse updated-incident response from SWSD.');
@@ -40,7 +45,7 @@ export function registerUpdateIncident(server: McpServer, ctx: ToolContext): voi
         const changed = Object.keys(payload.incident);
         return structuredResult(
           { incident, changed_fields: changed },
-          `Updated incident ${String(id)} (${changed.join(', ')}).`,
+          `Updated incident ${String(resolvedId)} (${changed.join(', ')}).`,
         );
       } catch (err) {
         return mapSwsdError(err);
