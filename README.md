@@ -13,8 +13,6 @@
 
 The server holds **zero credentials at rest**. Tokens are forwarded per-request, never persisted, never logged, and only sent to the configured SWSD API host.
 
-> **Not affiliated with SolarWinds.** SolarWinds, Samanage, and Service Desk are trademarks of SolarWinds Worldwide, LLC. This is an independent open-source project that wraps the publicly documented SWSD REST API; it is not endorsed or sponsored by SolarWinds.
-
 ---
 
 ## Quick start
@@ -43,9 +41,7 @@ Every stdio-capable MCP client uses the same JSON shape. Add this under `mcpServ
 }
 ```
 
-Replace `your-jwt-here` with your token. EU tenants use `https://apieu.samanage.com` instead.
-
-**To customize:** add any [configuration variable](https://mcp-swsd.pages.dev/configuration/) into the same `env` block. Common one is `SWSD_PROFILE` to switch from the default `agent` profile to `triage`, `knowledge`, or `full` — see the [Profiles](#profiles) section below for current tool counts. For example, add `"SWSD_PROFILE": "full"` alongside `SWSD_TOKEN` and `SWSD_BASE_URL`.
+Replace `your-jwt-here` with your token. EU tenants use `https://apieu.samanage.com` instead. To customize behavior, add any [configuration variable](https://mcp-swsd.pages.dev/configuration/) (most common: `SWSD_PROFILE` to choose the tool set) into the same `env` block.
 
 ### 2. Drop it in the right file
 
@@ -66,17 +62,15 @@ Create the file if it doesn't exist. Then restart your client.
 claude mcp add swsd --env SWSD_TOKEN="your-jwt-here" --env SWSD_BASE_URL="https://api.samanage.com" -- npx -y swsd-mcp
 ```
 
-**Microsoft Copilot Studio** — different path (it can't spawn local processes, so it needs an HTTP-transport server). See [`copilot-studio/README.md`](./copilot-studio/README.md), including the [Azure Container Apps deployment recipe](./docs/deployment/azure-container-apps.md) for hosting.
+**Microsoft Copilot Studio** — different path. Copilot Studio can't spawn local processes, so it needs an HTTP-transport server. See [`copilot-studio/README.md`](./copilot-studio/README.md) and the [Azure Container Apps recipe](./docs/deployment/azure-container-apps.md).
 
 ### 3. Verify it works
 
-In Claude (or any MCP client), ask:
+In your MCP client, ask:
 
 > _"Use swsd to check if you can connect."_
 
-The agent should call `swsd_health_check` and report success. If it does, you're set up.
-
-Try a few more:
+The agent should call `swsd_health_check` and report success. If it does, you're set up. Try a few more:
 
 - _"Show me incident 60310"_ — id-keyed tools accept either the internal id (≥7 digits) or the human-facing number visible in the SWSD UI (≤6 digits).
 - _"List incidents updated in the last 7 days"_ — `updated_within: "7d"` (also `"24h"`, `"1w"`, `"30d"`).
@@ -99,80 +93,39 @@ Try a few more:
 | **Custom fields** | `swsd_describe_custom_fields` |
 | **Audits** | `swsd_get_record_audits` |
 
-Each tool's input schema, description, and output shape is auto-discovered by your MCP client at runtime. Ask the agent "what swsd tools are available?" for the live list.
+Each tool's input schema, description, and output shape is auto-discovered by your MCP client at runtime. See the [Tools reference](https://mcp-swsd.pages.dev/tools/) for full per-tool documentation.
 
 ---
 
-## Service Catalog tools
+## MCP Apps widgets (rich UI)
 
-When the user asks to **request** something — new hardware, software access, an account, a file restore — prefer the catalog flow over `swsd_create_incident`. SWSD's catalog items carry pre-defined approval routing, request variables (form fields), category/subcategory defaults, and SLA targets that a free-form incident misses.
+Seven read tools ship interactive UI bundles using the [MCP Apps capability](https://modelcontextprotocol.io/specification/2025-11-25). On capable hosts (Claude Desktop, Claude Web, VS Code Copilot Chat, ChatGPT, Goose, Postman), the tool returns a rendered widget alongside the structured response. On text-only hosts (Claude Code, LM Studio), the same tools return their normal structured payload.
 
-| Tool | Purpose |
-|---|---|
-| `swsd_list_catalog_items` | Browse what's offerable — find a catalog item that matches the user's request. Filter by `state`, `department`, `site`, or free-text `query`. Returns compact summaries with `request_count` and `variable_count`. |
-| `swsd_get_catalog_item` | Inspect a single item, including its `variables` (the form schema). Each variable carries an `id`, `name`, `kind` (free_text / drop_down_menu / multi_select / date / user), `options` (newline-separated allowed values for dropdowns), and `helptext`. |
-| `swsd_create_service_request` | Submit the request. Posts to `POST /catalog_items/{id}/service_requests.json`, which auto-sets `is_service_request: true` and inherits the catalog item's category/subcategory. Each `request_variables` entry maps a catalog variable's `id` (as `custom_field_id`) to a string `value`. |
-
-The server `instructions` advertise this preference order so capable agents pick the catalog flow automatically when the user's intent matches.
-
----
-
-## MCP Apps support
-
-swsd-mcp ships interactive UI bundles for seven read tools using the [MCP Apps capability](https://modelcontextprotocol.io/specification/2025-11-25) (SEP-1865). When a host that supports MCP Apps calls one of these tools, it can render a rich UI alongside the structured response — single-record detail views, filterable/sortable tables, comment threads, audit timelines, searchable explorers, and submit-ready forms — instead of (or in addition to) plain text.
-
-| Tool | Widget | UI |
+| Tool | Widget | What it renders |
 |---|---|---|
-| `swsd_get_incident` | `incident-detail` | Single-record detail view (description, due date, SLA, resolution, custom fields) |
-| `swsd_get_solution` | `solution-detail` | Single-record detail view with sanitized HTML body |
-| `swsd_list_incidents`, `swsd_list_my_incidents` | `incident-list` | Filterable, sortable table with overflow scroll |
-| `swsd_list_incident_comments` | `comment-thread` | Vertical conversation with author chips, timestamps, public/private badges, sanitized HTML bodies |
-| `swsd_get_record_audits` | `audit-timeline` | Vertical timeline grouped by day with action chips and field-level diffs |
-| `swsd_get_catalog_item` | `catalog-item-form` | Renders catalog variables as a form; submits via `swsd_create_service_request` (calls back into the server through `app.callServerTool`) |
+| `swsd_get_incident` | `incident-detail` | Single-record card (description, due date, SLA, resolution, custom fields) |
+| `swsd_get_solution` | `solution-detail` | Knowledge-base article with sanitized HTML body |
+| `swsd_list_incidents`, `swsd_list_my_incidents` | `incident-list` | Filterable, sortable table |
+| `swsd_list_incident_comments` | `comment-thread` | Vertical conversation with author chips, public/private badges |
+| `swsd_get_record_audits` | `audit-timeline` | Timeline grouped by day with action chips and field diffs |
+| `swsd_get_catalog_item` | `catalog-item-form` | Form that submits via `swsd_create_service_request` |
 | `swsd_describe_custom_fields` | `custom-fields` | Searchable explorer with scope/module filters |
 
-The UI bundles are inlined HTML resources (`text/html;profile=mcp-app`) that read the tool's `structuredContent` from the MCP Apps host bridge — no external network access, no third-party scripts. HTML content (solution bodies, incident descriptions, comment bodies, catalog helptext) is sanitized client-side via DOMPurify before insertion. Hosts without MCP Apps support are unaffected: the same tools continue to return their normal text + structured output, and the `_meta.ui.resourceUri` advertisement is silently ignored.
+See the [Widgets reference](https://mcp-swsd.pages.dev/widgets/) for screenshots and per-widget detail.
 
 ---
 
 ## Configuration
 
-All settings via environment variables. Most users only need `SWSD_TOKEN` and `SWSD_BASE_URL`.
-
-### Essential
+Most users only need `SWSD_TOKEN` and `SWSD_BASE_URL`:
 
 | Variable | Default | Notes |
 |---|---|---|
 | `SWSD_TOKEN` | — | Required. Your SWSD admin token (JWT). |
 | `SWSD_BASE_URL` | `https://api.samanage.com` | EU tenant: `https://apieu.samanage.com` |
-| `SWSD_PROFILE` | `agent` | Tool set: `triage`, `agent`, `knowledge`, or `full` (see below) |
+| `SWSD_PROFILE` | `agent` | `triage`, `agent`, `knowledge`, or `full` — see [Profiles](https://mcp-swsd.pages.dev/configuration/#profiles) |
 
-### Advanced (HTTP transport only)
-
-| Variable | Default | Notes |
-|---|---|---|
-| `SWSD_TRANSPORT` | `stdio` | Set to `http` for hosted/Copilot Studio use |
-| `PORT` | `3000` | HTTP listen port |
-| `SWSD_TRUST_PROXY` | `false` | Set to `1` behind Azure App Service / Nginx; `2` behind Cloudflare |
-| `SWSD_ALLOWED_ORIGINS` | — | Comma-separated. Empty = no Origin restriction (only safe behind a trusted proxy) |
-| `SWSD_RATE_LIMIT_WINDOW_MS` | `60000` | Rate-limit window in ms |
-| `SWSD_RATE_LIMIT_MAX` | `100` | Max requests per window per token+IP |
-
-### Reliability
-
-| Variable | Default | Notes |
-|---|---|---|
-| `SWSD_RETRY_MAX_ATTEMPTS` | `3` | Auto-retry attempts for 5xx and network errors on GETs |
-| `SWSD_REQUEST_TIMEOUT_MS` | `30000` | Per-request timeout for outbound SWSD calls |
-
-### Other
-
-| Variable | Default | Notes |
-|---|---|---|
-| `SWSD_API_VERSION` | `v2.1` | Override only if your tenant requires v1.1 |
-| `SWSD_ENABLE_EXTRAS` | — | Comma-separated extra tool names to enable beyond the profile |
-
-See [`.env.example`](./.env.example) for the complete annotated list.
+For the full env-var reference (HTTP transport, retries, rate limits, allowlists), see [Configuration](https://mcp-swsd.pages.dev/configuration/).
 
 ---
 
@@ -182,9 +135,9 @@ Profiles control which tools are registered at startup. Cannot be changed mid-se
 
 | Profile | Intent | Tool count |
 |---|---|---|
-| `triage` | Read-heavy first-line support workflow + commenting | 14 |
-| `agent` | Full ticket-handler workflow + KB lookups + custom-field introspection (default) | 33 |
-| `knowledge` | KB-author workflow + incident reads + custom-field introspection | 15 |
+| `triage` | Read-heavy first-line support + commenting | 14 |
+| `agent` | Full ticket-handler workflow (default) | 33 |
+| `knowledge` | KB-author workflow + incident reads | 15 |
 | `full` | Every tool | 35 |
 
 Use `SWSD_ENABLE_EXTRAS=swsd_foo,swsd_bar` to add specific tools on top of a profile.
@@ -193,49 +146,15 @@ Use `SWSD_ENABLE_EXTRAS=swsd_foo,swsd_bar` to add specific tools on top of a pro
 
 ## Hosting an HTTP server (advanced)
 
-The Quick Start above already runs swsd-mcp on your own machine — your MCP client spawns it on demand via `npx`. **Most users stop there.**
+Quick Start above runs swsd-mcp on your own machine — your MCP client spawns it on demand via `npx`. **Most users stop there.**
 
-Set up an HTTP-mode server only if you need one of these:
+Set up an HTTP-mode server only if you need:
 
-- **Microsoft Copilot Studio** integration — Copilot Studio can't spawn local processes, so it needs an HTTP endpoint. After deployment, import the per-profile Swagger spec from [`copilot-studio/README.md`](./copilot-studio/README.md).
+- **Microsoft Copilot Studio integration** — Copilot Studio can't spawn local processes
 - **One shared instance for a team** — one deploy, many users, each providing their own token per-request
-- **Stricter network control** — private VNet, IP allowlist, custom domain, etc.
+- **Stricter network control** — private VNet, IP allowlist, custom domain
 
-### Docker
-
-bash / zsh / Git Bash:
-
-```bash
-docker run --rm -d \
-  --name swsd-mcp \
-  -p 3000:3000 \
-  -e SWSD_TRANSPORT=http \
-  -e SWSD_TRUST_PROXY=1 \
-  -e SWSD_BASE_URL=https://api.samanage.com \
-  ghcr.io/mikimatsub/mcp-swsd:latest
-```
-
-PowerShell (Windows):
-
-```powershell
-docker run --rm -d `
-  --name swsd-mcp `
-  -p 3000:3000 `
-  -e SWSD_TRANSPORT=http `
-  -e SWSD_TRUST_PROXY=1 `
-  -e SWSD_BASE_URL=https://api.samanage.com `
-  ghcr.io/mikimatsub/mcp-swsd:latest
-```
-
-Hit `http://localhost:3000/healthz` to verify. The `/mcp` endpoint accepts MCP requests with the user's token in the `Authorization: Bearer <token>` or `X-SWSD-Token: <token>` header (per-request, not server-side).
-
-### Cloud deployment recipes
-
-The Docker image runs anywhere — Azure, AWS, GCP, Render, Fly.io, your own VM. Concrete recipes:
-
-- [**Azure Container Apps**](./docs/deployment/azure-container-apps.md) — recommended for Microsoft Copilot Studio integration. Scale-to-zero pricing (~$0–5/month for low traffic).
-
-(More recipes coming. PRs welcome.)
+The Docker image runs anywhere — Azure, AWS, GCP, Render, Fly.io, your own VM. See [Deployment](https://mcp-swsd.pages.dev/deployment/) for the full guide and the [Azure Container Apps recipe](./docs/deployment/azure-container-apps.md) (recommended for Copilot Studio; scale-to-zero pricing).
 
 ---
 
@@ -256,4 +175,4 @@ MIT — see [LICENSE](./LICENSE). Provided "as is" without warranty.
 
 ## Trademarks
 
-SolarWinds, Samanage, and Service Desk are trademarks of SolarWinds Worldwide, LLC. This project is not affiliated with, endorsed by, or sponsored by SolarWinds.
+SolarWinds, Samanage, and Service Desk are trademarks of SolarWinds Worldwide, LLC. This project is not affiliated with, endorsed by, or sponsored by SolarWinds. It wraps the publicly documented SWSD REST API.
