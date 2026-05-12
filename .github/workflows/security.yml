@@ -83,7 +83,7 @@ jobs:
     # documented IgnoredVulns entries are respected. Without `--config`,
     # auto-detection has been observed to silently miss the config file in
     # this reusable-workflow context.
-    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@c51854704019a247608d928f370c98740469d4b5  # v2.3.5
+    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@9a498708959aeaef5ef730655706c5a1df1edbc2  # v2.3.8
     permissions:
       contents: read
       security-events: write  # required to upload SARIF
